@@ -1,0 +1,10 @@
+[package]
+name = "rubble"
+description = "a slight blog system"
+version = "0.1.0"
+authors = ["Kilerd Chan <blove694@gmail.com>"]
+license = "MIT"
+
+[dependencies]
+rocket = "0.3.16"
+rocket_codegen = "0.3.16"
