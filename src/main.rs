@@ -27,6 +27,7 @@ use schema::posts;
 use models::Post;
 use tera::{Context};
 use rocket_contrib::Template;
+use rocket::response::Redirect;
 
 
 #[get("/")]
@@ -41,6 +42,19 @@ fn index(conn: DbConn) -> Template {
     Template::render("index", &context)
 }
 
+#[get("/archives/<archives_id>")]
+fn single_archives(conn: DbConn, archives_id: i32) -> Template {
+
+    let mut context = Context::new();
+
+    let result = posts.find(archives_id).first::<Post>(&*conn).expect("");
+
+    context.add("post", &result);
+
+    Template::render("archives", &context)
+}
+
+
 
 fn main() {
     dotenv().ok();
@@ -48,7 +62,7 @@ fn main() {
 
     rocket::ignite()
         .manage(pg_pool::init(&database_url))
-        .mount("/",routes![index])
+        .mount("/",routes![index, single_archives])
         .attach(Template::fairing())
         .launch();
 }
