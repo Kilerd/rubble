@@ -34,7 +34,7 @@ use rocket::response::Redirect;
 fn index(conn: DbConn) -> Template {
     let mut context = Context::new();
 
-    let result = posts.load::<Post>(&*conn).expect("cannot load posts");
+    let result = posts.filter(published.eq(true)).load::<Post>(&*conn).expect("cannot load posts");
     context.add("posts", &result);
 
     println!("{:?}", result);
