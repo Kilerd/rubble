@@ -1,2 +1,2 @@
-diesel migration up
-./target/release/rubble
+diesel migration run
+./rubble
