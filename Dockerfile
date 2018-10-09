@@ -16,5 +16,9 @@ COPY --from=builder /app/entrypoint.sh /application/entrypoint.sh
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/rubble /application/rubble
 
 EXPOSE 8000
+
+ENV ROCKET_ENV production
+ENV DATABASE_URL postgres://root@postgres/rubble
+
 WORKDIR /application
 CMD ["sh", "./entrypoint.sh"]
