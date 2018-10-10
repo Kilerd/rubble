@@ -1,6 +1,6 @@
 {% for post in posts %}
     <div>
-        <h1>{{ post.title }}</h1>
+        <a href="/archives/{{ post.id }}">{{ post.title }}</a>
         <p>{{ post.body }}</p>
     </div>
 {% endfor %}

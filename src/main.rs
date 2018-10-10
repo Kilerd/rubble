@@ -33,6 +33,8 @@ use rocket_contrib::Template;
 use rocket::response::Redirect;
 
 use pulldown_cmark::{html, Parser};
+use rocket::response::Failure;
+use rocket::http::Status;
 
 
 #[get("/")]
@@ -48,20 +50,31 @@ fn index(conn: DbConn) -> Template {
 }
 
 #[get("/archives/<archives_id>")]
-fn single_archives(conn: DbConn, archives_id: i32) -> Template {
+fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> {
     let mut context = Context::new();
 
-    let result: Post = posts.find(archives_id).first::<Post>(&*conn).expect("");
+    let result: Result<_,_> = posts.find(archives_id).first::<Post>(&*conn);
 
-    let parser = Parser::new(&result.body);
+    if let Err(err) = result {
+        return Err(Failure(Status::NotFound));
+    }
+
+    let post = result.unwrap();
+
+    let parser = Parser::new(&post.body);
 
     let mut content_buf = String::new();
     html::push_html(&mut content_buf, parser);
 
-    context.insert("post", &result);
+    context.insert("post", &post);
     context.insert("content", &content_buf);
 
-    Template::render("archives", &context)
+    Ok(Template::render("archives", &context))
+}
+
+#[catch(404)]
+fn not_found_catcher() -> String{
+    "not found".to_string()
 }
 
 
@@ -70,6 +83,7 @@ fn main() {
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 
     rocket::ignite()
+        .catch(catchers![not_found_catcher])
         .manage(pg_pool::init(&database_url))
         .mount("/", routes![index, single_archives])
         .attach(Template::fairing())
