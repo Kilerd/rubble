@@ -1,7 +1,8 @@
 {% extends "base" %}
 
 {% block body %}
-
+<h1>Rubble</h1>
+<p>description of rubble application</p>
 {% for post in posts %}
     <div>
         <a href="/archives/{{ post.id }}">{{ post.title }}</a>

@@ -46,7 +46,7 @@ fn index(conn: DbConn) -> Template {
 fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> {
     let mut context = Context::new();
 
-    let result: Result<_,_> = posts.find(archives_id).first::<Post>(&*conn);
+    let result: Result<_, _> = posts.find(archives_id).first::<Post>(&*conn);
 
     if let Err(_err) = result {
         return Err(Failure(Status::NotFound));
@@ -77,7 +77,7 @@ fn static_content(file: PathBuf) -> Result<NamedFile, Failure> {
 }
 
 #[catch(404)]
-fn not_found_catcher() -> String{
+fn not_found_catcher() -> String {
     "not found".to_string()
 }
 
@@ -89,7 +89,6 @@ fn main() {
     rocket::ignite()
         .catch(catchers![not_found_catcher])
         .manage(pg_pool::init(&database_url))
-//        .mount("/statics", StaticFiles)
         .mount("/", routes![index, single_archives, static_content])
         .attach(Template::fairing())
         .launch();
