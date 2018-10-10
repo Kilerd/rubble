@@ -1,40 +1,35 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
-extern crate rocket;
-
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+extern crate pulldown_cmark;
 extern crate r2d2;
-extern crate tera;
-
+extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
-
 #[macro_use]
 extern crate serde_derive;
+extern crate tera;
 
-extern crate pulldown_cmark;
+use diesel::prelude::*;
+use dotenv::dotenv;
+use models::Post;
+use pg_pool::DbConn;
+use pulldown_cmark::{html, Parser};
+use rocket::http::Status;
+use rocket::response::Failure;
+use rocket::response::NamedFile;
+use rocket_contrib::Template;
+use schema::posts;
+use schema::posts::dsl::*;
+use std::path::Path;
+use std::path::PathBuf;
+use tera::Context;
 
 mod pg_pool;
 mod schema;
 mod models;
-
-use dotenv::dotenv;
-
-use pg_pool::DbConn;
-
-use diesel::prelude::*;
-use schema::posts::dsl::*;
-use schema::posts;
-use models::Post;
-use tera::Context;
-use rocket_contrib::Template;
-use rocket::response::Redirect;
-
-use pulldown_cmark::{html, Parser};
-use rocket::response::Failure;
-use rocket::http::Status;
 
 
 #[get("/")]
@@ -43,8 +38,6 @@ fn index(conn: DbConn) -> Template {
 
     let result = posts.filter(published.eq(true)).load::<Post>(&*conn).expect("cannot load posts");
     context.insert("posts", &result);
-
-    println!("{:?}", result);
 
     Template::render("index", &context)
 }
@@ -55,7 +48,7 @@ fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> 
 
     let result: Result<_,_> = posts.find(archives_id).first::<Post>(&*conn);
 
-    if let Err(err) = result {
+    if let Err(_err) = result {
         return Err(Failure(Status::NotFound));
     }
 
@@ -72,6 +65,17 @@ fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> 
     Ok(Template::render("archives", &context))
 }
 
+#[get("/statics/<file..>")]
+fn static_content(file: PathBuf) -> Result<NamedFile, Failure> {
+    let path = Path::new("static/resources/").join(file);
+    let result = NamedFile::open(&path);
+    if let Ok(file) = result {
+        Ok(file)
+    } else {
+        Err(Failure(Status::NotFound))
+    }
+}
+
 #[catch(404)]
 fn not_found_catcher() -> String{
     "not found".to_string()
@@ -85,7 +89,8 @@ fn main() {
     rocket::ignite()
         .catch(catchers![not_found_catcher])
         .manage(pg_pool::init(&database_url))
-        .mount("/", routes![index, single_archives])
+//        .mount("/statics", StaticFiles)
+        .mount("/", routes![index, single_archives, static_content])
         .attach(Template::fairing())
         .launch();
 }

@@ -1,6 +1,12 @@
+{% extends "base" %}
+
+{% block body %}
+
 {% for post in posts %}
     <div>
         <a href="/archives/{{ post.id }}">{{ post.title }}</a>
         <p>{{ post.body }}</p>
     </div>
 {% endfor %}
+
+{% endblock body %}
