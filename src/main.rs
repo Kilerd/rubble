@@ -5,6 +5,7 @@ extern crate diesel;
 extern crate dotenv;
 extern crate pulldown_cmark;
 extern crate r2d2;
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -30,6 +31,7 @@ use tera::Context;
 mod pg_pool;
 mod schema;
 mod models;
+mod admin;
 
 
 #[get("/")]
@@ -90,6 +92,7 @@ fn main() {
         .catch(catchers![not_found_catcher])
         .manage(pg_pool::init(&database_url))
         .mount("/", routes![index, single_archives, static_content])
+        .mount("/admin", routes![admin::admin_login, admin::admin_authentication])
         .attach(Template::fairing())
         .launch();
 }
