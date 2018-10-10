@@ -14,6 +14,8 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate pulldown_cmark;
+
 mod pg_pool;
 mod schema;
 mod models;
@@ -30,13 +32,15 @@ use tera::Context;
 use rocket_contrib::Template;
 use rocket::response::Redirect;
 
+use pulldown_cmark::{html, Parser};
+
 
 #[get("/")]
 fn index(conn: DbConn) -> Template {
     let mut context = Context::new();
 
     let result = posts.filter(published.eq(true)).load::<Post>(&*conn).expect("cannot load posts");
-    context.add("posts", &result);
+    context.insert("posts", &result);
 
     println!("{:?}", result);
 
@@ -47,9 +51,15 @@ fn index(conn: DbConn) -> Template {
 fn single_archives(conn: DbConn, archives_id: i32) -> Template {
     let mut context = Context::new();
 
-    let result = posts.find(archives_id).first::<Post>(&*conn).expect("");
+    let result: Post = posts.find(archives_id).first::<Post>(&*conn).expect("");
 
-    context.add("post", &result);
+    let parser = Parser::new(&result.body);
+
+    let mut content_buf = String::new();
+    html::push_html(&mut content_buf, parser);
+
+    context.insert("post", &result);
+    context.insert("content", &content_buf);
 
     Template::render("archives", &context)
 }
