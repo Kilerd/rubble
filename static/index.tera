@@ -1,13 +1,22 @@
 {% extends "base" %}
 
 {% block body %}
+<header>
+<section class="container">
 <h1>Rubble</h1>
 <p>description of rubble application</p>
+</section>
+</header>
+<content>
+<section class="container">
 {% for post in posts %}
-    <div>
-        <a href="/archives/{{ post.id }}">{{ post.title }}</a>
+    {% set link = post.url %}
+    <div class="post">
+        <a href="{{ link }}">{{ post.title }}</a>
         <p>{{ post.body }}</p>
     </div>
 {% endfor %}
+</section>
+</content>
 
 {% endblock body %}

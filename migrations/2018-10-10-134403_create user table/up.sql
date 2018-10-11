@@ -1,10 +1,10 @@
 -- Your SQL goes here
 CREATE TABLE users (
   "id" serial,
-  "username" text,
-  "password" text,
-  "create_at" timestamp without time zone,
-  "last_login_at" timestamp without time zone,
+  "username" text NOT NULL,
+  "password" text NOT NULL,
+  "create_at" timestamp without time zone NOT NULL,
+  "last_login_at" timestamp without time zone NOT NULL,
   PRIMARY KEY ("id")
 );
 

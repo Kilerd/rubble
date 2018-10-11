@@ -4,8 +4,8 @@ table! {
         title -> Varchar,
         body -> Text,
         published -> Bool,
-        user_id -> Nullable<Int4>,
-        publish_at -> Nullable<Timestamp>,
+        user_id -> Int4,
+        publish_at -> Timestamp,
         url -> Nullable<Text>,
     }
 }
@@ -13,10 +13,10 @@ table! {
 table! {
     users (id) {
         id -> Int4,
-        username -> Nullable<Text>,
-        password -> Nullable<Text>,
-        create_at -> Nullable<Timestamp>,
-        last_login_at -> Nullable<Timestamp>,
+        username -> Text,
+        password -> Text,
+        create_at -> Timestamp,
+        last_login_at -> Timestamp,
     }
 }
 

@@ -1,0 +1,40 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family:PingFangSC-Regular,Microsoft Yahei UI,Noto Sans CJK SC DemiLight,sans-serif;
+}
+html {
+    font-size: 14px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+header {
+    margin: 2rem 0;
+}
+header h1 {
+    font-size: 2rem;
+}
+header p {
+    font-size: 1.5rem;
+}
+
+.post {
+    color: #737373;
+    margin: 2rem 0;
+}
+
+.post a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+
+.post p {
+    color: #737373;
+    font-size: 1.1rem;
+}
