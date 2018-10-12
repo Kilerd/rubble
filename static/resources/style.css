@@ -2,7 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family:PingFangSC-Regular,Microsoft Yahei UI,Noto Sans CJK SC DemiLight,sans-serif;
+    font:300 1em/1.5 PingFangSC-Regular,Microsoft Yahei UI,Noto Sans CJK SC DemiLight,sans-serif;
 }
 html {
     font-size: 14px;
