@@ -39,16 +39,10 @@ fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> 
     }
 
     let post: Post = result.unwrap();
-    let i = post.publish_at.timestamp();
 
-    let parser = Parser::new(&post.body);
+    let post_response = PostResponse::from(&post);
 
-    let mut content_buf = String::new();
-    html::push_html(&mut content_buf, parser);
-
-    context.insert("post", &post);
-    context.insert("time", &post.publish_at.date());
-    context.insert("content", &content_buf);
+    context.insert("post", &post_response);
 
     Ok(Template::render("archives", &context))
 }
@@ -75,14 +69,9 @@ fn get_archive_by_url(conn:DbConn, archive_url: String) -> Result<Template, Fail
 
     let post = result.unwrap();
 
-    let parser = Parser::new(&post.body);
+    let post_response = PostResponse::from(&post);
 
-    let mut content_buf = String::new();
-    html::push_html(&mut content_buf, parser);
-
-    context.insert("post", &post);
-    context.insert("time", &post.publish_at.timestamp());
-    context.insert("content", &content_buf);
+    context.insert("post", &post_response);
 
     Ok(Template::render("archives", &context))
 }

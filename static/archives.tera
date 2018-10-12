@@ -1,7 +1,7 @@
 <div>
-    <h1>{{ post.title }}</h1>
-    <p>{{ time | date(format="%B %d, %Y") }}</p>
+    <h1>{{ post.post.title }}</h1>
+    <p>{{ post.timestamp | date(format="%B %d, %Y") }}</p>
     <div>
-    {{ content }}
+    {{ post.markdown_content }}
     </div>
 </div>
