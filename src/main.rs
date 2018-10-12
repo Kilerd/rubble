@@ -1,5 +1,6 @@
 #![feature(custom_attribute, plugin)]
 #![plugin(rocket_codegen)]
+extern crate chrono;
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
@@ -9,32 +10,34 @@ extern crate r2d2;
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate tera;
 
 use diesel::prelude::*;
 use dotenv::dotenv;
-use models::Post;
-use pg_pool::DbConn;
 use pulldown_cmark::{html, Parser};
 use rocket::http::Status;
 use rocket::response::Failure;
 use rocket::response::NamedFile;
 use rocket_contrib::Template;
-use schema::posts;
-use schema::posts::dsl::*;
 use std::path::Path;
 use std::path::PathBuf;
 use tera::Context;
 
+mod admin;
+mod models;
+mod response;
 mod pg_pool;
 mod schema;
-mod models;
-mod admin;
 
-extern crate chrono;
-extern crate serde;
+use pg_pool::DbConn;
+use models::Post;
+use response::PostResponse;
+use schema::{users, posts};
+use schema::{users::dsl::*, posts::dsl::*};
+
 
 #[get("/")]
 fn index(conn: DbConn) -> Template {
@@ -42,7 +45,9 @@ fn index(conn: DbConn) -> Template {
 
     let result = posts::table.filter(published.eq(true)).load::<Post>(&*conn).expect("cannot load posts");
 
-    context.insert("posts", &result);
+    let post_responses: Vec<PostResponse> = result.iter().map(PostResponse::from).collect();
+
+    context.insert("posts", &post_responses);
 
     Template::render("index", &context)
 }
@@ -57,7 +62,8 @@ fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> 
         return Err(Failure(Status::NotFound));
     }
 
-    let post = result.unwrap();
+    let post: Post = result.unwrap();
+    let i = post.publish_at.timestamp();
 
     let parser = Parser::new(&post.body);
 
@@ -65,6 +71,7 @@ fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> 
     html::push_html(&mut content_buf, parser);
 
     context.insert("post", &post);
+    context.insert("time", &post.publish_at.date());
     context.insert("content", &content_buf);
 
     Ok(Template::render("archives", &context))
@@ -98,6 +105,7 @@ fn get_archive_by_url(conn:DbConn, archive_url: String) -> Result<Template, Fail
     html::push_html(&mut content_buf, parser);
 
     context.insert("post", &post);
+    context.insert("time", &post.publish_at.timestamp());
     context.insert("content", &content_buf);
 
     Ok(Template::render("archives", &context))
@@ -110,6 +118,7 @@ fn not_found_catcher() -> String {
 
 
 fn main() {
+
     dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 

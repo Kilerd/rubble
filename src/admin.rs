@@ -1,8 +1,8 @@
 use rocket_contrib::Template;
 use tera::Context;
+use rocket::request::Form;
 use rocket::response::Redirect;
 use rocket::response::Failure;
-use rocket::request::Form;
 
 #[derive_FromForm]
 #[derive(Debug)]

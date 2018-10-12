@@ -11,30 +11,68 @@ html {
 .container {
     max-width: 800px;
     margin: 0 auto;
+    padding: 5px 10px;
 }
 header {
-    margin: 2rem 0;
+    background-color: #FCFCFC;
+    border-bottom: solid 1px #DDD;
+    padding-top: 1rem;
 }
+
 header h1 {
-    font-size: 2rem;
+    clear: both;
+    font-size: 2.4rem;
+    font-weight: 400;
+    padding: 1rem 0;
+    margin: 0;
 }
 header p {
-    font-size: 1.5rem;
+    color: #A3ABB3;
+    margin: 0;
+    font-size: 1.2rem;
+    padding-bottom: 2rem;
+
 }
 
-.post {
-    color: #737373;
-    margin: 2rem 0;
+
+section.article {
+    margin: 4rem 0;
 }
 
-.post a {
-    color: #333;
+section.article p.mate {
+    color:#A3ABB3;
+    margin: 0;
+    font-size: .9rem;
+}
+section.article p.mate a {
+    color:#A3ABB3;
+    margin: 0 5px;
+    /* font-size: .9rem; */
+    text-decoration: none;
+}
+section.article p.mate a:hover {
+    color: #000;
+    /* text-decoration: underline; */
+    border-bottom: 1px solid #000;
+}
+section.article .title {
+    font-size: 1.5em;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    color: #444;
     text-decoration: none;
     font-weight: 400;
-    font-size: 1.2rem;
+    padding: 0;
 }
 
-.post p {
-    color: #737373;
-    font-size: 1.1rem;
+
+section.article a.title:hover {
+    border-bottom: 2px solid #dc1313
+}
+
+
+section.article section.desc {
+    color: #555;
+    margin-top: .25rem;
 }
