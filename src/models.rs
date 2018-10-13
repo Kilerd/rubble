@@ -26,3 +26,10 @@ pub struct User {
     pub create_at: NaiveDateTime,
     pub last_login_at: NaiveDateTime,
 }
+
+impl User {
+
+    pub fn authenticated(&self, password: &str) -> bool {
+        true
+    }
+}

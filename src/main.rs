@@ -25,6 +25,7 @@ mod response;
 mod pg_pool;
 mod schema;
 mod routers;
+mod form;
 
 fn main() {
     dotenv().ok();
