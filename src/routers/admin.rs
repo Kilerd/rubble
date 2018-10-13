@@ -12,6 +12,7 @@ use schema::{users, users::dsl::*};
 use rocket::http::Status;
 use pg_pool::DbConn;
 use rocket::http::Cookie;
+use crypto::sha3::Sha3;
 
 
 #[get("/login")]

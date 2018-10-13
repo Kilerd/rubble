@@ -15,6 +15,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate tera;
 
+extern crate crypto;
+
 
 use dotenv::dotenv;
 use rocket_contrib::Template;
