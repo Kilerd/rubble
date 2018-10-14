@@ -1,0 +1,8 @@
+login as: {{ admin.username }}
+
+
+{% for post in posts %}
+
+<h2>{{ post.title }}</h2>
+
+{% endfor %}

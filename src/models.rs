@@ -1,10 +1,14 @@
-use std::time::SystemTime;
 use chrono::NaiveDate;
-use chrono::NaiveTime;
-use serde::Serialize;
 use chrono::NaiveDateTime;
-use crypto::sha3::Sha3;
+use chrono::NaiveTime;
 use crypto::digest::Digest;
+use crypto::sha3::Sha3;
+use diesel::prelude::*;
+use schema::posts::dsl::*;
+use schema::posts;
+use serde::Serialize;
+use std::time::SystemTime;
+use pg_pool::DbConn;
 
 #[derive(Queryable, Debug, Serialize)]
 #[belongs_to(User)]
@@ -17,6 +21,18 @@ pub struct Post {
     pub user_id: i32,
     pub publish_at: NaiveDateTime,
     pub url: Option<String>,
+}
+
+impl Post {
+
+    pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Post> {
+        if include_unpublished {
+            posts::table.load::<Post>(&**conn).expect("something wrong")
+        } else {
+            posts::table.filter(published.eq(true)).load::<Post>(&**conn).expect("something wrong")
+        }
+
+    }
 }
 
 #[derive(Queryable, Debug, Serialize)]

@@ -27,7 +27,7 @@ mod response;
 mod pg_pool;
 mod schema;
 mod routers;
-mod form;
+mod request;
 
 fn main() {
     dotenv().ok();
@@ -37,7 +37,7 @@ fn main() {
         .catch(catchers![catacher::not_found_catcher])
         .manage(pg_pool::init(&database_url))
         .mount("/", routes![archive::index, archive::single_archives, archive::get_archive_by_url, archive::static_content])
-        .mount("/admin", routes![admin::admin_login, admin::admin_authentication])
+        .mount("/admin", routes![admin::admin_login, admin::admin_authentication, admin::admin_index])
         .attach(Template::fairing())
         .launch();
 }
