@@ -1,6 +1,14 @@
 [global]
 template_dir = "static"
 
+[development]
+address = "localhost"
+port = 8000
+workers = 1
+log = "normal"
+secret_key = "JR7bWcbwRfF/+Kc3jKfgxPiuLFyUxMRgTyJlcruItA0="
+limits = { forms = 32768 }
+
 [production]
 address = "0.0.0.0"
 log = "critical"
