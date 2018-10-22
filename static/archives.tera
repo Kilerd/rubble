@@ -6,7 +6,7 @@
     <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
     <h2>{{ post.post.title }}</h2>
     <section class="content yue">
-        {{ post.markdown_content }}
+        {{ post.markdown_content | safe }}
     </section>
 </section>
 {% endblock body %}

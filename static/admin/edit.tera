@@ -13,7 +13,7 @@
 
    <input type="hidden" name="id" value="{{ post.id }}">
    <input type="text" name="title" placeholder="title" required value="{{ post.title }}">
-   <input type="text" name="url" placeholder="url" {{ post.url }}>
+   <input type="text" name="url" placeholder="url" value="{{ post.url }}">
    <textarea name="body" id="" cols="30" rows="10" placeholder="body">{{ post.body }}</textarea>
    <input type="datetime-local" name="publish_at" id="">
    <input type="checkbox" name="published" {% if post.published %}checked{% endif %}>

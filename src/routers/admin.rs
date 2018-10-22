@@ -78,9 +78,7 @@ fn archive_edit(admin: Admin, conn: DbConn, archive_id: i32) -> Result<Template,
 
 #[post("/article", data="<article>")]
 fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    println!("{:?}", article);
     let post = Post::form_article_edit_form(article.get(), admin.id);
-    println!("{:?}", post);
     let fetched_post: QueryResult<Post> = if post.id == -1 {
         // insert a new record
         diesel::insert_into(posts::table).values(&post).get_result(&*conn)
@@ -90,7 +88,6 @@ fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Re
         // TODO only update record with id
         diesel::update(posts::table.find(post.id)).set(&post).get_result(&*conn)
     };
-    println!("{:?}", fetched_post);
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
 }

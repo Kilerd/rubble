@@ -47,7 +47,6 @@ impl Post {
         } else {
             NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M").unwrap().timestamp()
         };
-        println!("{:?}", timestamp);
 
         Post {
             id: article.id.unwrap_or(-1),
