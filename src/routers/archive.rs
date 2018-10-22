@@ -19,7 +19,7 @@ use tera::Context;
 fn index(conn: DbConn) -> Template {
     let mut context = Context::new();
 
-    let result = posts::table.filter(published.eq(true)).load::<Post>(&*conn).expect("cannot load posts");
+    let result = posts::table.filter(published.eq(true)).order(publish_at.desc()).load::<Post>(&*conn).expect("cannot load posts");
 
     let post_responses: Vec<PostResponse> = result.iter().map(PostResponse::from).collect();
 
