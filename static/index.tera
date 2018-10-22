@@ -13,7 +13,7 @@
     <section class="article">
         <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
         <a class="title" href="{% if post.post.url %}{{ post.post.url }}{% else %}archives/{{ post.post.id }}{% endif %}">{{ post.post.title }}</a>
-        <section class="desc">
+        <section class="yue desc">
             {{ post.description }}
         </section>
     </section>
