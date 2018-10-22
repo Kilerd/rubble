@@ -14,7 +14,7 @@
         <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
         <a class="title" href="{% if post.post.url %}{{ post.post.url }}{% else %}archives/{{ post.post.id }}{% endif %}">{{ post.post.title }}</a>
         <section class="desc">
-            {{ post.post.body }}
+            {{ post.description }}
         </section>
     </section>
 {% endfor %}
