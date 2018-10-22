@@ -3,7 +3,8 @@
     margin: 0;
     padding: 0;
     /*font: 300 1em/1.5 PingFangSC-Regular, Microsoft Yahei UI, Noto Sans CJK SC DemiLight, sans-serif;*/
-    font-family:PingFangSC-Regular, Microsoft Yahei UI, Noto Sans CJK SC DemiLight, sans-serif;
+    font-family: PingFangSC-Regular, Microsoft Yahei UI, Noto Sans CJK SC DemiLight, sans-serif;
+
 }
 
 html {
@@ -145,21 +146,25 @@ section.article section.desc {
     color: #d6d6d6;
     margin-right: 0.25rem;
 }
+
 .yue h3:before {
     content: "###";
     color: #d6d6d6;
     margin-right: 0.25rem;
 }
+
 .yue h4:before {
     content: "####";
     color: #d6d6d6;
     margin-right: 0.25rem;
 }
+
 .yue h5:before {
     content: "#####";
     color: #d6d6d6;
     margin-right: 0.25rem;
 }
+
 .yue h6:before {
     content: "######";
     color: #d6d6d6;
@@ -170,8 +175,6 @@ section.article section.desc {
     font-size: 1.5em;
     margin: .83em 0
 }
-
-
 
 .yue h3 {
     font-size: 1.17em;
@@ -218,6 +221,7 @@ section.article section.desc {
     color: #d6d6d6;
     margin-right: 0.1rem;
 }
+
 .yue b:after, .yue strong:after {
     content: "**";
     color: #d6d6d6;
@@ -235,6 +239,7 @@ section.article section.desc {
     color: #d6d6d6;
     margin-right: 0.1rem;
 }
+
 .yue em:after, .yue i:after {
     content: "*";
     color: #d6d6d6;
@@ -419,9 +424,7 @@ img {
     max-width: 100%;
 }
 
-
 /*CODE HIGHLIGHT*/
-
 
 code[class*="language-"],
 pre[class*="language-"] {
@@ -446,10 +449,10 @@ pre[class*="language-"] {
     hyphens: none;
 }
 
-
 .token {
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 }
+
 pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
 code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
     text-shadow: none;
@@ -551,6 +554,7 @@ pre[class*="language-"] {
 .token.bold {
     font-weight: bold;
 }
+
 .token.italic {
     font-style: italic;
 }
