@@ -12,9 +12,12 @@ use rocket::response::Failure;
 use rocket::response::Flash;
 use rocket::response::Redirect;
 use rocket_contrib::Template;
-use schema::{users, users::dsl::*};
+use schema::{users, users::dsl::*, posts};
 use tera::Context;
 use models::Post;
+use response::PostResponse;
+use request::ArticleEditForm;
+use diesel;
 
 
 #[get("/login")]
@@ -38,6 +41,7 @@ fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookie
     }
 
     cookies.add_private(Cookie::new("LOG_SESSION", user.username));
+    cookies.add_private(Cookie::new("LOG_ID", user.id.to_string()));
     cookies.add_private(Cookie::new("LOG_ADMIN", "1"));
 
     Ok(Redirect::to("/admin"))
@@ -53,4 +57,40 @@ fn admin_index(admin: Admin, conn: DbConn) -> Template {
     context.insert("admin", &admin);
     context.insert("posts", &posts);
     Template::render("admin/index", &context)
+}
+
+
+
+#[get("/article/<archive_id>")]
+fn archive_edit(admin: Admin, conn: DbConn, archive_id: i32) -> Result<Template, Failure>{
+    let mut context = Context::new();
+    let fetched_post = Post::find(archive_id, &conn);
+
+    if let Err(_err) = fetched_post {
+        return Err(Failure(Status::NotFound));
+    }
+
+    let post: Post = fetched_post.unwrap();
+
+    context.insert("post", &post);
+    Ok(Template::render("admin/edit", context))
+}
+
+#[post("/article", data="<article>")]
+fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
+    println!("{:?}", article);
+    let post = Post::form_article_edit_form(article.get(), admin.id);
+    println!("{:?}", post);
+    let fetched_post: QueryResult<Post> = if post.id == -1 {
+        // insert a new record
+        diesel::insert_into(posts::table).values(&post).get_result(&*conn)
+
+    } else {
+        // update exist one
+        // TODO only update record with id
+        diesel::update(posts::table.find(post.id)).set(&post).get_result(&*conn)
+    };
+    println!("{:?}", fetched_post);
+
+    Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
 }

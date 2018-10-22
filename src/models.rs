@@ -9,8 +9,11 @@ use schema::posts;
 use serde::Serialize;
 use std::time::SystemTime;
 use pg_pool::DbConn;
+use diesel::result::Error;
+use request::ArticleEditForm;
+use chrono::prelude::*;
 
-#[derive(Queryable, Debug, Serialize)]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[belongs_to(User)]
 #[table_name = "posts"]
 pub struct Post {
@@ -24,14 +27,37 @@ pub struct Post {
 }
 
 impl Post {
-
     pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Post> {
         if include_unpublished {
             posts::table.load::<Post>(&**conn).expect("something wrong")
         } else {
             posts::table.filter(published.eq(true)).load::<Post>(&**conn).expect("something wrong")
         }
+    }
+    pub fn find(fetched_id: i32, conn: &DbConn) -> Result<Post, Error> {
+        posts::table.find(fetched_id).first::<Post>(&**conn)
+    }
 
+//    pub fn new(article: ArticleEditForm) -> Post {
+//    }
+
+    pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> Post {
+        let timestamp = if article.publish_at.eq("") {
+            Utc::now().timestamp()
+        } else {
+            NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M").unwrap().timestamp()
+        };
+        println!("{:?}", timestamp);
+
+        Post {
+            id: article.id.unwrap_or(-1),
+            title: article.title.clone(),
+            body: article.body.clone(),
+            published: article.published,
+            user_id: current_user_id,
+            publish_at: NaiveDateTime::from_timestamp(timestamp, 0),
+            url: article.url.clone(),
+        }
     }
 }
 
@@ -53,9 +79,8 @@ impl User {
 
         if self.password.eq(&result) {
             true
-        }else {
+        } else {
             false
         }
-
     }
 }
