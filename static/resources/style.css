@@ -2,8 +2,9 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font:300 1em/1.5 PingFangSC-Regular,Microsoft Yahei UI,Noto Sans CJK SC DemiLight,sans-serif;
+    font: 300 1em/1.5 PingFangSC-Regular, Microsoft Yahei UI, Noto Sans CJK SC DemiLight, sans-serif;
 }
+
 html {
     font-size: 14px;
 }
@@ -13,6 +14,7 @@ html {
     margin: 0 auto;
     padding: 5px 10px;
 }
+
 header {
     background-color: #FCFCFC;
     border-bottom: solid 1px #DDD;
@@ -26,6 +28,7 @@ header h1 {
     padding: 1rem 0;
     margin: 0;
 }
+
 header p {
     color: #A3ABB3;
     margin: 0;
@@ -34,27 +37,29 @@ header p {
 
 }
 
-
 section.article {
     margin: 4rem 0;
 }
 
 section.article p.mate {
-    color:#A3ABB3;
+    color: #A3ABB3;
     margin: 0;
     font-size: .9rem;
 }
+
 section.article p.mate a {
-    color:#A3ABB3;
+    color: #A3ABB3;
     margin: 0 5px;
     /* font-size: .9rem; */
     text-decoration: none;
 }
+
 section.article p.mate a:hover {
     color: #000;
     /* text-decoration: underline; */
     border-bottom: 1px solid #000;
 }
+
 section.article .title {
     font-size: 1.5em;
     margin-bottom: 1rem;
@@ -66,13 +71,352 @@ section.article .title {
     padding: 0;
 }
 
-
 section.article a.title:hover {
     border-bottom: 2px solid #dc1313
 }
 
-
 section.article section.desc {
     color: #555;
     margin-top: .25rem;
+}
+
+.single.article {
+    padding: 3rem 0.25rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.single.article h2 {
+    font-size: 1.5em;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    color: #444;
+    text-decoration: none;
+    font-weight: 400;
+    padding: 0;
+}
+
+/*MARKDOWN*/
+.yue {
+    font: 300 1em/1.62 Georgia, "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    color: #444443
+}
+
+.windows .yue {
+    font-size: 16px;
+    font-family: Georgia, SimSun, sans-serif
+}
+
+.yue ::-moz-selection {
+    background-color: rgba(0, 0, 0, .2)
+}
+
+.yue ::selection {
+    background-color: rgba(0, 0, 0, .2)
+}
+
+.yue h1, .yue h2, .yue h3, .yue h4, .yue h5, .yue h6 {
+    font-family: PingFang SC, Verdana, Helvetica Neue, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+    color: #000;
+    font-weight: 400
+}
+
+.yue h1 {
+    font-size: 1.75em;
+    margin: .67em 0
+}
+
+.yue > h1 {
+    margin-top: 0;
+    font-size: 1.75em
+}
+
+.yue > h1:before {
+    content: "#";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+
+.yue h2:before {
+    content: "##";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+.yue h3:before {
+    content: "###";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+.yue h4:before {
+    content: "####";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+.yue h5:before {
+    content: "#####";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+.yue h6:before {
+    content: "######";
+    color: #d6d6d6;
+    margin-right: 0.25rem;
+}
+
+.yue h2 {
+    font-size: 1.5em;
+    margin: .83em 0
+}
+
+
+
+.yue h3 {
+    font-size: 1.17em;
+    margin: 1em 0
+}
+
+.yue h4, .yue h5, .yue h6 {
+    font-size: 1em;
+    margin: 1.6em 0 1em 0
+}
+
+.yue h6 {
+    font-weight: 500
+}
+
+.yue p {
+    margin-top: 0;
+    margin-bottom: 1.46em
+}
+
+.yue a {
+    color: #dc1313;
+    word-wrap: break-word;
+    text-decoration: none;
+    /*border-bottom: none*/
+}
+
+.yue a:hover {
+    /*border-bottom: 1px solid #dc1313*/
+    text-decoration: underline;
+}
+
+.yue h1 a, .yue h2 a, .yue h3 a {
+    text-decoration: none
+}
+
+.yue b, .yue strong {
+    font-weight: 700;
+    color: #222223
+}
+
+.yue b:before, .yue strong:before {
+    content: "**";
+    color: #d6d6d6;
+    margin-right: 0.1rem;
+}
+.yue b:after, .yue strong:after {
+    content: "**";
+    color: #d6d6d6;
+    margin-left: 0.1rem;
+}
+
+.yue em, .yue i {
+    font-style: italic;
+    font-weight: 400;
+    color: #222223
+}
+
+.yue em:before, .yue i:before {
+    content: "*";
+    color: #d6d6d6;
+    margin-right: 0.1rem;
+}
+.yue em:after, .yue i:after {
+    content: "*";
+    color: #d6d6d6;
+    margin-left: 0.1rem;
+}
+
+.yue img {
+    max-width: 100%;
+    height: auto;
+    margin: .2em 0
+}
+
+.yue a img {
+    border: none
+}
+
+.yue figure {
+    position: relative;
+    clear: both;
+    outline: 0;
+    margin: 10px 0 30px;
+    padding: 0;
+    min-height: 100px
+}
+
+.yue figure img {
+    display: block;
+    max-width: 100%;
+    margin: auto auto 4px;
+    box-sizing: border-box
+}
+
+.yue figure figcaption {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    left: 0;
+    margin-top: 10px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #666665
+}
+
+.yue figure figcaption a {
+    text-decoration: none;
+    color: #666665
+}
+
+.yue hr {
+    border: none;
+    border-bottom: 1px solid #cfcfcf;
+    margin-bottom: .8em;
+    height: 10px
+}
+
+.yue blockquote {
+    margin: 0 0 1.64em 0;
+    border-left: 3px solid #dadada;
+    padding-left: 12px
+}
+
+.yue ol, .yue ul {
+    margin: 0 0 24px 6px;
+    padding-left: 16px
+}
+
+.yue ul {
+    list-style-type: square
+}
+
+.yue ol {
+    list-style-type: decimal
+}
+
+.yue li {
+    margin-bottom: .2em
+}
+
+.yue li ol, .yue li ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 14px
+}
+
+.yue li ul {
+    list-style-type: disc
+}
+
+.yue li ul ul {
+    list-style-type: circle
+}
+
+.yue li p {
+    margin: .4em 0 .6em
+}
+
+.yue .unstyled {
+    list-style-type: none;
+    margin: 0;
+    padding: 0
+}
+
+.yue code, .yue tt {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    padding: 0 3px;
+    padding-top: .2em;
+    padding-bottom: .2em;
+    margin: 0;
+    font-size: 90%;
+    background-color: rgba(0, 0, 0, .04);
+    border-radius: 3px;
+    word-break: break-all
+}
+
+.yue pre {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    padding: 16px;
+    overflow: auto;
+    font-size: 95%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border-radius: 3px
+}
+
+.yue pre code, .yue pre tt {
+    color: #4c4c4c;
+    border: none;
+    background: 0 0;
+    padding: 0
+}
+
+.yue table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-bottom: 1.5em;
+    font-size: .96em;
+    box-sizing: border-box
+}
+
+.yue td, .yue th {
+    text-align: left;
+    padding: 4px 8px 4px 10px;
+    border: 1px solid #dadada
+}
+
+.yue td {
+    vertical-align: top
+}
+
+.yue tr:nth-child(even) {
+    background-color: #efefee
+}
+
+.yue iframe {
+    display: block;
+    max-width: 100%;
+    margin-bottom: 30px
+}
+
+.yue figure iframe {
+    margin: auto
+}
+
+.yue table pre {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: 0 0
+}
+
+@media (min-width: 1100px) {
+    .yue blockquote {
+        margin-left: 10px;
+        padding-left: 20px;
+        border-width: 2px
+    }
+
+    .yue blockquote blockquote {
+        margin-left: 10px
+    }
+}
+
+img {
+    max-width: 100%;
 }

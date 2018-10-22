@@ -1,7 +1,12 @@
-<div>
-    <h1>{{ post.post.title }}</h1>
-    <p>{{ post.timestamp | date(format="%B %d, %Y") }}</p>
-    <div>
-    {{ post.markdown_content }}
-    </div>
-</div>
+{% extends "base" %}
+
+{% block body %}
+
+<section class="single article">
+    <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
+    <h2>{{ post.post.title }}</h2>
+    <section class="content yue">
+        {{ post.markdown_content }}
+    </section>
+</section>
+{% endblock body %}
