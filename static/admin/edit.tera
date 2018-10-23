@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<form action="/admin/article" method="article">
+<form action="/admin/article" method="post">
 
    <input type="hidden" name="id" value="{{ article.id }}">
    <input type="text" name="title" placeholder="title" required value="{{ article.title }}">

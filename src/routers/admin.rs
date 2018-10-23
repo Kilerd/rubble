@@ -17,7 +17,10 @@ use tera::Context;
 use models::Article;
 use response::ArticleResponse;
 use request::ArticleEditForm;
+use chrono;
 use diesel;
+use chrono::NaiveDateTime;
+use chrono::Utc;
 
 
 #[get("/login")]
@@ -63,6 +66,18 @@ fn admin_index(admin: Admin, conn: DbConn) -> Template {
 #[get("/article/new")]
 fn article_creation(admin: Admin) -> Result<Template, Failure> {
     let mut context = Context::new();
+
+    let article = Article{
+        id: -1,
+        title: String::new(),
+        body: String::new(),
+        published: true,
+        user_id: 0,
+        publish_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0),
+        url: None,
+    };
+
+    context.insert("article", &article);
     Ok(Template::render("admin/edit", context))
 }
 
@@ -84,15 +99,12 @@ fn article_edit(admin: Admin, conn: DbConn, article_id: i32) -> Result<Template,
 
 #[post("/article", data="<article>")]
 fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    let article = Article::form_article_edit_form(article.get(), admin.id);
-    let fetched_article: QueryResult<Article> = if article.id == -1 {
-        // insert a new record
-        diesel::insert_into(articles::table).values(&article).get_result(&*conn)
+    let mut article = Article::form_article_edit_form(article.get(), admin.id);
+    let fetched_article: QueryResult<Article> = match article.id {
 
-    } else {
-        // update exist one
-        // TODO only update record with id
-        diesel::update(articles::table.find(article.id)).set(&article).get_result(&*conn)
+        Some(article_id) => diesel::update(articles::table.find(article_id)).set(&article).get_result(&*conn),
+
+        None => diesel::insert_into(articles::table).values(&article).get_result(&*conn),
     };
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))

@@ -14,8 +14,6 @@ use request::ArticleEditForm;
 use chrono::prelude::*;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
-#[belongs_to(User)]
-#[table_name = "articles"]
 pub struct Article {
     pub id: i32,
     pub title: String,
@@ -41,15 +39,20 @@ impl Article {
 //    pub fn new(article: ArticleEditForm) -> Post {
 //    }
 
-    pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> Article {
+    pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> NewArticle {
         let timestamp = if article.publish_at.eq("") {
             Utc::now().timestamp()
         } else {
             NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M").unwrap().timestamp()
         };
 
-        Article {
-            id: article.id.unwrap_or(-1),
+        let article_id = match article.id {
+            Some(-1) => None,
+            Some(i) => Some(i),
+            _ => None,
+        };
+        NewArticle {
+            id: article_id,
             title: article.title.clone(),
             body: article.body.clone(),
             published: article.published,
@@ -60,8 +63,19 @@ impl Article {
     }
 }
 
+#[derive(Insertable, AsChangeset)]
+#[table_name = "articles"]
+pub struct NewArticle {
+    pub id: Option<i32>,
+    pub title: String,
+    pub body: String,
+    pub published: bool,
+    pub user_id: i32,
+    pub publish_at: NaiveDateTime,
+    pub url: Option<String>,
+}
+
 #[derive(Queryable, Debug, Serialize)]
-#[table_name = "users"]
 pub struct User {
     pub id: i32,
     pub username: String,
