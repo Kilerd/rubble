@@ -10,6 +10,10 @@
 <body>
 {% block body %}
 {% endblock body %}
+
+<footer>
+
+</footer>
 <script src="/statics/prism.js" type="text/javascript"></script>
 </body>
 </html>

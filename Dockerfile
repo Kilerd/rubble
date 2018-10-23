@@ -19,6 +19,7 @@ COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/rubble /applic
 EXPOSE 8000
 
 ENV ROCKET_ENV production
+ENV ROCKET_SECRET_KEY 123456
 ENV DATABASE_URL postgres://root@postgres/rubble
 
 WORKDIR /application
