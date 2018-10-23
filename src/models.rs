@@ -4,8 +4,8 @@ use chrono::NaiveTime;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use diesel::prelude::*;
-use schema::posts::dsl::*;
-use schema::posts;
+use schema::articles::dsl::*;
+use schema::articles;
 use serde::Serialize;
 use std::time::SystemTime;
 use pg_pool::DbConn;
@@ -15,8 +15,8 @@ use chrono::prelude::*;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[belongs_to(User)]
-#[table_name = "posts"]
-pub struct Post {
+#[table_name = "articles"]
+pub struct Article {
     pub id: i32,
     pub title: String,
     pub body: String,
@@ -26,29 +26,29 @@ pub struct Post {
     pub url: Option<String>,
 }
 
-impl Post {
-    pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Post> {
+impl Article {
+    pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Article> {
         if include_unpublished {
-            posts::table.load::<Post>(&**conn).expect("something wrong")
+            articles::table.load::<Article>(&**conn).expect("something wrong")
         } else {
-            posts::table.filter(published.eq(true)).load::<Post>(&**conn).expect("something wrong")
+            articles::table.filter(published.eq(true)).load::<Article>(&**conn).expect("something wrong")
         }
     }
-    pub fn find(fetched_id: i32, conn: &DbConn) -> Result<Post, Error> {
-        posts::table.find(fetched_id).first::<Post>(&**conn)
+    pub fn find(fetched_id: i32, conn: &DbConn) -> Result<Article, Error> {
+        articles::table.find(fetched_id).first::<Article>(&**conn)
     }
 
 //    pub fn new(article: ArticleEditForm) -> Post {
 //    }
 
-    pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> Post {
+    pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> Article {
         let timestamp = if article.publish_at.eq("") {
             Utc::now().timestamp()
         } else {
             NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M").unwrap().timestamp()
         };
 
-        Post {
+        Article {
             id: article.id.unwrap_or(-1),
             title: article.title.clone(),
             body: article.body.clone(),

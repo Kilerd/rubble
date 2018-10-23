@@ -1,5 +1,5 @@
 table! {
-    posts (id) {
+    articles (id) {
         id -> Int4,
         title -> Varchar,
         body -> Text,
@@ -20,9 +20,9 @@ table! {
     }
 }
 
-joinable!(posts -> users (user_id));
+joinable!(articles -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
-    posts,
+    articles,
     users,
 );

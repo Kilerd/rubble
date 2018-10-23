@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE posts (
+CREATE TABLE articles (
   id SERIAL PRIMARY KEY,
   title VARCHAR NOT NULL,
   body TEXT NOT NULL,

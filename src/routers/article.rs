@@ -1,15 +1,15 @@
 use diesel::prelude::*;
-use models::Post;
+use models::Article;
 use pg_pool::DbConn;
 use pulldown_cmark::html;
 use pulldown_cmark::Parser;
-use response::PostResponse;
+use response::ArticleResponse;
 use rocket::http::Status;
 use rocket::response::Failure;
 use rocket::response::NamedFile;
 use rocket_contrib::Template;
-use schema::{posts, users};
-use schema::{posts::dsl::*, users::dsl::*};
+use schema::{articles, users};
+use schema::{articles::dsl::*, users::dsl::*};
 use std::path::Path;
 use std::path::PathBuf;
 use tera::Context;
@@ -19,30 +19,30 @@ use tera::Context;
 fn index(conn: DbConn) -> Template {
     let mut context = Context::new();
 
-    let result = posts::table.filter(published.eq(true)).order(publish_at.desc()).load::<Post>(&*conn).expect("cannot load posts");
+    let result = articles::table.filter(published.eq(true)).order(publish_at.desc()).load::<Article>(&*conn).expect("cannot load articles");
 
-    let post_responses: Vec<PostResponse> = result.iter().map(PostResponse::from).collect();
+    let article_responses: Vec<ArticleResponse> = result.iter().map(ArticleResponse::from).collect();
 
-    context.insert("posts", &post_responses);
+    context.insert("articles", &article_responses);
 
     Template::render("index", &context)
 }
 
 #[get("/archives/<archives_id>")]
-fn single_archives(conn: DbConn, archives_id: i32) -> Result<Template, Failure> {
+fn single_article(conn: DbConn, archives_id: i32) -> Result<Template, Failure> {
     let mut context = Context::new();
 
-    let result: Result<_, _> = posts::table.find(archives_id).first::<Post>(&*conn);
+    let result: Result<_, _> = articles::table.find(archives_id).first::<Article>(&*conn);
 
     if let Err(_err) = result {
         return Err(Failure(Status::NotFound));
     }
 
-    let post: Post = result.unwrap();
+    let article: Article = result.unwrap();
 
-    let post_response = PostResponse::from(&post);
+    let article_response = ArticleResponse::from(&article);
 
-    context.insert("post", &post_response);
+    context.insert("article", &article_response);
 
     Ok(Template::render("archives", &context))
 }
@@ -59,19 +59,19 @@ fn static_content(file: PathBuf) -> Result<NamedFile, Failure> {
 }
 
 #[get("/<archive_url>", rank = 5)]
-fn get_archive_by_url(conn:DbConn, archive_url: String) -> Result<Template, Failure> {
+fn get_article_by_url(conn:DbConn, archive_url: String) -> Result<Template, Failure> {
 
     let mut context = Context::new();
-    let result = posts::table.filter(url.eq(archive_url)).first::<Post>(&*conn);
+    let result = articles::table.filter(url.eq(archive_url)).first::<Article>(&*conn);
     if let Err(_err) = result {
         return Err(Failure(Status::NotFound));
     }
 
-    let post = result.unwrap();
+    let article = result.unwrap();
 
-    let post_response = PostResponse::from(&post);
+    let article_response = ArticleResponse::from(&article);
 
-    context.insert("post", &post_response);
+    context.insert("article", &article_response);
 
     Ok(Template::render("archives", &context))
 }

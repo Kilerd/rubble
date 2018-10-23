@@ -3,10 +3,10 @@
 {% block body %}
 
 <section class="single article">
-    <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
-    <h2>{{ post.post.title }}</h2>
+    <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
+    <h2>{{ article.article.title }}</h2>
     <section class="content yue">
-        {{ post.markdown_content | safe }}
+        {{ article.markdown_content | safe }}
     </section>
 </section>
 {% endblock body %}

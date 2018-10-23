@@ -1,4 +1,4 @@
-pub mod archive;
+pub mod article;
 pub mod admin;
 pub mod rss;
 

@@ -1,9 +1,9 @@
 login as: {{ admin.username }}
 
 <ul>
-{% for post in posts %}
+{% for article in articles %}
 <li>
-<a href="/admin/article/{{ post.id }}">{{ post.title }}</a>
+<a href="/admin/article/{{ article.id }}">{{ article.title }}</a>
 </li>
 {% endfor %}
 

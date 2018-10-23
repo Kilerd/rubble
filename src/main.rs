@@ -20,7 +20,7 @@ extern crate crypto;
 
 use dotenv::dotenv;
 use rocket_contrib::Template;
-use routers::{admin, archive, catacher, rss};
+use routers::{admin, article, catacher, rss};
 
 mod models;
 mod response;
@@ -36,8 +36,8 @@ fn main() {
     rocket::ignite()
         .catch(catchers![catacher::not_found_catcher])
         .manage(pg_pool::init(&database_url))
-        .mount("/", routes![archive::index, archive::single_archives, archive::get_archive_by_url, archive::static_content])
-        .mount("/admin", routes![admin::admin_login, admin::admin_authentication, admin::admin_index, admin::archive_edit, admin::save_article])
+        .mount("/", routes![article::index, article::single_article, article::get_article_by_url, article::static_content])
+        .mount("/admin", routes![admin::admin_login, admin::admin_authentication, admin::admin_index, admin::article_edit, admin::save_article])
         .attach(Template::fairing())
         .launch();
 }

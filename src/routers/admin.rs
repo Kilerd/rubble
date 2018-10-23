@@ -12,10 +12,10 @@ use rocket::response::Failure;
 use rocket::response::Flash;
 use rocket::response::Redirect;
 use rocket_contrib::Template;
-use schema::{users, users::dsl::*, posts};
+use schema::{users, users::dsl::*, articles};
 use tera::Context;
-use models::Post;
-use response::PostResponse;
+use models::Article;
+use response::ArticleResponse;
 use request::ArticleEditForm;
 use diesel;
 
@@ -52,41 +52,47 @@ fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookie
 fn admin_index(admin: Admin, conn: DbConn) -> Template {
     let mut context = Context::new();
 
-    let posts = Post::load_all(true, &conn);
+    let articles = Article::load_all(true, &conn);
 
     context.insert("admin", &admin);
-    context.insert("posts", &posts);
+    context.insert("articles", &articles);
     Template::render("admin/index", &context)
 }
 
 
-
-#[get("/article/<archive_id>")]
-fn archive_edit(admin: Admin, conn: DbConn, archive_id: i32) -> Result<Template, Failure>{
+#[get("/article/new")]
+fn article_creation(admin: Admin) -> Result<Template, Failure> {
     let mut context = Context::new();
-    let fetched_post = Post::find(archive_id, &conn);
+    Ok(Template::render("admin/edit", context))
+}
 
-    if let Err(_err) = fetched_post {
+
+#[get("/article/<article_id>")]
+fn article_edit(admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Failure>{
+    let mut context = Context::new();
+    let fetched_article = Article::find(article_id, &conn);
+
+    if let Err(_err) = fetched_article {
         return Err(Failure(Status::NotFound));
     }
 
-    let post: Post = fetched_post.unwrap();
+    let article: Article = fetched_article.unwrap();
 
-    context.insert("post", &post);
+    context.insert("article", &article);
     Ok(Template::render("admin/edit", context))
 }
 
 #[post("/article", data="<article>")]
 fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    let post = Post::form_article_edit_form(article.get(), admin.id);
-    let fetched_post: QueryResult<Post> = if post.id == -1 {
+    let article = Article::form_article_edit_form(article.get(), admin.id);
+    let fetched_article: QueryResult<Article> = if article.id == -1 {
         // insert a new record
-        diesel::insert_into(posts::table).values(&post).get_result(&*conn)
+        diesel::insert_into(articles::table).values(&article).get_result(&*conn)
 
     } else {
         // update exist one
         // TODO only update record with id
-        diesel::update(posts::table.find(post.id)).set(&post).get_result(&*conn)
+        diesel::update(articles::table.find(article.id)).set(&article).get_result(&*conn)
     };
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))

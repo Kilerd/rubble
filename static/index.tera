@@ -9,12 +9,12 @@
 </header>
 <content>
 <section class="container">
-{% for post in posts %}
+{% for article in articles %}
     <section class="article">
-        <p class="mate">{{ post.timestamp | date(format="%B %d, %Y") }}</p>
-        <a class="title" href="{% if post.post.url %}{{ post.post.url }}{% else %}archives/{{ post.post.id }}{% endif %}">{{ post.post.title }}</a>
+        <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
+        <a class="title" href="{% if article.article.url %}{{ article.article.url }}{% else %}archives/{{ article.article.id }}{% endif %}">{{ article.article.title }}</a>
         <section class="yue desc">
-            {{ post.description }}
+            {{ article.description }}
         </section>
     </section>
 {% endfor %}
