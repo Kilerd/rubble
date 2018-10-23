@@ -11,6 +11,13 @@ table! {
 }
 
 table! {
+    setting (name) {
+        name -> Varchar,
+        value -> Nullable<Text>,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Text,
@@ -24,5 +31,6 @@ joinable!(articles -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     articles,
+    setting,
     users,
 );
