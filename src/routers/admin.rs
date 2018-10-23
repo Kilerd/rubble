@@ -1,4 +1,3 @@
-use crypto::sha3::Sha3;
 use diesel::prelude::*;
 use models::User;
 use pg_pool::DbConn;
@@ -15,9 +14,7 @@ use rocket_contrib::Template;
 use schema::{users, users::dsl::*, articles};
 use tera::Context;
 use models::Article;
-use response::ArticleResponse;
 use request::ArticleEditForm;
-use chrono;
 use diesel;
 use chrono::NaiveDateTime;
 use chrono::Utc;
@@ -64,10 +61,10 @@ fn admin_index(admin: Admin, conn: DbConn) -> Template {
 
 
 #[get("/article/new")]
-fn article_creation(admin: Admin) -> Result<Template, Failure> {
+fn article_creation(_admin: Admin) -> Result<Template, Failure> {
     let mut context = Context::new();
 
-    let article = Article{
+    let article = Article {
         id: -1,
         title: String::new(),
         body: String::new(),
@@ -83,7 +80,7 @@ fn article_creation(admin: Admin) -> Result<Template, Failure> {
 
 
 #[get("/article/<article_id>")]
-fn article_edit(admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Failure>{
+fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Failure> {
     let mut context = Context::new();
     let fetched_article = Article::find(article_id, &conn);
 
@@ -97,11 +94,10 @@ fn article_edit(admin: Admin, conn: DbConn, article_id: i32) -> Result<Template,
     Ok(Template::render("admin/edit", context))
 }
 
-#[post("/article", data="<article>")]
-fn save_article(admin:Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    let mut article = Article::form_article_edit_form(article.get(), admin.id);
-    let fetched_article: QueryResult<Article> = match article.id {
-
+#[post("/article", data = "<article>")]
+fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
+    let article = Article::form_article_edit_form(article.get(), admin.id);
+    let _fetched_article: QueryResult<Article> = match article.id {
         Some(article_id) => diesel::update(articles::table.find(article_id)).set(&article).get_result(&*conn),
 
         None => diesel::insert_into(articles::table).values(&article).get_result(&*conn),

@@ -6,9 +6,7 @@ extern crate diesel;
 extern crate dotenv;
 extern crate pulldown_cmark;
 extern crate r2d2;
-#[macro_use]
 extern crate rocket;
-#[macro_use]
 extern crate rocket_contrib;
 extern crate serde;
 #[macro_use]
@@ -20,7 +18,7 @@ extern crate crypto;
 
 use dotenv::dotenv;
 use rocket_contrib::Template;
-use routers::{admin, article, catacher, rss};
+use routers::{admin, article, catacher};
 
 mod models;
 mod response;

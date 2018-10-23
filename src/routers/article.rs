@@ -1,15 +1,13 @@
 use diesel::prelude::*;
 use models::Article;
 use pg_pool::DbConn;
-use pulldown_cmark::html;
-use pulldown_cmark::Parser;
 use response::ArticleResponse;
 use rocket::http::Status;
 use rocket::response::Failure;
 use rocket::response::NamedFile;
 use rocket_contrib::Template;
-use schema::{articles, users};
-use schema::{articles::dsl::*, users::dsl::*};
+use schema::{articles};
+use schema::{articles::dsl::*};
 use std::path::Path;
 use std::path::PathBuf;
 use tera::Context;
