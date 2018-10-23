@@ -6,7 +6,9 @@ extern crate diesel;
 extern crate dotenv;
 extern crate pulldown_cmark;
 extern crate r2d2;
+#[macro_use]
 extern crate rocket;
+#[macro_use]
 extern crate rocket_contrib;
 extern crate serde;
 #[macro_use]
@@ -26,6 +28,7 @@ mod pg_pool;
 mod schema;
 mod routers;
 mod request;
+mod guard;
 
 fn main() {
     dotenv().ok();

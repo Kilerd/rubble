@@ -3,8 +3,8 @@
 {% block body %}
 <header>
 <section class="container">
-<h1>Rubble</h1>
-<p>description of rubble application</p>
+<h1>{{ setting.title }}</h1>
+<p>{{ setting.description }}</p>
 </section>
 </header>
 <content>

@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use guard::SettingMap;
 use models::Article;
 use pg_pool::DbConn;
 use response::ArticleResponse;
@@ -6,21 +7,23 @@ use rocket::http::Status;
 use rocket::response::Failure;
 use rocket::response::NamedFile;
 use rocket_contrib::Template;
-use schema::{articles};
 use schema::{articles::dsl::*};
+use schema::articles;
 use std::path::Path;
 use std::path::PathBuf;
 use tera::Context;
 
 
 #[get("/")]
-fn index(conn: DbConn) -> Template {
+fn index(setting: SettingMap, conn: DbConn) -> Template {
     let mut context = Context::new();
 
     let result = articles::table.filter(published.eq(true)).order(publish_at.desc()).load::<Article>(&*conn).expect("cannot load articles");
 
     let article_responses: Vec<ArticleResponse> = result.iter().map(ArticleResponse::from).collect();
 
+    println!("{:?}", setting);
+    context.insert("setting", &setting);
     context.insert("articles", &article_responses);
 
     Template::render("index", &context)
@@ -57,8 +60,7 @@ fn static_content(file: PathBuf) -> Result<NamedFile, Failure> {
 }
 
 #[get("/<archive_url>", rank = 5)]
-fn get_article_by_url(conn:DbConn, archive_url: String) -> Result<Template, Failure> {
-
+fn get_article_by_url(conn: DbConn, archive_url: String) -> Result<Template, Failure> {
     let mut context = Context::new();
     let result = articles::table.filter(url.eq(archive_url)).first::<Article>(&*conn);
     if let Err(_err) = result {

@@ -94,7 +94,7 @@ impl User {
     }
 }
 
-#[derive(Queryable, Debug, Seriable, Insertable, AsChangeset)]
+#[derive(Queryable, Debug, Serialize)]
 pub struct Setting {
     pub name: String,
     pub value: Option<String>,
