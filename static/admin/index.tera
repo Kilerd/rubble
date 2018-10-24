@@ -25,3 +25,12 @@
 
    <button>change</button>
 </form>
+
+<h2>Change setting</h2>
+
+<form action="/admin/setting" method="post">
+
+   <input type="text" name="name" placeholder="setting name" required>
+   <input type="text" name="value" placeholder="value" required>
+   <button>change</button>
+</form>

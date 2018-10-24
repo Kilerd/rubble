@@ -10,6 +10,7 @@ use request::ArticleEditForm;
 use chrono::prelude::*;
 use schema::users;
 use rocket::request::FlashMessage;
+use schema::setting;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 pub struct Article {
@@ -103,11 +104,14 @@ impl User {
     }
 }
 
-#[derive(Queryable, Debug, Serialize)]
+#[derive_FromForm]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[table_name = "setting"]
 pub struct Setting {
     pub name: String,
     pub value: Option<String>,
 }
+
 
 #[derive(Debug, Serialize)]
 pub struct SerializeFlashMessage <'a> {

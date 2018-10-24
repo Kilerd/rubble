@@ -20,7 +20,7 @@ use chrono::Utc;
 use request::NewPasswordForm;
 use rocket::request::FlashMessage;
 use models::SerializeFlashMessage;
-
+use models::Setting;
 
 #[get("/login")]
 fn admin_login() -> Template {
@@ -122,4 +122,13 @@ fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordFo
     admin_user.password = User::password_generate(&password_form.get().password).to_string();
     let _result: QueryResult<User> = diesel::update(users::table.find(admin_user.id)).set(&admin_user).get_result(&*conn);
     Flash::new(Redirect::moved("/admin"), "success", "password is changed successfully")
+}
+
+#[post("/setting", data = "<setting_form>")]
+fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
+    use schema::{setting, setting::dsl::*};
+
+    let new_setting = Setting { name: setting_form.get().name.clone(), value: setting_form.get().value.clone() };
+    let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.get().name)).set(&new_setting).get_result(&*conn);
+    Flash::new(Redirect::to("/admin"), "success", "setting changed")
 }
