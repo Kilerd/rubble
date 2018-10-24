@@ -1,6 +1,8 @@
 <h2>login as: {{ admin.username }}</h2>
 
 <a href="/admin/article/new">new article</a>
+
+<h2>Article List</h2>
 <ul>
 {% for article in articles %}
 <li>
@@ -9,3 +11,12 @@
 {% endfor %}
 
 </ul>
+
+<h2>Change Password</h2>
+
+<form action="/admin/password" method="post">
+
+   <input type="password" name="password" placeholder="new password" required>
+
+   <button>change</button>
+</form>

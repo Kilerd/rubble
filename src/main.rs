@@ -38,7 +38,15 @@ fn main() {
         .catch(catchers![catacher::not_found_catcher])
         .manage(pg_pool::init(&database_url))
         .mount("/", routes![article::index, article::single_article, article::get_article_by_url, article::static_content])
-        .mount("/admin", routes![admin::admin_login, admin::admin_authentication, admin::admin_index, admin::article_edit, admin::save_article, admin::article_creation])
+        .mount("/admin", routes![
+            admin::admin_login,
+            admin::admin_authentication,
+            admin::admin_index,
+            admin::article_edit,
+            admin::save_article,
+            admin::article_creation,
+            admin::change_password
+        ])
         .attach(Template::fairing())
         .launch();
 }

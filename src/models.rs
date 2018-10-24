@@ -8,6 +8,7 @@ use pg_pool::DbConn;
 use diesel::result::Error;
 use request::ArticleEditForm;
 use chrono::prelude::*;
+use schema::users;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 pub struct Article {
@@ -71,7 +72,8 @@ pub struct NewArticle {
     pub url: Option<String>,
 }
 
-#[derive(Queryable, Debug, Serialize)]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[table_name = "users"]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -91,6 +93,12 @@ impl User {
         } else {
             false
         }
+    }
+
+    pub fn password_generate(password: &str) -> String {
+        let mut hasher = Sha3::sha3_256();
+        hasher.input_str(password);
+        hasher.result_str()
     }
 }
 

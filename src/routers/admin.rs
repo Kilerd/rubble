@@ -11,13 +11,13 @@ use rocket::response::Failure;
 use rocket::response::Flash;
 use rocket::response::Redirect;
 use rocket_contrib::Template;
-use schema::{users, users::dsl::*, articles};
 use tera::Context;
 use models::Article;
 use request::ArticleEditForm;
 use diesel;
 use chrono::NaiveDateTime;
 use chrono::Utc;
+use request::NewPasswordForm;
 
 
 #[get("/login")]
@@ -29,6 +29,7 @@ fn admin_login() -> Template {
 
 #[post("/login", data = "<user>")]
 fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookies) -> Result<Redirect, Failure> {
+    use schema::{users, users::dsl::*};
     let user_form = user.get();
     let fetched = users::table.filter(username.eq(&user_form.username)).first::<User>(&*conn);
     if let Err(_) = fetched {
@@ -96,6 +97,8 @@ fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template
 
 #[post("/article", data = "<article>")]
 fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
+    use schema::{articles, articles::dsl::*};
+
     let article = Article::form_article_edit_form(article.get(), admin.id);
     let _fetched_article: QueryResult<Article> = match article.id {
         Some(article_id) => diesel::update(articles::table.find(article_id)).set(&article).get_result(&*conn),
@@ -104,4 +107,15 @@ fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> R
     };
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
+}
+
+#[post("/password", data = "<password_form>")]
+fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> String {
+    use schema::{users, users::dsl::*};
+
+    let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
+
+    admin_user.password = User::password_generate(&password_form.get().password).to_string();
+    let _result: QueryResult<User> = diesel::update(users::table.find(admin_user.id)).set(&admin_user).get_result(&*conn);
+    format!("success")
 }

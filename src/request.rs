@@ -4,6 +4,7 @@ use rocket::request::Outcome;
 use rocket::http::Status;
 use rocket::outcome::Outcome::Success;
 use rocket::outcome::Outcome::Failure;
+use diesel::prelude::*;
 
 #[derive_FromForm]
 #[derive(Debug)]
@@ -47,4 +48,10 @@ pub struct ArticleEditForm {
     pub published: bool,
     pub publish_at: String,
     pub url: Option<String>,
+}
+
+
+#[derive_FromForm]
+pub struct NewPasswordForm {
+    pub password: String,
 }
