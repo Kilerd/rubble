@@ -1,3 +1,8 @@
+
+{% if flash %}
+<p>{{ flash.name }}: {{  flash.message }}</p>
+{% endif %}
+
 <h2>login as: {{ admin.username }}</h2>
 
 <a href="/admin/article/new">new article</a>

@@ -18,6 +18,8 @@ use diesel;
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use request::NewPasswordForm;
+use rocket::request::FlashMessage;
+use models::SerializeFlashMessage;
 
 
 #[get("/login")]
@@ -50,13 +52,15 @@ fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookie
 
 
 #[get("/")]
-fn admin_index(admin: Admin, conn: DbConn) -> Template {
+fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> Template {
     let mut context = Context::new();
 
     let articles = Article::load_all(true, &conn);
 
+    println!("{:?}", flash);
     context.insert("admin", &admin);
     context.insert("articles", &articles);
+    context.insert("flash", &SerializeFlashMessage::from(&flash));
     Template::render("admin/index", &context)
 }
 
@@ -110,12 +114,12 @@ fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> R
 }
 
 #[post("/password", data = "<password_form>")]
-fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> String {
+fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
     use schema::{users, users::dsl::*};
 
     let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
 
     admin_user.password = User::password_generate(&password_form.get().password).to_string();
     let _result: QueryResult<User> = diesel::update(users::table.find(admin_user.id)).set(&admin_user).get_result(&*conn);
-    format!("success")
+    Flash::new(Redirect::moved("/admin"), "success", "password is changed successfully")
 }

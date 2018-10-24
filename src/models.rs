@@ -9,6 +9,7 @@ use diesel::result::Error;
 use request::ArticleEditForm;
 use chrono::prelude::*;
 use schema::users;
+use rocket::request::FlashMessage;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 pub struct Article {
@@ -106,4 +107,20 @@ impl User {
 pub struct Setting {
     pub name: String,
     pub value: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SerializeFlashMessage <'a> {
+    pub name: &'a str,
+    pub message: &'a str,
+}
+
+impl <'a> SerializeFlashMessage<'a> {
+
+    pub fn from(flash: &'a Option<FlashMessage>) -> Option<Self> {
+        match flash {
+            None => None,
+            Some(f) => Some(SerializeFlashMessage{ name: &f.name().clone(), message: &f.msg().clone() })
+        }
+    }
 }
