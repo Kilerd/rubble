@@ -7,10 +7,10 @@ port = 8000
 workers = 1
 log = "normal"
 secret_key = "JR7bWcbwRfF/+Kc3jKfgxPiuLFyUxMRgTyJlcruItA0="
-limits = { forms = 32768 }
+limits = { forms = 524288 }
 
 [production]
 address = "0.0.0.0"
 log = "critical"
 port = 8000
-limits = { forms = 32768 }
+limits = { forms = 524288 }
