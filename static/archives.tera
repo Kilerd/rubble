@@ -1,5 +1,6 @@
 {% extends "base" %}
 
+{% block title %}{{ article.article.title }}{% endblock title %}
 {% block body %}
 
 <section class="single article">

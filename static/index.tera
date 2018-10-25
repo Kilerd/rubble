@@ -1,5 +1,7 @@
 {% extends "base" %}
 
+{% block title %}{{  setting.title }}{% endblock title %}
+
 {% block body %}
 <header>
 <section class="container">
