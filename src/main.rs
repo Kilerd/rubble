@@ -1,9 +1,12 @@
 #![feature(custom_attribute, plugin)]
 #![plugin(rocket_codegen)]
 extern crate chrono;
+extern crate crypto;
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+extern crate juniper;
+extern crate juniper_rocket;
 extern crate pulldown_cmark;
 extern crate r2d2;
 #[macro_use]
@@ -15,12 +18,10 @@ extern crate serde;
 extern crate serde_derive;
 extern crate tera;
 
-extern crate crypto;
 
-
+use crate::routers::{admin, article, catacher};
 use dotenv::dotenv;
 use rocket_contrib::Template;
-use routers::{admin, article, catacher};
 
 mod models;
 mod response;

@@ -1,6 +1,6 @@
-use models::Article;
-use pulldown_cmark::Parser;
+use crate::models::Article;
 use pulldown_cmark::html;
+use pulldown_cmark::Parser;
 
 #[derive(Debug, Serialize)]
 pub struct ArticleResponse<'a> {

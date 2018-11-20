@@ -4,6 +4,7 @@ description = "a slight blog system"
 version = "0.1.0"
 authors = ["Kilerd Chan <blove694@gmail.com>"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 rocket = "0.3.16"
@@ -19,3 +20,6 @@ tera = "*"
 pulldown-cmark = { version = "0.1.2", default-features = false }
 chrono = { version = "*", features = ["serde"] }
 rust-crypto = "^0.2"
+juniper = "0.10"
+juniper_codegen = "0.10"
+juniper_rocket = "0.1.3"

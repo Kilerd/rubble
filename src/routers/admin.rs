@@ -1,26 +1,26 @@
+use chrono::NaiveDateTime;
+use chrono::Utc;
+use crate::models::Article;
+use crate::models::SerializeFlashMessage;
+use crate::models::Setting;
+use crate::models::User;
+use crate::pg_pool::DbConn;
+use crate::request::Admin;
+use crate::request::ArticleEditForm;
+use crate::request::LoginForm;
+use crate::request::NewPasswordForm;
+use diesel;
 use diesel::prelude::*;
-use models::User;
-use pg_pool::DbConn;
-use request::Admin;
-use request::LoginForm;
 use rocket::http::Cookie;
 use rocket::http::Cookies;
 use rocket::http::Status;
+use rocket::request::FlashMessage;
 use rocket::request::Form;
 use rocket::response::Failure;
 use rocket::response::Flash;
 use rocket::response::Redirect;
 use rocket_contrib::Template;
 use tera::Context;
-use models::Article;
-use request::ArticleEditForm;
-use diesel;
-use chrono::NaiveDateTime;
-use chrono::Utc;
-use request::NewPasswordForm;
-use rocket::request::FlashMessage;
-use models::SerializeFlashMessage;
-use models::Setting;
 
 #[get("/login")]
 fn admin_login() -> Template {
@@ -31,7 +31,8 @@ fn admin_login() -> Template {
 
 #[post("/login", data = "<user>")]
 fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookies) -> Result<Redirect, Failure> {
-    use schema::{users, users::dsl::*};
+    use crate::schema::{users, users::dsl::*};
+
     let user_form = user.get();
     let fetched = users::table.filter(username.eq(&user_form.username)).first::<User>(&*conn);
     if let Err(_) = fetched {
@@ -101,7 +102,7 @@ fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template
 
 #[post("/article", data = "<article>")]
 fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    use schema::{articles, articles::dsl::*};
+    use crate::schema::{articles, articles::dsl::*};
 
     let article = Article::form_article_edit_form(article.get(), admin.id);
     let _fetched_article: QueryResult<Article> = match article.id {
@@ -115,7 +116,7 @@ fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> R
 
 #[post("/password", data = "<password_form>")]
 fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
-    use schema::{users, users::dsl::*};
+    use crate::schema::{users, users::dsl::*};
 
     let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
 
@@ -126,7 +127,7 @@ fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordFo
 
 #[post("/setting", data = "<setting_form>")]
 fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
-    use schema::{setting, setting::dsl::*};
+    use crate::schema::{setting, setting::dsl::*};
 
     let new_setting = Setting { name: setting_form.get().name.clone(), value: setting_form.get().value.clone() };
     let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.get().name)).set(&new_setting).get_result(&*conn);

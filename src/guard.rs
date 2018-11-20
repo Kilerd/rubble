@@ -1,7 +1,7 @@
+use crate::models::Setting;
+use crate::pg_pool::DbConn;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use models::Setting;
-use pg_pool::DbConn;
 use r2d2::Pool;
 use rocket::Outcome;
 use rocket::Request;
@@ -21,7 +21,7 @@ impl <'a, 'r> FromRequest<'a, 'r> for SettingMap {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, ()> {
 
-        use schema::{setting, setting::dsl::*};
+        use crate::schema::{setting, setting::dsl::*};
         use diesel::prelude::*;
 
         let state = request.guard::<State<Pool<ConnectionManager<PgConnection>>>>().unwrap().get().unwrap();
