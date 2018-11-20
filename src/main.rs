@@ -5,7 +5,10 @@ extern crate crypto;
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+#[macro_use]
 extern crate juniper;
+#[macro_use]
+extern crate juniper_codegen;
 extern crate juniper_rocket;
 extern crate pulldown_cmark;
 extern crate r2d2;
@@ -19,26 +22,42 @@ extern crate serde_derive;
 extern crate tera;
 
 
-use crate::routers::{admin, article, catacher};
 use dotenv::dotenv;
 use rocket_contrib::Template;
 
-mod models;
-mod response;
-mod pg_pool;
-mod schema;
-mod routers;
-mod request;
 mod guard;
+mod models;
+mod pg_pool;
+mod request;
+mod response;
+mod routers;
+mod schema;
+mod graphql;
+
+use crate::pg_pool::DbConn;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use crate::graphql::{Schema, Query, Mutation};
 
 fn main() {
+    use crate::routers::{admin, article, catacher, graphql};
     dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 
     rocket::ignite()
         .catch(catchers![catacher::not_found_catcher])
         .manage(pg_pool::init(&database_url))
-        .mount("/", routes![article::index, article::single_article, article::get_article_by_url, article::static_content])
+        .manage(Schema::new(Query{}, Mutation{}))
+        .mount("/", routes![
+            article::index,
+            article::single_article,
+            article::get_article_by_url,
+            article::static_content,
+            graphql::graphiql,
+            graphql::get_graphql_handler,
+            graphql::post_graphql_handler
+            ])
         .mount("/admin", routes![
             admin::admin_login,
             admin::admin_authentication,
@@ -48,7 +67,7 @@ fn main() {
             admin::article_creation,
             admin::change_password,
             admin::change_setting
-        ])
+            ])
         .attach(Template::fairing())
         .launch();
 }
