@@ -26,9 +26,9 @@ pub struct Article {
 impl Article {
     pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Article> {
         if include_unpublished {
-            articles::table.load::<Article>(&**conn).expect("something wrong")
+            articles::table.order(publish_at.desc()).load::<Article>(&**conn).expect("something wrong")
         } else {
-            articles::table.filter(published.eq(true)).load::<Article>(&**conn).expect("something wrong")
+            articles::table.order(publish_at.desc()).filter(published.eq(true)).load::<Article>(&**conn).expect("something wrong")
         }
     }
     pub fn find(fetched_id: i32, conn: &DbConn) -> Result<Article, Error> {
