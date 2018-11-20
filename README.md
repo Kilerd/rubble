@@ -8,14 +8,14 @@ a lightweight blog engine written by Rust.
 
 Cause this project is also the tentative staff I try to write something in Rust, it would not include too many features.
 
-- Basic Content System without categories
-- Multiple administrators supported
-- Administractor management panel
-- Article management panel
-- Draw supported
-- Customized template
-- RSS supported
-- GraphQL API supported(maybe)
+- [*] Basic Content System without categories
+- [ ] Multiple administrators supported
+- [*] Administractor management panel
+- [*] Article management panel
+- [*] Draw supported
+- [ ] Customized template
+- [ ] RSS supported
+- [ ] GraphQL API supported(maybe)
 
 ## Template 
 
@@ -47,8 +47,31 @@ Rubble image can accept some environment variable for setting up:
 But we recommend to deploy rubble with Docker Swarm or Kubenetes. here is a simple file to create a whole rubble application with postgresQL`docker-compose.yml` :
 
 
-
 ```yml
+version: "3"
+services:
+  rubble:
+    image: kilerd/rubble
+    environment:
+      DATABASE_URL: postgres://root:password@postgres/rubble
+      ROCKET_SECRET_KEY: 7azo1R1AtDzvj2bwv7Qj949xrvBnTzF+EEwvBSDsLWs=
+    depends_on:
+      - postgres
+    networks:
+      - backend
 
+  postgres:
+    image: postgres:9-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rubble
+    networks:
+      - backend
+
+
+networks:
+  backend:
 ```
 
