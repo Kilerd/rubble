@@ -12,7 +12,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use rocket::request::FlashMessage;
 
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
 pub struct Article {
     pub id: i32,
     pub title: String,
@@ -22,6 +22,7 @@ pub struct Article {
     pub publish_at: NaiveDateTime,
     pub url: Option<String>,
 }
+
 
 impl Article {
     pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Article> {
@@ -34,9 +35,6 @@ impl Article {
     pub fn find(fetched_id: i32, conn: &DbConn) -> Result<Article, Error> {
         articles::table.find(fetched_id).first::<Article>(&**conn)
     }
-
-//    pub fn new(article: ArticleEditForm) -> Post {
-//    }
 
     pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> NewArticle {
         let timestamp = if article.publish_at.eq("") {

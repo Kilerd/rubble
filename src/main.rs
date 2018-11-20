@@ -12,9 +12,7 @@ extern crate juniper_codegen;
 extern crate juniper_rocket;
 extern crate pulldown_cmark;
 extern crate r2d2;
-#[macro_use]
 extern crate rocket;
-#[macro_use]
 extern crate rocket_contrib;
 extern crate serde;
 #[macro_use]
@@ -34,9 +32,7 @@ mod routers;
 mod schema;
 mod graphql;
 
-use crate::pg_pool::DbConn;
-use std::rc::Rc;
-use std::sync::Arc;
+use std::collections::HashMap;
 
 use crate::graphql::{Schema, Query, Mutation};
 

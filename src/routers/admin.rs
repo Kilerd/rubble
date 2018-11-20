@@ -102,7 +102,7 @@ fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template
 
 #[post("/article", data = "<article>")]
 fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
-    use crate::schema::{articles, articles::dsl::*};
+    use crate::schema::{articles};
 
     let article = Article::form_article_edit_form(article.get(), admin.id);
     let _fetched_article: QueryResult<Article> = match article.id {
@@ -116,7 +116,7 @@ fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> R
 
 #[post("/password", data = "<password_form>")]
 fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
-    use crate::schema::{users, users::dsl::*};
+    use crate::schema::{users};
 
     let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
 
@@ -127,7 +127,7 @@ fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordFo
 
 #[post("/setting", data = "<setting_form>")]
 fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
-    use crate::schema::{setting, setting::dsl::*};
+    use crate::schema::{setting};
 
     let new_setting = Setting { name: setting_form.get().name.clone(), value: setting_form.get().value.clone() };
     let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.get().name)).set(&new_setting).get_result(&*conn);
