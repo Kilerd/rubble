@@ -18,6 +18,15 @@ table! {
 }
 
 table! {
+    tokens (id) {
+        id -> Int4,
+        user_id -> Int4,
+        value -> Text,
+        expire_at -> Timestamp,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Text,
@@ -28,9 +37,11 @@ table! {
 }
 
 joinable!(articles -> users (user_id));
+joinable!(tokens -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     articles,
     setting,
+    tokens,
     users,
 );

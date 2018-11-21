@@ -19,6 +19,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate tera;
 
+extern crate rand;
+
 
 use dotenv::dotenv;
 use rocket_contrib::Template;
@@ -50,6 +52,8 @@ fn main() {
             article::single_article,
             article::get_article_by_url,
             article::static_content,
+
+            graphql::graphql_authorization,
             graphql::graphiql,
             graphql::get_graphql_handler,
             graphql::post_graphql_handler

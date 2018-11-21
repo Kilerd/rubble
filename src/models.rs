@@ -2,15 +2,14 @@ use chrono::NaiveDateTime;
 use chrono::prelude::*;
 use crate::pg_pool::DbConn;
 use crate::request::ArticleEditForm;
-use crate::schema::articles;
-use crate::schema::articles::dsl::*;
-use crate::schema::setting;
-use crate::schema::users;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use diesel::prelude::*;
 use diesel::result::Error;
 use rocket::request::FlashMessage;
+use crate::schema::{articles, users, tokens, setting};
+use rand;
+
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
 pub struct Article {
@@ -26,6 +25,8 @@ pub struct Article {
 
 impl Article {
     pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Article> {
+        use crate::schema::articles::dsl::*;
+        use crate::schema::articles;
         if include_unpublished {
             articles::table.order(publish_at.desc()).load::<Article>(&**conn).expect("something wrong")
         } else {
@@ -100,6 +101,23 @@ impl User {
         hasher.input_str(password);
         hasher.result_str()
     }
+
+    pub fn find_by_id(id:i32, conn: &DbConn) -> Option<User> {
+        use crate::schema::users;
+        let fetched_user = users::table.filter(users::id.eq(id)).first::<User>(&**conn);
+        match fetched_user {
+            Ok(user) => Some(user),
+            Err(_) => None,
+        }
+    }
+    pub fn find_by_username(username:&str, conn: &DbConn) -> Option<User> {
+        use crate::schema::users;
+        let fetched_user = users::table.filter(users::username.eq(username.to_string())).first::<User>(&**conn);
+        match fetched_user {
+            Ok(user) => Some(user),
+            Err(_) => None,
+        }
+    }
 }
 
 #[derive_FromForm]
@@ -124,5 +142,55 @@ impl <'a> SerializeFlashMessage<'a> {
             None => None,
             Some(f) => Some(SerializeFlashMessage{ name: &f.name().clone(), message: &f.msg().clone() })
         }
+    }
+}
+
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
+pub struct Token {
+    pub id: i32,
+    pub user_id: i32,
+    pub value: String,
+    pub expire_at: NaiveDateTime,
+}
+
+#[derive(Insertable, AsChangeset)]
+#[table_name="tokens"]
+pub struct NewToken{
+    pub user_id: i32,
+    pub value: String,
+}
+
+
+impl Token {
+
+    pub fn new(user_id: i32, conn: &DbConn) -> Token {
+        let token = NewToken{
+            user_id: user_id,
+            value: Token::rand(),
+        };
+        diesel::insert_into(tokens::table).values(&token).get_result(&**conn).expect("can not create token")
+    }
+
+    pub fn validate(token:String, conn: &DbConn) -> Option<User> {
+        use crate::schema::{tokens, tokens::dsl::*};
+        let now = Utc::now().naive_utc();
+        let fetched_token = tokens::table.filter(value.eq(token)).filter(expire_at.gt(now)).first::<Token>(&**conn);
+        match fetched_token {
+            Ok(token) => {
+                User::find_by_id(token.user_id, conn)
+            },
+            Err(_) => None
+        }
+
+    }
+
+    pub fn rand() -> String {
+        use rand::RngCore;
+        let mut ret = String::new();
+        for _ in (1..32) {
+            ret.push((rand::random::<u8>() % 255) as char);
+        }
+
+        ret
     }
 }
