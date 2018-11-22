@@ -22,7 +22,6 @@ fn index(setting: SettingMap, conn: DbConn) -> Template {
 
     let article_responses: Vec<ArticleResponse> = result.iter().map(ArticleResponse::from).collect();
 
-    println!("{:?}", setting);
     context.insert("setting", &setting);
     context.insert("articles", &article_responses);
 
