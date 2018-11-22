@@ -21,7 +21,6 @@ extern crate tera;
 
 extern crate rand;
 
-
 use dotenv::dotenv;
 use rocket_contrib::Template;
 

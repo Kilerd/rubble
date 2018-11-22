@@ -10,7 +10,6 @@ use rocket::request::FlashMessage;
 use crate::schema::{articles, users, tokens, setting};
 use rand;
 
-
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
 pub struct Article {
     pub id: i32,
@@ -160,13 +159,14 @@ pub struct NewToken{
     pub value: String,
 }
 
+const TOKEN_SYMBOLS: &'static str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 
 impl Token {
 
-    pub fn new(user_id: i32, conn: &DbConn) -> Token {
+    pub fn create(user_id: i32, conn: &DbConn) -> Token {
         let token = NewToken{
             user_id: user_id,
-            value: Token::rand(),
+            value: Token::rand(64),
         };
         diesel::insert_into(tokens::table).values(&token).get_result(&**conn).expect("can not create token")
     }
@@ -184,11 +184,13 @@ impl Token {
 
     }
 
-    pub fn rand() -> String {
-        use rand::RngCore;
+    pub fn rand(lenth: i32) -> String {
+        let token_string = TOKEN_SYMBOLS.to_string();
         let mut ret = String::new();
-        for _ in (1..32) {
-            ret.push((rand::random::<u8>() % 255) as char);
+        for _ in 0..lenth {
+            let index = (rand::random::<i8>() as i8).abs() % 63;
+
+            ret.push(token_string.chars().nth(index as usize).unwrap());
         }
 
         ret

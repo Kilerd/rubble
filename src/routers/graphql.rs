@@ -28,7 +28,7 @@ pub fn graphql_authorization(user: Form<LoginForm>, conn: DbConn) -> Result<Json
     if !user.authenticated(user_form.password.as_str()) {
         return Err(Failure(Status::Unauthorized));
     }
-    Ok(Json(Token::new(user.id, &conn)))
+    Ok(Json(Token::create(user.id, &conn)))
 }
 
 
