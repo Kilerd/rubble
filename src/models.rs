@@ -8,6 +8,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use rocket::request::FlashMessage;
 use crate::schema::{articles, users, tokens, setting};
+use crate::graphql::input::ModifiedSetting;
 use rand;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
@@ -120,6 +121,7 @@ impl User {
 }
 
 #[derive_FromForm]
+#[derive(GraphQLObject)]
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[table_name = "setting"]
 pub struct Setting {
@@ -127,6 +129,18 @@ pub struct Setting {
     pub value: Option<String>,
 }
 
+impl Setting {
+
+    pub fn modify(modified: &ModifiedSetting, conn: &DbConn) -> Option<Setting> {
+        use crate::schema::setting;
+        let fetched = diesel::update(setting::table.find(&modified.name)).set(modified).get_result::<Setting>(&**conn);
+        match fetched {
+            // match setting::table.find(&modified.name).first::<Setting>(&**conn) {
+            Ok(s) => Some(s),
+            Err(_) => None
+        }
+    }
+}
 
 #[derive(Debug, Serialize)]
 pub struct SerializeFlashMessage <'a> {
@@ -184,16 +198,11 @@ impl Token {
 
     }
 
-    pub fn rand(lenth: i32) -> String {
-        use rand::Rng;
-        let len = TOKEN_SYMBOLS.len();
-        let tokens = TOKEN_SYMBOLS.as_bytes();
-        let mut ret = String::new();
+    pub fn rand(length: i32) -> String {
+        use rand::prelude::SliceRandom;
         let mut rng = rand::thread_rng();
-        for _ in 0..lenth {
-            let index: usize = rng.gen_range(0, len);
-            ret.push(tokens[index] as char);
-        }
-        ret
+        let v:Vec<u8> = TOKEN_SYMBOLS.as_bytes().choose_multiple(&mut rng, length as usize).cloned().collect();
+        String::from_utf8(v).expect("error on generating token")
+
     }
 }

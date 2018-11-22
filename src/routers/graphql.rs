@@ -5,7 +5,7 @@ use crate::graphql::Schema;
 use juniper_rocket::{GraphQLRequest, GraphQLResponse};
 use rocket_contrib::json::Json;
 use rocket::request::Form;
-use crate::request::LoginForm;
+use crate::request::{LoginForm, AdminToken};
 use rocket::response::Failure;
 use rocket::http::Status;
 use crate::models::{User, Token};
@@ -33,13 +33,13 @@ pub fn graphql_authorization(user: Form<LoginForm>, conn: DbConn) -> Result<Json
 
 
 #[get("/graphql?<request>")]
-fn get_graphql_handler(context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
+fn get_graphql_handler(token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
     let schema = state;
     request.execute(&schema, &context)
 }
 
 #[post("/graphql", data = "<request>")]
-fn post_graphql_handler(context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
+fn post_graphql_handler(token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
     let schema = state;
     request.execute(&schema, &context)
 }

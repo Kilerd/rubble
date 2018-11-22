@@ -10,7 +10,7 @@ graphql_object!(Query: DbConn |&self| {
         vec![1, 3, 4]
     }
 
-    field articles(&executor, article_status: ArticlePublishStatus) -> Vec<Article> as "all article" {
+    field articles(&executor, article_status: Option<ArticlePublishStatus>) -> Vec<Article> as "all article" {
         let db_conn = executor.context();
         Article::load_all(true, &db_conn)
     }

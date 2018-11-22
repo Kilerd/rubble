@@ -3,7 +3,7 @@ use r2d2;
 use diesel::r2d2::ConnectionManager;
 
 type ManagedPgConn = ConnectionManager<PgConnection>;
-type Pool = r2d2::Pool<ManagedPgConn>;
+pub type Pool = r2d2::Pool<ManagedPgConn>;
 
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};

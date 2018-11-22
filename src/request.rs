@@ -1,9 +1,12 @@
+use crate::pg_pool::{DbConn, Pool};
 use rocket::http::Status;
 use rocket::outcome::Outcome::Failure;
 use rocket::outcome::Outcome::Success;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
 use rocket::Request;
+use rocket::State;
+use crate::models::Token;
 
 #[derive_FromForm]
 #[derive(Debug)]
@@ -18,11 +21,11 @@ pub struct Admin {
     pub username: String,
 }
 
-// #[derive(Serialize)]
-// pub struct AdminToken {
-//     pub admin: Admin,
-//     pub token: String,
-// }
+#[derive(Serialize)]
+pub struct AdminToken {
+    pub admin: Admin,
+    pub token: String,
+}
 
 #[derive_FromForm]
 #[derive(Debug)]
@@ -59,37 +62,38 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
     }
 }
 
-// impl<'a, 'r> FromRequest<'a, 'r> for AdminToken {
-//     type Error = ();
+impl<'a, 'r> FromRequest<'a, 'r> for AdminToken {
+    type Error = ();
 
-//     fn from_request(request: &'a Request<'r>) -> Outcome<Self, ()> {
-//         let token_manager = request.guard::<State<TokenManager>>()?;
+    fn from_request(request: &'a Request<'r>) -> Outcome<Self, ()> {
+        let pool = request.guard::<State<Pool>>()?;
+        let conn: DbConn;
+        match pool.get() {
+            Ok(pool_conn) => {
+                conn = DbConn(pool_conn);
+            }
+            Err(_) => return Failure((Status::ServiceUnavailable, ())),
+        };
 
-//         let authorization = request.headers().get_one("Authorization");
-//         match authorization {
-//             Some(token) => {
-//                 let tokens: Vec<&str> = token.split(" ").collect();
-//                 if tokens.len() != 2 {
-//                     return Failure((Status::Unauthorized, ()));
-//                 }
-//                 match token_manager.tokens.get(tokens[1]) {
-//                     Some(admin) => {
-//                         return Success(AdminToken{
-//                             admin: Admin {
-//                                 id: admin.id,
-//                                 username: admin.username.to_string()
-//                             },
-//                             token: tokens[1].to_string()
-//                         })
-//                     },
-//                     None => {
-//                         return Failure((Status::Unauthorized, ()));
-//                     }
-//                 }
-                
-//             }
-//             None => Failure((Status::Unauthorized, ())),
-//         }
-//     }
-// }
-
+        let authorization = request.headers().get_one("Authorization");
+        match authorization {
+            Some(token) => {
+                let tokens: Vec<&str> = token.split(' ').collect();
+                if tokens.len() != 2 {
+                    return Failure((Status::Unauthorized, ()));
+                }
+                match Token::validate(tokens[1].to_string(), &conn) {
+                    Some(user) => Success(AdminToken {
+                            admin: Admin {
+                                id: user.id,
+                                username: user.username,
+                            },
+                            token: tokens[1].to_string(),
+                        }),
+                    None => Failure((Status::Unauthorized, ())),
+                }
+            }
+            None => Failure((Status::Unauthorized, ())),
+        }
+    }
+}

@@ -35,7 +35,7 @@ fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookie
 
     let user_form = user.get();
     let fetched = users::table.filter(username.eq(&user_form.username)).first::<User>(&*conn);
-    if let Err(_) = fetched {
+    if fetched.is_err() {
         return Err(Failure(Status::Unauthorized));
     }
     let user: User = fetched.unwrap();

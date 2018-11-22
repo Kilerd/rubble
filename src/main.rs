@@ -13,6 +13,7 @@ extern crate juniper_rocket;
 extern crate pulldown_cmark;
 extern crate r2d2;
 extern crate rocket;
+#[macro_use]
 extern crate rocket_contrib;
 extern crate serde;
 #[macro_use]
@@ -43,7 +44,10 @@ fn main() {
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 
     rocket::ignite()
-        .catch(catchers![catacher::not_found_catcher])
+        .catch(catchers![
+            catacher::not_found_catcher,
+            catacher::unauthorized,
+            ])
         .manage(pg_pool::init(&database_url))
         .manage(Schema::new(Query{}, Mutation{}))
         .mount("/", routes![
