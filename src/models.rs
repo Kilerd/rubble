@@ -186,13 +186,13 @@ impl Token {
 
     pub fn rand(lenth: i32) -> String {
         use rand::Rng;
-        let token_string = TOKEN_SYMBOLS.to_string();
         let len = TOKEN_SYMBOLS.len();
+        let tokens = TOKEN_SYMBOLS.as_bytes();
         let mut ret = String::new();
         let mut rng = rand::thread_rng();
         for _ in 0..lenth {
             let index: usize = rng.gen_range(0, len);
-            ret.push(token_string.chars().nth(index).unwrap());
+            ret.push(tokens[index] as char);
         }
         ret
     }
