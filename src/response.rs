@@ -21,7 +21,7 @@ impl<'a> ArticleResponse<'a> {
         html::push_html(&mut content_buf, parser);
         html::push_html(&mut description_buf, description_parser);
         ArticleResponse {
-            article: article,
+            article,
             timestamp: article.publish_at.timestamp(),
             markdown_content: content_buf,
             description: description_buf,

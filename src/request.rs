@@ -1,12 +1,13 @@
-use crate::pg_pool::{DbConn, Pool};
 use rocket::http::Status;
 use rocket::outcome::Outcome::Failure;
 use rocket::outcome::Outcome::Success;
+use rocket::Request;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
-use rocket::Request;
 use rocket::State;
+
 use crate::models::Token;
+use crate::pg_pool::{DbConn, Pool};
 
 #[derive_FromForm]
 #[derive(Debug)]
@@ -28,6 +29,11 @@ pub struct AdminToken {
 }
 
 #[derive_FromForm]
+pub struct NewPasswordForm {
+    pub password: String,
+}
+
+#[derive_FromForm]
 #[derive(Debug)]
 pub struct ArticleEditForm {
     pub id: Option<i32>,
@@ -36,11 +42,6 @@ pub struct ArticleEditForm {
     pub published: bool,
     pub publish_at: String,
     pub url: Option<String>,
-}
-
-#[derive_FromForm]
-pub struct NewPasswordForm {
-    pub password: String,
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for Admin {

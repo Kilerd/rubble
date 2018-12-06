@@ -1,15 +1,19 @@
 use chrono::NaiveDateTime;
 use chrono::prelude::*;
-use crate::pg_pool::DbConn;
-use crate::request::ArticleEditForm;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use diesel::prelude::*;
 use diesel::result::Error;
-use rocket::request::FlashMessage;
-use crate::schema::{articles, users, tokens, setting};
-use crate::graphql::input::ModifiedSetting;
 use rand;
+use rocket::request::FlashMessage;
+
+use crate::graphql::input::ModifiedSetting;
+use crate::pg_pool::DbConn;
+use crate::request::ArticleEditForm;
+use crate::schema::{articles, setting, tokens, users};
+
+const TOKEN_SYMBOLS: &'static str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
 pub struct Article {
@@ -22,6 +26,57 @@ pub struct Article {
     pub url: Option<String>,
 }
 
+#[derive(Insertable, AsChangeset)]
+#[table_name = "articles"]
+pub struct NewArticle {
+    pub id: Option<i32>,
+    pub title: String,
+    pub body: String,
+    pub published: bool,
+    pub user_id: i32,
+    pub publish_at: NaiveDateTime,
+    pub url: Option<String>,
+}
+
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[table_name = "users"]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub password: String,
+    pub create_at: NaiveDateTime,
+    pub last_login_at: NaiveDateTime,
+}
+
+#[derive_FromForm]
+#[derive(GraphQLObject)]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[table_name = "setting"]
+pub struct Setting {
+    pub name: String,
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SerializeFlashMessage<'a> {
+    pub name: &'a str,
+    pub message: &'a str,
+}
+
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
+pub struct Token {
+    pub id: i32,
+    pub user_id: i32,
+    pub value: String,
+    pub expire_at: NaiveDateTime,
+}
+
+#[derive(Insertable, AsChangeset)]
+#[table_name = "tokens"]
+pub struct NewToken {
+    pub user_id: i32,
+    pub value: String,
+}
 
 impl Article {
     pub fn load_all(include_unpublished: bool, conn: &DbConn) -> Vec<Article> {
@@ -61,28 +116,6 @@ impl Article {
     }
 }
 
-#[derive(Insertable, AsChangeset)]
-#[table_name = "articles"]
-pub struct NewArticle {
-    pub id: Option<i32>,
-    pub title: String,
-    pub body: String,
-    pub published: bool,
-    pub user_id: i32,
-    pub publish_at: NaiveDateTime,
-    pub url: Option<String>,
-}
-
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
-#[table_name = "users"]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-    pub password: String,
-    pub create_at: NaiveDateTime,
-    pub last_login_at: NaiveDateTime,
-}
-
 impl User {
     pub fn authenticated(&self, password: &str) -> bool {
         let mut hasher = Sha3::sha3_256();
@@ -102,7 +135,7 @@ impl User {
         hasher.result_str()
     }
 
-    pub fn find_by_id(id:i32, conn: &DbConn) -> Option<User> {
+    pub fn find_by_id(id: i32, conn: &DbConn) -> Option<User> {
         use crate::schema::users;
         let fetched_user = users::table.filter(users::id.eq(id)).first::<User>(&**conn);
         match fetched_user {
@@ -110,7 +143,7 @@ impl User {
             Err(_) => None,
         }
     }
-    pub fn find_by_username(username:&str, conn: &DbConn) -> Option<User> {
+    pub fn find_by_username(username: &str, conn: &DbConn) -> Option<User> {
         use crate::schema::users;
         let fetched_user = users::table.filter(users::username.eq(username.to_string())).first::<User>(&**conn);
         match fetched_user {
@@ -120,89 +153,51 @@ impl User {
     }
 }
 
-#[derive_FromForm]
-#[derive(GraphQLObject)]
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
-#[table_name = "setting"]
-pub struct Setting {
-    pub name: String,
-    pub value: Option<String>,
-}
-
 impl Setting {
-
     pub fn modify(modified: &ModifiedSetting, conn: &DbConn) -> Option<Setting> {
         use crate::schema::setting;
         let fetched = diesel::update(setting::table.find(&modified.name)).set(modified).get_result::<Setting>(&**conn);
         match fetched {
-            // match setting::table.find(&modified.name).first::<Setting>(&**conn) {
             Ok(s) => Some(s),
             Err(_) => None
         }
     }
 }
 
-#[derive(Debug, Serialize)]
-pub struct SerializeFlashMessage <'a> {
-    pub name: &'a str,
-    pub message: &'a str,
-}
-
-impl <'a> SerializeFlashMessage<'a> {
-
+impl<'a> SerializeFlashMessage<'a> {
     pub fn from(flash: &'a Option<FlashMessage>) -> Option<Self> {
         match flash {
             None => None,
-            Some(f) => Some(SerializeFlashMessage{ name: &f.name().clone(), message: &f.msg().clone() })
+            Some(f) => Some(SerializeFlashMessage { name: &f.name().clone(), message: &f.msg().clone() })
         }
     }
 }
 
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, GraphQLObject)]
-pub struct Token {
-    pub id: i32,
-    pub user_id: i32,
-    pub value: String,
-    pub expire_at: NaiveDateTime,
-}
-
-#[derive(Insertable, AsChangeset)]
-#[table_name="tokens"]
-pub struct NewToken{
-    pub user_id: i32,
-    pub value: String,
-}
-
-const TOKEN_SYMBOLS: &'static str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-
 impl Token {
-
     pub fn create(user_id: i32, conn: &DbConn) -> Token {
-        let token = NewToken{
-            user_id: user_id,
+        let token = NewToken {
+            user_id,
             value: Token::rand(64),
         };
         diesel::insert_into(tokens::table).values(&token).get_result(&**conn).expect("can not create token")
     }
 
-    pub fn validate(token:String, conn: &DbConn) -> Option<User> {
+    pub fn validate(token: String, conn: &DbConn) -> Option<User> {
         use crate::schema::{tokens, tokens::dsl::*};
         let now = Utc::now().naive_utc();
         let fetched_token = tokens::table.filter(value.eq(token)).filter(expire_at.gt(now)).first::<Token>(&**conn);
         match fetched_token {
             Ok(token) => {
                 User::find_by_id(token.user_id, conn)
-            },
+            }
             Err(_) => None
         }
-
     }
 
     pub fn rand(length: i32) -> String {
         use rand::prelude::SliceRandom;
         let mut rng = rand::thread_rng();
-        let v:Vec<u8> = TOKEN_SYMBOLS.as_bytes().choose_multiple(&mut rng, length as usize).cloned().collect();
+        let v: Vec<u8> = TOKEN_SYMBOLS.as_bytes().choose_multiple(&mut rng, length as usize).cloned().collect();
         String::from_utf8(v).expect("error on generating token")
-
     }
 }
