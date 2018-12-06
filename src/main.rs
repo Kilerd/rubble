@@ -39,7 +39,7 @@ use std::collections::HashMap;
 use crate::graphql::{Schema, Query, Mutation};
 
 fn main() {
-    use crate::routers::{admin, article, catacher, graphql};
+    use crate::routers::{admin, article, catacher, graphql, rss};
     dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 
@@ -55,6 +55,8 @@ fn main() {
             article::single_article,
             article::get_article_by_url,
             article::static_content,
+
+            rss::rss,
 
             graphql::graphql_authorization,
             graphql::graphiql,
