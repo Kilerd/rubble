@@ -4,10 +4,14 @@ COPY . /app
 
 WORKDIR /app
 
+RUN cargo install diesel_cli --no-default-features --features postgres
+RUN mkdir -p /out && cp /root/.cargo/bin/diesel /out/
 RUN cargo build --release
 
 
-FROM clux/diesel-cli
+FROM alpine:latest
+
+COPY --from=builder /out/diesel /bin/
 
 COPY --from=builder /app/migrations /application/migrations
 COPY --from=builder /app/Rocket.toml /application/Rocket.toml

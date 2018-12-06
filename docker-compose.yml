@@ -1,0 +1,26 @@
+version: "3"
+services:
+  rubble:
+    image: kilerd/rubble
+    ports:
+      - "9999:8000"
+    environment:
+      DATABASE_URL: postgres://root:password@postgres/rubble
+      ROCKET_SECRET_KEY: Bqgzqe3zIg2siAS6IBUmL9/50GOW1xDBpxXZgSpFbyM=
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:9-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rubble
+    networks:
+      - backend
+
+networks:
+  backend:
