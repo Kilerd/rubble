@@ -7,7 +7,7 @@ use diesel::result::Error;
 use rand;
 use rocket::request::FlashMessage;
 
-use crate::graphql::input::ModifiedSetting;
+use crate::graphql::input::SettingInput;
 use crate::pg_pool::DbConn;
 use crate::request::ArticleEditForm;
 use crate::schema::{articles, setting, tokens, users};
@@ -154,7 +154,7 @@ impl User {
 }
 
 impl Setting {
-    pub fn modify(modified: &ModifiedSetting, conn: &DbConn) -> Option<Setting> {
+    pub fn modify(modified: &SettingInput, conn: &DbConn) -> Option<Setting> {
         use crate::schema::setting;
         let fetched = diesel::update(setting::table.find(&modified.name)).set(modified).get_result::<Setting>(&**conn);
         match fetched {

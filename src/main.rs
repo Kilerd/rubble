@@ -34,8 +34,6 @@ mod routers;
 mod schema;
 mod graphql;
 
-use std::collections::HashMap;
-
 use crate::graphql::{Schema, Query, Mutation};
 
 fn main() {

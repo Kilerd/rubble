@@ -5,12 +5,9 @@ use crate::graphql::input::*;
 use crate::models::Setting;
 
 graphql_object!(Mutation: DbConn |&self| {
-    field create(&executor, new: NewHuman) -> i32 {
-        2
-    }
 
-    field modifySetting(&executor, setting: ModifiedSetting) -> Option<Setting> {
+    field modifySetting(&executor, input: SettingInput) -> Option<Setting> {
         let conn = executor.context();
-        Setting::modify(&setting, &conn)
+        Setting::modify(&input, &conn)
     }
 });
