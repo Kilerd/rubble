@@ -12,3 +12,11 @@ pub struct SettingInput {
     #[graphql(description="new value of the setting")]
     pub value: String,
 }
+
+#[derive(GraphQLInputObject)]
+#[graphql(description="delete article")]
+pub struct DeleteArticleInput {
+
+    #[graphql(description="id of article wanna delete")]
+    pub id: i32,
+}

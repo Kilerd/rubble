@@ -114,6 +114,10 @@ impl Article {
             url: article.url.clone(),
         }
     }
+
+    pub fn delete(id: i32, conn: &DbConn) -> bool {
+        diesel::delete(articles::table.filter(articles::id.eq(id))).execute(&**conn).is_ok()
+    }
 }
 
 impl User {
