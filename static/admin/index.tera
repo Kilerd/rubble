@@ -8,14 +8,24 @@
 <a href="/admin/article/new">new article</a>
 
 <h2>Article List</h2>
-<ul>
-{% for article in articles %}
-<li>
-<a href="/admin/article/{{ article.id }}">{{ article.title }}</a>
-</li>
-{% endfor %}
-
-</ul>
+<table>
+  <tr>
+    <th>id</th>
+    <th>title</th>
+    <th>url</th>
+    <th>publish time</th>
+    <th>action</th>
+  </tr>
+  {% for article in articles %}
+  <tr>
+    <td>{{ article.id }}</td>
+    <td>{{ article.title }}</td>
+    <td>{{ article.url }}</td>
+    <td>{{ article.publish_at }}</td>
+    <td><a href="/admin/article/{{ article.id }}">EDIT</a></td>
+  </tr>
+  {% endfor %}
+</table>
 
 <h2>Change Password</h2>
 
