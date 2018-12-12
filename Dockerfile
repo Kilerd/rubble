@@ -1,13 +1,12 @@
 FROM clux/muslrust:nightly as builder
 
-COPY . /app
-
-WORKDIR /app
-
 RUN cargo install diesel_cli --no-default-features --features postgres
 RUN mkdir -p /out && cp /root/.cargo/bin/diesel /out/
-RUN cargo build --release
 
+COPY . /app
+WORKDIR /app
+
+RUN cargo build --release
 
 FROM alpine:latest
 
