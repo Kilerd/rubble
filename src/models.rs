@@ -48,9 +48,8 @@ pub struct User {
     pub last_login_at: NaiveDateTime,
 }
 
-#[derive_FromForm]
 #[derive(GraphQLObject)]
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[derive(FromForm, Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[table_name = "setting"]
 pub struct Setting {
     pub name: String,

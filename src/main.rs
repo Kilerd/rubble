@@ -1,5 +1,4 @@
-#![feature(custom_attribute, plugin)]
-#![plugin(rocket_codegen)]
+#![feature(proc_macro_hygiene,decl_macro, custom_attribute, plugin)]
 extern crate chrono;
 extern crate crypto;
 #[macro_use]
@@ -12,6 +11,7 @@ extern crate juniper_codegen;
 extern crate juniper_rocket;
 extern crate pulldown_cmark;
 extern crate r2d2;
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -23,8 +23,7 @@ extern crate tera;
 extern crate rand;
 
 use dotenv::dotenv;
-use rocket_contrib::Template;
-
+use rocket_contrib::templates::Template;
 mod guard;
 mod models;
 mod pg_pool;
@@ -42,7 +41,7 @@ fn main() {
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
 
     rocket::ignite()
-        .catch(catchers![
+        .register(catchers![
             catacher::not_found_catcher,
             catacher::unauthorized,
             ])

@@ -9,32 +9,30 @@ use rocket::State;
 use crate::models::Token;
 use crate::pg_pool::{DbConn, Pool};
 
-#[derive_FromForm]
-#[derive(Debug)]
+#[derive(Debug, FromForm)]
 pub struct LoginForm {
     pub username: String,
     pub password: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, FromForm, Debug)]
 pub struct Admin {
     pub id: i32,
     pub username: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug)]
 pub struct AdminToken {
     pub admin: Admin,
     pub token: String,
 }
 
-#[derive_FromForm]
+#[derive(Debug, FromForm)]
 pub struct NewPasswordForm {
     pub password: String,
 }
 
-#[derive_FromForm]
-#[derive(Debug)]
+#[derive(Debug, FromForm)]
 pub struct ArticleEditForm {
     pub id: Option<i32>,
     pub title: String,

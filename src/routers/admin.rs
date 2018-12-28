@@ -16,32 +16,30 @@ use rocket::http::Cookies;
 use rocket::http::Status;
 use rocket::request::FlashMessage;
 use rocket::request::Form;
-use rocket::response::Failure;
 use rocket::response::Flash;
 use rocket::response::Redirect;
-use rocket_contrib::Template;
 use tera::Context;
+use rocket_contrib::templates::Template;
 
 #[get("/login")]
-fn admin_login() -> Template {
+pub fn admin_login() -> Template {
     let context = Context::new();
     Template::render("admin/login", &context)
 }
 
 
 #[post("/login", data = "<user>")]
-fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookies) -> Result<Redirect, Failure> {
+pub fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookies) -> Result<Redirect, Status> {
     use crate::schema::{users, users::dsl::*};
 
-    let user_form = user.get();
-    let fetched = users::table.filter(username.eq(&user_form.username)).first::<User>(&*conn);
+    let fetched = users::table.filter(username.eq(&user.username)).first::<User>(&*conn);
     if fetched.is_err() {
-        return Err(Failure(Status::Unauthorized));
+        return Err(Status::Unauthorized);
     }
     let user: User = fetched.unwrap();
 
-    if !user.authenticated(user_form.password.as_str()) {
-        return Err(Failure(Status::Unauthorized));
+    if !user.authenticated(user.password.as_str()) {
+        return Err(Status::Unauthorized);
     }
 
     cookies.add_private(Cookie::new("LOG_SESSION", user.username));
@@ -53,7 +51,7 @@ fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookie
 
 
 #[get("/")]
-fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> Template {
+pub fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> Template {
     let mut context = Context::new();
 
     let articles = Article::load_all(true, &conn);
@@ -67,7 +65,7 @@ fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> Templ
 
 
 #[get("/article/new")]
-fn article_creation(_admin: Admin) -> Result<Template, Failure> {
+pub fn article_creation(_admin: Admin) -> Result<Template, Status> {
     let mut context = Context::new();
 
     let article = Article {
@@ -86,12 +84,12 @@ fn article_creation(_admin: Admin) -> Result<Template, Failure> {
 
 
 #[get("/article/<article_id>")]
-fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Failure> {
+pub fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Status> {
     let mut context = Context::new();
     let fetched_article = Article::find(article_id, &conn);
 
     if let Err(_err) = fetched_article {
-        return Err(Failure(Status::NotFound));
+        return Err(Status::NotFound);
     }
 
     let article: Article = fetched_article.unwrap();
@@ -101,10 +99,10 @@ fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template
 }
 
 #[post("/article", data = "<article>")]
-fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Failure> {
+pub fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Status> {
     use crate::schema::{articles};
 
-    let article = Article::form_article_edit_form(article.get(), admin.id);
+    let article = Article::form_article_edit_form(&article, admin.id);
     let _fetched_article: QueryResult<Article> = match article.id {
         Some(article_id) => diesel::update(articles::table.find(article_id)).set(&article).get_result(&*conn),
 
@@ -115,21 +113,21 @@ fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> R
 }
 
 #[post("/password", data = "<password_form>")]
-fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
+pub fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
     use crate::schema::{users};
 
     let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
 
-    admin_user.password = User::password_generate(&password_form.get().password).to_string();
+    admin_user.password = User::password_generate(&password_form.password).to_string();
     let _result: QueryResult<User> = diesel::update(users::table.find(admin_user.id)).set(&admin_user).get_result(&*conn);
     Flash::new(Redirect::moved("/admin"), "success", "password is changed successfully")
 }
 
 #[post("/setting", data = "<setting_form>")]
-fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
+pub fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
     use crate::schema::{setting};
 
-    let new_setting = Setting { name: setting_form.get().name.clone(), value: setting_form.get().value.clone() };
-    let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.get().name)).set(&new_setting).get_result(&*conn);
+    let new_setting = Setting { name: setting_form.name.clone(), value: setting_form.value.clone() };
+    let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.name)).set(&new_setting).get_result(&*conn);
     Flash::new(Redirect::to("/admin"), "success", "setting changed")
 }

@@ -1,5 +1,5 @@
 
-use rocket_contrib::Json;
+use rocket_contrib::json::JsonValue;
 
 #[catch(404)]
 pub fn not_found_catcher() -> String {
@@ -7,8 +7,8 @@ pub fn not_found_catcher() -> String {
 }
 
 #[catch(401)]
-pub fn unauthorized() -> Json {
-    Json(json!({
+pub fn unauthorized() -> JsonValue {
+    json!({
         "message": "unauthorized"
-    }))
+    })
 }
