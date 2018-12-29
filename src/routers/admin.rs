@@ -124,10 +124,10 @@ pub fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswo
 }
 
 #[post("/setting", data = "<setting_form>")]
-pub fn change_setting(admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
+pub fn change_setting(_admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
     use crate::schema::{setting};
 
     let new_setting = Setting { name: setting_form.name.clone(), value: setting_form.value.clone() };
-    let fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.name)).set(&new_setting).get_result(&*conn);
+    let _fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.name)).set(&new_setting).get_result(&*conn);
     Flash::new(Redirect::to("/admin"), "success", "setting changed")
 }

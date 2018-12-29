@@ -31,13 +31,13 @@ pub fn graphql_authorization(user: Form<LoginForm>, conn: DbConn) -> Result<Json
 
 
 #[get("/graphql?<request>")]
-pub fn get_graphql_handler(token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
+pub fn get_graphql_handler(_token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
     let schema = state;
     request.execute(&schema, &context)
 }
 
 #[post("/graphql", data = "<request>")]
-pub fn post_graphql_handler(token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
+pub fn post_graphql_handler(_token: AdminToken, context: DbConn, request: GraphQLRequest, state: State<Schema>) -> GraphQLResponse {
     let schema = state;
     request.execute(&schema, &context)
 }
