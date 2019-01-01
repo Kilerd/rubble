@@ -20,7 +20,7 @@ pub fn rss(setting: SettingMap, conn: DbConn) -> content::Xml<String> {
             } else {
                 format!("https://www.kilerd.me/archives/{}", item.article.id)
             },
-            _ => format!("https://www.kilerd.me/archives/{}", item.article.id)
+            None => format!("https://www.kilerd.me/archives/{}", item.article.id)
         };
         ItemBuilder::default()
             .title(item.article.title.clone())
