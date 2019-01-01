@@ -124,7 +124,6 @@ impl User {
         let mut hasher = Sha3::sha3_256();
         hasher.input_str(password);
         let result = hasher.result_str();
-
         if self.password.eq(&result) {
             true
         } else {

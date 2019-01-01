@@ -36,14 +36,13 @@ pub fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Co
     if fetched.is_err() {
         return Err(Status::Unauthorized);
     }
-    let user: User = fetched.unwrap();
-
-    if !user.authenticated(user.password.as_str()) {
+    let fetch_user: User = fetched.unwrap();
+    if !fetch_user.authenticated(user.password.as_str()) {
         return Err(Status::Unauthorized);
     }
 
-    cookies.add_private(Cookie::new("LOG_SESSION", user.username));
-    cookies.add_private(Cookie::new("LOG_ID", user.id.to_string()));
+    cookies.add_private(Cookie::new("LOG_SESSION", fetch_user.username));
+    cookies.add_private(Cookie::new("LOG_ID", fetch_user.id.to_string()));
     cookies.add_private(Cookie::new("LOG_ADMIN", "1"));
 
     Ok(Redirect::to("/admin"))
