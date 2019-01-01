@@ -92,10 +92,11 @@ impl Article {
     }
 
     pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> NewArticle {
+        println!("{:?}", article);
         let timestamp = if article.publish_at.eq("") {
             Utc::now().timestamp()
         } else {
-            NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M").unwrap().timestamp()
+            NaiveDateTime::parse_from_str(&article.publish_at, "%Y-%m-%dT%H:%M:%S").unwrap().timestamp()
         };
 
         let article_id = match article.id {

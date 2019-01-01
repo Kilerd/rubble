@@ -101,11 +101,11 @@ pub fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Temp
 pub fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Status> {
     use crate::schema::{articles};
 
-    let article = Article::form_article_edit_form(&article, admin.id);
-    let _fetched_article: QueryResult<Article> = match article.id {
-        Some(article_id) => diesel::update(articles::table.find(article_id)).set(&article).get_result(&*conn),
+    let new_article = Article::form_article_edit_form(&article, admin.id);
+    let _fetched_article: QueryResult<Article> = match new_article.id {
+        Some(article_id) => diesel::update(articles::table.find(article_id)).set(&new_article).get_result(&*conn),
 
-        None => diesel::insert_into(articles::table).values(&article).get_result(&*conn),
+        None => diesel::insert_into(articles::table).values(&new_article).get_result(&*conn),
     };
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
