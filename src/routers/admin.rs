@@ -102,6 +102,7 @@ pub fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) 
     use crate::schema::{articles};
 
     let new_article = Article::form_article_edit_form(&article, admin.id);
+    println!("{:?}", new_article);
     let _fetched_article: QueryResult<Article> = match new_article.id {
         Some(article_id) => diesel::update(articles::table.find(article_id)).set(&new_article).get_result(&*conn),
 

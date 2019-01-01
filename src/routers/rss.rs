@@ -14,9 +14,17 @@ pub fn rss(setting: SettingMap, conn: DbConn) -> content::Xml<String> {
     let article_responses: Vec<ArticleResponse> = result.iter().map(ArticleResponse::from).collect();
 
     let items: Vec<Item> = article_responses.into_iter().map(|item| {
+        let url = match item.article.url.clone() {
+            Some(content) => if !content.eq("") {
+                format!("https://www.kilerd.me/{}", content)
+            } else {
+                format!("https://www.kilerd.me/archives/{}", item.article.id)
+            },
+            _ => format!("https://www.kilerd.me/archives/{}", item.article.id)
+        };
         ItemBuilder::default()
             .title(item.article.title.clone())
-            .link(item.article.url.clone())
+            .link(url)
             .description(item.description)
             .content(item.markdown_content)
             .pub_date(item.article.publish_at.to_string())

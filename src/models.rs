@@ -26,7 +26,7 @@ pub struct Article {
     pub url: Option<String>,
 }
 
-#[derive(Insertable, AsChangeset)]
+#[derive(Debug, Insertable, AsChangeset)]
 #[table_name = "articles"]
 pub struct NewArticle {
     pub id: Option<i32>,
