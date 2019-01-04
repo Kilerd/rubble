@@ -31,7 +31,7 @@ pub fn index(setting: SettingMap, conn: DbConn) -> Template {
 pub fn single_article(setting: SettingMap, conn: DbConn, archives_id: i32) -> Result<Template, Status> {
     let mut context = Context::new();
 
-    let result: Result<_, _> = articles::table.find(archives_id).first::<Article>(&*conn);
+    let result: Result<_, _> = articles::table.find(archives_id).filter(published.eq(true)).first::<Article>(&*conn);
 
     if let Err(_err) = result {
         return Err(Status::NotFound);
@@ -59,9 +59,9 @@ pub fn static_content(file: PathBuf) -> Result<NamedFile, Status> {
 }
 
 #[get("/<archive_url>", rank = 5)]
-pub fn get_article_by_url(conn: DbConn, archive_url: String) -> Result<Template, Status> {
+pub fn get_article_by_url(setting: SettingMap, conn: DbConn, archive_url: String) -> Result<Template, Status> {
     let mut context = Context::new();
-    let result = articles::table.filter(url.eq(archive_url)).first::<Article>(&*conn);
+    let result = articles::table.filter(url.eq(archive_url)).filter(published.eq(true)).first::<Article>(&*conn);
     if let Err(_err) = result {
         return Err(Status::NotFound);
     }
@@ -70,6 +70,7 @@ pub fn get_article_by_url(conn: DbConn, archive_url: String) -> Result<Template,
 
     let article_response = ArticleResponse::from(&article);
 
+    context.insert("setting", &setting);
     context.insert("article", &article_response);
 
     Ok(Template::render("archives", &context))
