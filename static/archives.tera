@@ -3,11 +3,13 @@
 {% block title %}{{ article.article.title }}{% endblock title %}
 {% block body %}
 
+<section class="full-page">
 <section class="single article">
     <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
     <h2>{{ article.article.title }}</h2>
     <section class="content yue">
         {{ article.markdown_content | safe }}
     </section>
+</section>
 </section>
 {% endblock body %}

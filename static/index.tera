@@ -3,13 +3,14 @@
 {% block title %}{{  setting.title }}{% endblock title %}
 
 {% block body %}
+<section class="full-page">
 <header>
 <section class="container">
 <h1>{{ setting.title }}</h1>
 <p>{{ setting.description }}</p>
 </section>
 </header>
-<content>
+
 <section class="container">
 {% for article in articles %}
     <section class="article">
@@ -23,6 +24,6 @@
 
 
 </section>
-</content>
+</section>
 
 {% endblock body %}

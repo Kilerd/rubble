@@ -11,7 +11,11 @@ html {
     font-size: 14px;
 
 }
-
+section.full-page {
+    min-height: 80vh;
+    margin: 0;
+    padding: 0;
+}
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -39,6 +43,7 @@ header p {
     padding-bottom: 2rem;
 
 }
+
 
 section.article {
     margin: 4rem 0;
@@ -99,6 +104,19 @@ section.article section.desc {
     font-weight: 400;
     padding: 0;
 }
+
+footer {
+    margin: 2rem 0;
+}
+
+footer a {
+    color: #dc1313;
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
 
 /*MARKDOWN*/
 .yue {
