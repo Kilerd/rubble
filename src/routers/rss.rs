@@ -16,11 +16,11 @@ pub fn rss(setting: SettingMap, conn: DbConn) -> content::Xml<String> {
     let items: Vec<Item> = article_responses.into_iter().map(|item| {
         let url = match item.article.url.clone() {
             Some(content) => if !content.eq("") {
-                format!("https://www.kilerd.me/{}", content)
+                format!("{}/{}", setting.url, content)
             } else {
-                format!("https://www.kilerd.me/archives/{}", item.article.id)
+                format!("{}/archives/{}", setting.url, item.article.id)
             },
-            None => format!("https://www.kilerd.me/archives/{}", item.article.id)
+            None => format!("{}/archives/{}", setting.url, item.article.id)
         };
         ItemBuilder::default()
             .title(item.article.title.clone())

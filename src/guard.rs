@@ -13,6 +13,8 @@ use std::collections::HashMap;
 pub struct SettingMap {
     pub title: String,
     pub description: String,
+    pub url: String,
+    pub analysis: String,
 }
 
 impl <'a, 'r> FromRequest<'a, 'r> for SettingMap {
@@ -37,6 +39,9 @@ impl <'a, 'r> FromRequest<'a, 'r> for SettingMap {
         Outcome::Success(SettingMap{
             title: settings_map.get("title").unwrap_or(&"".to_string()).clone(),
             description: settings_map.get("description").unwrap_or(&"".to_string()).clone(),
+
+            url: settings_map.get("url").unwrap_or(&"".to_string()).clone(),
+            analysis: settings_map.get("analysis").unwrap_or(&"".to_string()).clone()
         })
 
     }

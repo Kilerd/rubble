@@ -28,7 +28,7 @@ pub fn index(setting: SettingMap, conn: DbConn) -> Template {
 }
 
 #[get("/archives/<archives_id>")]
-pub fn single_article(conn: DbConn, archives_id: i32) -> Result<Template, Status> {
+pub fn single_article(setting: SettingMap, conn: DbConn, archives_id: i32) -> Result<Template, Status> {
     let mut context = Context::new();
 
     let result: Result<_, _> = articles::table.find(archives_id).first::<Article>(&*conn);
@@ -41,6 +41,7 @@ pub fn single_article(conn: DbConn, archives_id: i32) -> Result<Template, Status
 
     let article_response = ArticleResponse::from(&article);
 
+    context.insert("setting", &setting);
     context.insert("article", &article_response);
 
     Ok(Template::render("archives", &context))
