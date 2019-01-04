@@ -22,7 +22,7 @@
     <td>{{ article.title }}</td>
     <td>{{ article.url }}</td>
     <td>{{ article.publish_at }}</td>
-    <td><a href="/admin/article/{{ article.id }}">EDIT</a></td>
+    <td><a href="/admin/article/{{ article.id }}">EDIT</a> <form action="/admin/article/{{ article.id }}" method="POST"> <input type="hidden" name="_method" value="DELETE"> <button>DELETE</button></form></td>
   </tr>
   {% endfor %}
 </table>

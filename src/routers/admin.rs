@@ -55,7 +55,6 @@ pub fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> T
 
     let articles = Article::load_all(true, &conn);
 
-    println!("{:?}", flash);
     context.insert("admin", &admin);
     context.insert("articles", &articles);
     context.insert("flash", &SerializeFlashMessage::from(&flash));
@@ -110,6 +109,12 @@ pub fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) 
     };
 
     Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
+}
+#[delete("/article/<article_id>")]
+pub fn delete_article(admin: Admin, conn:DbConn, article_id: i32) -> Flash<Redirect> {
+    use crate::schema::articles;
+    diesel::delete(articles::table.filter(articles::id.eq(article_id))).execute(&*conn);
+    Flash::new(Redirect::to("/admin"), "success", "deleted")
 }
 
 #[post("/password", data = "<password_form>")]

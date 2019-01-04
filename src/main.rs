@@ -66,6 +66,7 @@ fn main() {
             admin::admin_index,
             admin::article_edit,
             admin::save_article,
+            admin::delete_article,
             admin::article_creation,
             admin::change_password,
             admin::change_setting
