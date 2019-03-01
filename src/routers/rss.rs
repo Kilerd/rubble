@@ -42,6 +42,7 @@ pub fn rss(setting: SettingMap, conn: DbConn) -> content::Xml<String> {
         .title(setting.title)
         .description(setting.description)
         .generator("Rubble".to_string())
+        .link(setting.url.clone())
         .items(items)
         .namespaces(namespaces)
         .build()
