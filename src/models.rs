@@ -92,7 +92,6 @@ impl Article {
     }
 
     pub fn form_article_edit_form(article: &ArticleEditForm, current_user_id: i32) -> NewArticle {
-        println!("{:?}", article);
         let timestamp = if article.publish_at.eq("") {
             Utc::now().timestamp()
         } else {
