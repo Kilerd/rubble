@@ -5,6 +5,10 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 
+use diesel::query_builder::AsChangeset;
+use diesel::{Insertable, Queryable};
+use serde::Serialize;
+
 #[derive(Queryable, Debug, Serialize)]
 #[table_name = "articles"]
 pub struct Article {
@@ -31,26 +35,29 @@ pub struct NewArticle {
 
 impl CRUD<NewArticle, NewArticle, i32> for Article {
     fn create(conn: &PgConnection, from: &NewArticle) -> Result<Self, Error> {
-        unimplemented!()
+        diesel::insert_into(articles::table)
+            .values(from)
+            .get_result(conn)
     }
 
     fn read(conn: &PgConnection) -> Vec<Self> {
-        use crate::schema::articles::dsl::*;
         articles::table
-            .order(publish_at.desc())
+            .order(articles::publish_at.desc())
             .load::<Article>(conn)
             .expect("something wrong")
     }
 
     fn update(conn: &PgConnection, pk: i32, value: &NewArticle) -> Result<Self, Error> {
-        unimplemented!()
+        diesel::update(articles::table.find(pk))
+            .set(value)
+            .get_result(conn)
     }
 
     fn delete(conn: &PgConnection, pk: i32) -> Result<usize, Error> {
-        unimplemented!()
+        diesel::delete(articles::table.filter(articles::id.eq(pk))).execute(conn)
     }
 
     fn get_by_pk(conn: &PgConnection, pk: i32) -> Result<Self, Error> {
-        unimplemented!()
+        articles::table.find(pk).first::<Article>(conn)
     }
 }

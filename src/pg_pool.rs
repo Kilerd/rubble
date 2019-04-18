@@ -1,14 +1,11 @@
 use diesel::pg::PgConnection;
-use r2d2;
 use diesel::r2d2::ConnectionManager;
+use r2d2;
+use std::ops::Deref;
 
 type ManagedPgConn = ConnectionManager<PgConnection>;
-pub type Pool = r2d2::Pool<ManagedPgConn>;
 
-use rocket::http::Status;
-use rocket::request::{self, FromRequest};
-use rocket::{Outcome, Request, State};
-use std::ops::Deref;
+pub type Pool = r2d2::Pool<ManagedPgConn>;
 
 pub struct DbConn(pub r2d2::PooledConnection<ManagedPgConn>);
 

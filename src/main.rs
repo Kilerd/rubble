@@ -2,19 +2,20 @@
 
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 use actix_web::{
     middleware::{cors::Cors, Logger},
-    App, HttpServer,
+    web, App, HttpServer,
 };
-use diesel_migrations::embed_migrations;
+
 use dotenv::dotenv;
 
 use crate::pg_pool::database_pool_establish;
 
 mod guard;
 mod models;
-mod modelss;
 mod pg_pool;
 mod request;
 mod response;
@@ -29,13 +30,14 @@ fn main() -> std::io::Result<()> {
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
     let pool = database_pool_establish(&database_url);
 
-    embed_migrations::run(&poll.get());
+    embedded_migrations::run(&pool.get().expect("cannot get connection"));
 
     HttpServer::new(move || {
         App::new()
-            .data(pool)
+            .data(pool.clone())
             .wrap(Logger::default())
             .wrap(Cors::default())
+            .default_service(web::route().to(|| "hello world"))
     })
     .bind(("127.0.0.1", 8000))?
     .system_exit()
