@@ -1,10 +1,10 @@
 use actix_web::{HttpRequest, HttpResponse, Responder};
 
+pub mod admin;
 pub mod article;
 use actix_web::error::Error;
 use futures::future::{err, ok, FutureResult};
 
-//pub mod admin;
 //pub mod rss;
 //pub mod catacher;
 //pub mod graphql;

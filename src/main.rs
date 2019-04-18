@@ -37,6 +37,7 @@ embed_migrations!();
 fn main() -> std::io::Result<()> {
     dotenv().ok();
     //    let sys = actix::System::new("lemmy");
+    pretty_env_logger::init();
 
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
     let pool = database_pool_establish(&database_url);
@@ -67,7 +68,13 @@ fn main() -> std::io::Result<()> {
                 "/statics",
                 "./templates/resources/",
             ))
-            .service(routers::article::get_article_by_url)
+            .service(routers::admin::redirect_to_admin_panel)
+            .service(
+                web::scope("/admin/")
+                    .service(routers::admin::admin_panel)
+                    .service(routers::admin::admin_login),
+            )
+        //            .service(routers::article::get_article_by_url)
     })
     .bind(("127.0.0.1", 8000))?
     .system_exit()

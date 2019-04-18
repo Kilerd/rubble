@@ -21,11 +21,57 @@
 //use tera::Context;
 //use rocket_contrib::templates::Template;
 //
-//#[get("/login")]
-//pub fn admin_login() -> Template {
-//    let context = Context::new();
-//    Template::render("admin/login", &context)
-//}
+
+use crate::models::article::Article;
+
+use crate::models::setting::Setting;
+use crate::models::user::User;
+use crate::models::CRUD;
+use crate::pg_pool::Pool;
+use crate::routers::RubbleResponder;
+use actix_web::middleware::identity::Identity;
+use actix_web::{get, web, Either, HttpResponse, Responder};
+use std::sync::Arc;
+use tera::{Context, Tera};
+
+#[get("/admin")]
+pub fn redirect_to_admin_panel() -> impl Responder {
+    RubbleResponder::Redirect("/admin/panel".into())
+}
+
+#[get("/panel")]
+pub fn admin_panel(
+    id: Identity,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    let connection = conn.get().unwrap();
+
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+
+    let articles = Article::read(&connection);
+    let settings = Setting::load(&connection);
+
+    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("articles", &articles);
+    context.insert("admin", &admin);
+
+    RubbleResponder::Html(tera.render("admin/panel.html", &context).unwrap())
+}
+
+#[get("/login")]
+pub fn admin_login(id: Identity, tera: web::Data<Arc<Tera>>) -> impl Responder {
+    match id.identity() {
+        Some(_) => RubbleResponder::Redirect("/admin/panel".into()),
+        None => RubbleResponder::Html(tera.render("admin/login.html", &Context::new()).unwrap()),
+    }
+}
 //
 //
 //#[post("/login", data = "<user>")]
