@@ -1,19 +1,3 @@
-//use crate::guard::SettingMap;
-//use crate::models::Article;
-//use crate::pg_pool::DbConn;
-//use crate::response::ArticleResponse;
-//use crate::schema::{articles::dsl::*};
-//use crate::schema::articles;
-//use diesel::prelude::*;
-//use rocket::http::Status;
-//use rocket::response::NamedFile;
-//use rocket_contrib::templates::Template;
-//use std::path::Path;
-//use std::path::PathBuf;
-//use tera::Context;
-//
-//
-
 use crate::models::article::Article;
 use crate::models::setting::Setting;
 use crate::models::CRUD;

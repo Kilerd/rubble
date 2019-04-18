@@ -20,9 +20,9 @@ impl Responder for RubbleResponder {
 
     fn respond_to(self, req: &HttpRequest) -> Self::Future {
         match self {
-            RubbleResponder::Html(content) => {
-                ok(HttpResponse::Ok().content_type("text/html").body(content))
-            }
+            RubbleResponder::Html(content) => ok(HttpResponse::Ok()
+                .content_type("text/html; charset=utf-8")
+                .body(content)),
             RubbleResponder::Redirect(content) => ok(HttpResponse::Ok()
                 .content_type("text/html")
                 .body("redirect")),
