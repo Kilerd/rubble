@@ -1,76 +1,46 @@
-#![feature(proc_macro_hygiene,decl_macro, custom_attribute, plugin)]
-extern crate chrono;
-extern crate crypto;
+#![feature(proc_macro_hygiene, decl_macro, custom_attribute, plugin)]
+
 #[macro_use]
 extern crate diesel;
-extern crate dotenv;
-#[macro_use]
-extern crate juniper;
-#[macro_use]
-extern crate juniper_codegen;
-extern crate juniper_rocket;
-extern crate pulldown_cmark;
-extern crate r2d2;
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate tera;
 
-extern crate rand;
-
+use actix_web::{
+    middleware::{cors::Cors, Logger},
+    App, HttpServer,
+};
+use diesel_migrations::embed_migrations;
 use dotenv::dotenv;
-use rocket_contrib::templates::Template;
+
+use crate::pg_pool::database_pool_establish;
+
 mod guard;
 mod models;
+mod modelss;
 mod pg_pool;
 mod request;
 mod response;
 mod routers;
 mod schema;
-mod graphql;
 
-use crate::graphql::{Schema, Query, Mutation};
+embed_migrations!();
 
-fn main() {
-    use crate::routers::{admin, article, catacher, graphql, rss};
+fn main() -> std::io::Result<()> {
+    let sys = actix::System::new("lemmy");
     dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
+    let pool = database_pool_establish(&database_url);
 
-    rocket::ignite()
-        .register(catchers![
-            catacher::not_found_catcher,
-            catacher::unauthorized,
-            ])
-        .manage(pg_pool::init(&database_url))
-        .manage(Schema::new(Query{}, Mutation{}))
-        .mount("/", routes![
-            article::index,
-            article::single_article,
-            article::get_article_by_url,
-            article::static_content,
+    embed_migrations::run(&poll.get());
 
-            rss::rss,
+    HttpServer::new(move || {
+        App::new()
+            .data(pool)
+            .wrap(Logger::default())
+            .wrap(Cors::default())
+    })
+    .bind(("127.0.0.1", 8000))?
+    .system_exit()
+    .start();
 
-            graphql::graphql_authorization,
-            graphql::graphiql,
-            graphql::get_graphql_handler,
-            graphql::post_graphql_handler
-            ])
-        .mount("/admin", routes![
-            admin::admin_login,
-            admin::admin_authentication,
-            admin::admin_index,
-            admin::article_edit,
-            admin::save_article,
-            admin::delete_article,
-            admin::article_creation,
-            admin::change_password,
-            admin::change_setting
-            ])
-        .attach(Template::fairing())
-        .launch();
+    sys.run();
+    Ok(())
 }
