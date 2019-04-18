@@ -6,13 +6,18 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use actix_web::{
-    middleware::{cors::Cors, Logger},
+    middleware::{
+        cors::Cors,
+        identity::{CookieIdentityPolicy, Identity, IdentityService},
+        Logger,
+    },
     web, App, HttpServer,
 };
 
 use dotenv::dotenv;
 
 use crate::pg_pool::database_pool_establish;
+use rand::prelude::*;
 use std::rc::Rc;
 use std::sync::Arc;
 use tera::compile_templates;
@@ -36,12 +41,14 @@ fn main() -> std::io::Result<()> {
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
     let pool = database_pool_establish(&database_url);
 
+    embedded_migrations::run(&pool.get().expect("cannot get connection"));
+
     let tera = Arc::new(compile_templates!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/templates/**/*.html"
     )));
 
-    embedded_migrations::run(&pool.get().expect("cannot get connection"));
+    let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
 
     HttpServer::new(move || {
         App::new()
@@ -49,6 +56,11 @@ fn main() -> std::io::Result<()> {
             .data(tera.clone())
             .wrap(Logger::default())
             .wrap(Cors::default())
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(&random_cookie_key)
+                    .name("auth-cookie")
+                    .secure(true),
+            ))
             .service(routers::article::homepage)
             .service(routers::article::single_article)
             .service(actix_files::Files::new(
