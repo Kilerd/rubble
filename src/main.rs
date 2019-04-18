@@ -50,6 +50,7 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(Cors::default())
             .service(routers::article::homepage)
+            .service(routers::article::single_article)
             .service(actix_files::Files::new(
                 "/statics",
                 "./templates/resources/",
