@@ -1,6 +1,10 @@
 use diesel::pg::{Pg, PgConnection};
 use diesel::result::Error;
 
+pub mod article;
+pub mod setting;
+pub mod user;
+
 pub trait CRUD<CreatedModel, UpdateModel, PK> {
     fn create(conn: &PgConnection, from: &CreatedModel) -> Result<Self, Error>;
     fn read(conn: &PgConnection) -> Vec<Self>;
