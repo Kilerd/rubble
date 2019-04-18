@@ -26,11 +26,7 @@ impl User {
         let mut hasher = Sha3::sha3_256();
         hasher.input_str(password);
         let result = hasher.result_str();
-        if self.password.eq(&result) {
-            true
-        } else {
-            false
-        }
+        self.password.eq(&result)
     }
 
     pub fn password_generate(password: &str) -> String {

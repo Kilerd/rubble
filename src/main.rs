@@ -21,6 +21,7 @@ use rand::prelude::*;
 use std::rc::Rc;
 use std::sync::Arc;
 use tera::compile_templates;
+use time::Duration;
 
 mod guard;
 mod models;
@@ -60,7 +61,8 @@ fn main() -> std::io::Result<()> {
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&random_cookie_key)
                     .name("auth-cookie")
-                    .secure(true),
+                    .secure(false)
+                    .max_age(Duration::days(3)),
             ))
             .service(routers::article::homepage)
             .service(routers::article::single_article)
@@ -72,7 +74,8 @@ fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/admin/")
                     .service(routers::admin::admin_panel)
-                    .service(routers::admin::admin_login),
+                    .service(routers::admin::admin_login)
+                    .service(routers::admin::admin_authentication),
             )
         //            .service(routers::article::get_article_by_url)
     })

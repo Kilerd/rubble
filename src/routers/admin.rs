@@ -30,9 +30,17 @@ use crate::models::CRUD;
 use crate::pg_pool::Pool;
 use crate::routers::RubbleResponder;
 use actix_web::middleware::identity::Identity;
-use actix_web::{get, web, Either, HttpResponse, Responder};
+use actix_web::web::Form;
+use actix_web::{get, post, web, Either, HttpResponse, Responder};
+use serde::Deserialize;
 use std::sync::Arc;
 use tera::{Context, Tera};
+
+#[derive(Deserialize)]
+struct LoginForm {
+    pub username: String,
+    pub password: String,
+}
 
 #[get("/admin")]
 pub fn redirect_to_admin_panel() -> impl Responder {
@@ -72,27 +80,30 @@ pub fn admin_login(id: Identity, tera: web::Data<Arc<Tera>>) -> impl Responder {
         None => RubbleResponder::Html(tera.render("admin/login.html", &Context::new()).unwrap()),
     }
 }
-//
-//
-//#[post("/login", data = "<user>")]
-//pub fn admin_authentication(user: Form<LoginForm>, conn: DbConn, mut cookies: Cookies) -> Result<Redirect, Status> {
-//    use crate::schema::{users, users::dsl::*};
-//
-//    let fetched = users::table.filter(username.eq(&user.username)).first::<User>(&*conn);
-//    if fetched.is_err() {
-//        return Err(Status::Unauthorized);
-//    }
-//    let fetch_user: User = fetched.unwrap();
-//    if !fetch_user.authenticated(user.password.as_str()) {
-//        return Err(Status::Unauthorized);
-//    }
-//
-//    cookies.add_private(Cookie::new("LOG_SESSION", fetch_user.username));
-//    cookies.add_private(Cookie::new("LOG_ID", fetch_user.id.to_string()));
-//    cookies.add_private(Cookie::new("LOG_ADMIN", "1"));
-//
-//    Ok(Redirect::to("/admin"))
-//}
+
+#[post("/login")]
+pub fn admin_authentication(
+    id: Identity,
+    user: Form<LoginForm>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    let connection = conn.get().unwrap();
+
+    let fetched_user = User::find_by_username(&connection, &user.username);
+
+    match fetched_user {
+        Ok(login_user) => {
+            if login_user.authenticated(&user.password) {
+                id.remember(login_user.username);
+                RubbleResponder::Redirect("/admin/panel".into())
+            } else {
+                // TODO flash message or throw unauthorized
+                RubbleResponder::Redirect("/admin/login".into())
+            }
+        }
+        Err(_) => RubbleResponder::Redirect("/admin/login".into()),
+    }
+}
 //
 //
 //#[get("/")]
