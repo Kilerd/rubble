@@ -43,7 +43,7 @@ impl CRUD<NewArticle, NewArticle, i32> for Article {
     fn read(conn: &PgConnection) -> Vec<Self> {
         articles::table
             .order(articles::publish_at.desc())
-            .load::<Article>(conn)
+            .load::<Self>(conn)
             .expect("something wrong")
     }
 

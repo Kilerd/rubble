@@ -5,11 +5,50 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::Serialize;
+use std::collections::HashMap;
+
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[table_name = "setting"]
 pub struct Setting {
     pub name: String,
     pub value: Option<String>,
+}
+
+#[derive(Serialize)]
+pub struct SettingMap {
+    pub title: String,
+    pub description: String,
+    pub url: String,
+    pub analysis: String,
+}
+
+impl Setting {
+    pub fn load(conn: &PgConnection) -> SettingMap {
+        let settings = setting::table.load::<Setting>(conn).unwrap();
+
+        let mut settings_map: HashMap<String, String> = HashMap::new();
+
+        for one_setting in settings {
+            settings_map.insert(
+                one_setting.name,
+                one_setting.value.unwrap_or("".to_string()),
+            );
+        }
+
+        SettingMap {
+            title: settings_map.get("title").unwrap_or(&"".to_string()).clone(),
+            description: settings_map
+                .get("description")
+                .unwrap_or(&"".to_string())
+                .clone(),
+
+            url: settings_map.get("url").unwrap_or(&"".to_string()).clone(),
+            analysis: settings_map
+                .get("analysis")
+                .unwrap_or(&"".to_string())
+                .clone(),
+        }
+    }
 }
 
 impl CRUD<(), Setting, String> for Setting {

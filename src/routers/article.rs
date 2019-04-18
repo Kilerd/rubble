@@ -26,6 +26,32 @@
 //
 //    Template::render("index", &context)
 //}
+
+use crate::models::article::Article;
+use crate::models::setting::Setting;
+use crate::models::CRUD;
+use crate::pg_pool::Pool;
+use crate::view::article::ArticleView;
+use actix_web::{get, web, HttpResponse, Responder};
+use std::sync::Arc;
+use tera::{Context, Tera};
+
+#[get("/")]
+pub fn homepage(tera: web::Data<Arc<Tera>>, conn: web::Data<Pool>) -> impl Responder {
+    let connection = conn.get().unwrap();
+    let vec = Article::read(&connection);
+
+    let articles: Vec<ArticleView> = vec.iter().map(ArticleView::from).collect();
+    let settings = Setting::load(&connection);
+
+    let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("articles", &articles);
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .body(tera.render("homepage.html", &context).unwrap())
+}
+
 //
 ////#[get("/archives/<archives_id>")]
 //pub fn single_article(setting: SettingMap, conn: DbConn, archives_id: i32) -> Result<Template, Status> {
@@ -49,7 +75,7 @@
 //
 ////#[get("/statics/<file..>")]
 //pub fn static_content(file: PathBuf) -> Result<NamedFile, Status> {
-//    let path = Path::new("static/resources/").join(file);
+//    let path = Path::new("templates/resources/").join(file);
 //    let result = NamedFile::open(&path);
 //    if let Ok(file) = result {
 //        Ok(file)
