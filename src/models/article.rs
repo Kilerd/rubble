@@ -33,6 +33,15 @@ pub struct NewArticle {
     pub url: Option<String>,
 }
 
+impl Article {
+    pub fn find_by_url(conn: &PgConnection, url: &str) -> Result<Self, Error> {
+        articles::table
+            .filter(articles::url.eq(url))
+            .filter(articles::published.eq(true))
+            .first::<Article>(conn)
+    }
+}
+
 impl CRUD<NewArticle, NewArticle, i32> for Article {
     fn create(conn: &PgConnection, from: &NewArticle) -> Result<Self, Error> {
         diesel::insert_into(articles::table)

@@ -55,8 +55,9 @@ fn main() -> std::io::Result<()> {
                 "/statics",
                 "./templates/resources/",
             ))
+            .service(routers::article::get_article_by_url)
     })
     .bind(("127.0.0.1", 8000))?
-    //    .system_exit()
+    .system_exit()
     .run()
 }
