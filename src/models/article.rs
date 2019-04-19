@@ -10,7 +10,6 @@ use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
-#[table_name = "articles"]
 pub struct Article {
     pub id: i32,
     pub title: String,
