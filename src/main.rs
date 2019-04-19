@@ -24,21 +24,17 @@ use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;
 
-mod guard;
 mod models;
 mod pg_pool;
-mod request;
-mod response;
 mod routers;
 mod schema;
-mod template;
 mod view;
 
 embed_migrations!();
 
-fn main() -> std::io::Result<()> {
+fn main() {
     dotenv().ok();
-    //    let sys = actix::System::new("lemmy");
+    let sys = actix::System::new("rubble");
     pretty_env_logger::init();
 
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
@@ -87,7 +83,10 @@ fn main() -> std::io::Result<()> {
             .service(routers::rss::rss_page)
             .service(routers::article::get_article_by_url)
     })
-    .bind(("127.0.0.1", 8000))?
+    .bind(("127.0.0.1", 8000))
+    .unwrap()
     .system_exit()
-    .run()
+    .start();
+
+    sys.run();
 }

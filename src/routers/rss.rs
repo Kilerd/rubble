@@ -10,7 +10,6 @@ pub fn rss_page(conn: web::Data<Pool>) -> impl Responder {
     let connection = conn.get().unwrap();
     let articles = Article::read(&connection);
     let setting = Setting::load(&connection);
-    //    let article_responses: Vec<ArticleResponse> = articles.iter().map(ArticleView::from).collect();
 
     let items: Vec<Item> = articles
         .iter()

@@ -6,8 +6,6 @@ use actix_web::error::Error;
 use futures::future::{err, ok, FutureResult};
 
 pub mod rss;
-//pub mod catacher;
-//pub mod graphql;
 
 pub enum RubbleResponder {
     Html(String),

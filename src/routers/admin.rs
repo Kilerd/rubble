@@ -1,27 +1,3 @@
-//use chrono::NaiveDateTime;
-//use chrono::Utc;
-//use crate::models::Article;
-//use crate::models::SerializeFlashMessage;
-//use crate::models::Setting;
-//use crate::models::User;
-//use crate::pg_pool::DbConn;
-//use crate::request::Admin;
-//use crate::request::ArticleEditForm;
-//use crate::request::LoginForm;
-//use crate::request::NewPasswordForm;
-//use diesel;
-//use diesel::prelude::*;
-//use rocket::http::Cookie;
-//use rocket::http::Cookies;
-//use rocket::http::Status;
-//use rocket::request::FlashMessage;
-//use rocket::request::Form;
-//use rocket::response::Flash;
-//use rocket::response::Redirect;
-//use tera::Context;
-//use rocket_contrib::templates::Template;
-//
-
 use crate::models::article::{Article, NewArticle};
 
 use crate::models::setting::Setting;
