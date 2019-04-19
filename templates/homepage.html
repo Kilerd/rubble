@@ -1,4 +1,4 @@
-{% extends "base" %}
+{% extends "base.html" %}
 
 {% block title %}{{  setting.title }}{% endblock title %}
 
@@ -12,15 +12,15 @@
 </header>
 
 <section class="container">
-{% for article in articles %}
+    {% for article in articles %}
     <section class="article">
         <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
         <a class="title" href="{% if article.article.url %}{{ article.article.url }}{% else %}archives/{{ article.article.id }}{% endif %}">{{ article.article.title }}</a>
         <section class="yue desc">
-            {{ article.description }}
+            {{ article.description|safe }}
         </section>
     </section>
-{% endfor %}
+    {% endfor %}
 
 
 </section>

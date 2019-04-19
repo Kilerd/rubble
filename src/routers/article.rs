@@ -1,77 +1,84 @@
-use crate::guard::SettingMap;
-use crate::models::Article;
-use crate::pg_pool::DbConn;
-use crate::response::ArticleResponse;
-use crate::schema::{articles::dsl::*};
-use crate::schema::articles;
-use diesel::prelude::*;
-use rocket::http::Status;
-use rocket::response::NamedFile;
-use rocket_contrib::templates::Template;
-use std::path::Path;
-use std::path::PathBuf;
-use tera::Context;
-
+use crate::models::article::Article;
+use crate::models::setting::Setting;
+use crate::models::CRUD;
+use crate::pg_pool::Pool;
+use crate::routers::RubbleResponder;
+use crate::view::article::ArticleView;
+use actix_web::{get, web, Either, HttpResponse, Responder};
+use std::sync::Arc;
+use tera::{Context, Tera};
 
 #[get("/")]
-pub fn index(setting: SettingMap, conn: DbConn) -> Template {
+pub fn homepage(tera: web::Data<Arc<Tera>>, conn: web::Data<Pool>) -> impl Responder {
+    let connection = conn.get().unwrap();
+    let vec: Vec<Article> = Article::read(&connection);
+
+    let article_view: Vec<_> = vec
+        .iter()
+        .filter(|article| article.published == true)
+        .map(ArticleView::from)
+        .collect();
+
+    //    let articles: Vec<ArticleView> = vec.iter().map(ArticleView::from).collect();
+    let settings = Setting::load(&connection);
+
     let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("articles", &article_view);
 
-    let result = articles::table.filter(published.eq(true)).order(publish_at.desc()).load::<Article>(&*conn).expect("cannot load articles");
-
-    let article_responses: Vec<ArticleResponse> = result.iter().map(ArticleResponse::from).collect();
-
-    context.insert("setting", &setting);
-    context.insert("articles", &article_responses);
-
-    Template::render("index", &context)
+    RubbleResponder::Html(tera.render("homepage.html", &context).unwrap())
 }
 
-#[get("/archives/<archives_id>")]
-pub fn single_article(setting: SettingMap, conn: DbConn, archives_id: i32) -> Result<Template, Status> {
-    let mut context = Context::new();
+#[get("/archives/{archives_id}")]
+pub fn single_article(
+    archives_id: web::Path<i32>,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    let connection = conn.get().unwrap();
+    let article = Article::get_by_pk(&connection, archives_id.into_inner());
 
-    let result: Result<_, _> = articles::table.find(archives_id).filter(published.eq(true)).first::<Article>(&*conn);
+    if let Err(e) = article {
+        return RubbleResponder::NotFound;
+    }
+    let article1 = article.unwrap();
 
-    if let Err(_err) = result {
-        return Err(Status::NotFound);
+    if let Some(to) = article1.url {
+        return RubbleResponder::Redirect(format!("/{}", to));
     }
 
-    let article: Article = result.unwrap();
+    let view = ArticleView::from(&article1);
 
-    let article_response = ArticleResponse::from(&article);
+    let settings = Setting::load(&connection);
 
-    context.insert("setting", &setting);
-    context.insert("article", &article_response);
+    let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("article", &view);
 
-    Ok(Template::render("archives", &context))
+    RubbleResponder::Html(tera.render("archives.html", &context).unwrap())
 }
 
-#[get("/statics/<file..>")]
-pub fn static_content(file: PathBuf) -> Result<NamedFile, Status> {
-    let path = Path::new("static/resources/").join(file);
-    let result = NamedFile::open(&path);
-    if let Ok(file) = result {
-        Ok(file)
-    } else {
-        Err(Status::NotFound)
-    }
-}
+#[get("/{url}")]
+pub fn get_article_by_url(
+    url: web::Path<String>,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    let connection = conn.get().unwrap();
+    let article = Article::find_by_url(&connection, &url.into_inner());
 
-#[get("/<archive_url>", rank = 5)]
-pub fn get_article_by_url(setting: SettingMap, conn: DbConn, archive_url: String) -> Result<Template, Status> {
+    if let Err(e) = article {
+        return RubbleResponder::NotFound;
+    }
+    let article1 = article.unwrap();
+
+    let view = ArticleView::from(&article1);
+
+    let settings = Setting::load(&connection);
+
     let mut context = Context::new();
-    let result = articles::table.filter(url.eq(archive_url)).filter(published.eq(true)).first::<Article>(&*conn);
-    if let Err(_err) = result {
-        return Err(Status::NotFound);
-    }
+    context.insert("setting", &settings);
+    context.insert("article", &view);
 
-    let article = result.unwrap();
-
-    let article_response = ArticleResponse::from(&article);
-
-    context.insert("setting", &setting);
-    context.insert("article", &article_response);
-
-    Ok(Template::render("archives", &context))
+    RubbleResponder::Html(tera.render("archives.html", &context).unwrap())
 }

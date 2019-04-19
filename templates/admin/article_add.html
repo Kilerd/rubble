@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<form action="/admin/article" method="post">
+
+    {% if article.id %}<input type="hidden" name="id" value="{{ article.id }}">{% endif %}
+    <input type="text" name="title" placeholder="title" required value="{{ article.title }}">
+    <input type="text" name="url" placeholder="url" value="{{ article.url }}">
+    <input type="hidden" name="user_id" value="{{ article.user_id }}">
+    <textarea name="body" id="body" cols="30" rows="10" placeholder="body">{{ article.body }}</textarea>
+    <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}">
+    <input type="checkbox" id="published_show" {% if article.published %}checked{% endif %} onclick="document.getElementById('published').value = document.getElementById('published_show').checked ? 'true' : 'false'">
+    <input type="hidden" name="published" id="published" value="{% if article.published %}true{%else%}false{% endif %}">
+
+    <button>submit</button>
+</form>
+
+</body>
+</html>

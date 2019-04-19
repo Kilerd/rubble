@@ -1,76 +1,92 @@
-#![feature(proc_macro_hygiene,decl_macro, custom_attribute, plugin)]
-extern crate chrono;
-extern crate crypto;
+#![feature(proc_macro_hygiene, decl_macro, custom_attribute, plugin)]
+
 #[macro_use]
 extern crate diesel;
-extern crate dotenv;
 #[macro_use]
-extern crate juniper;
-#[macro_use]
-extern crate juniper_codegen;
-extern crate juniper_rocket;
-extern crate pulldown_cmark;
-extern crate r2d2;
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate tera;
+extern crate diesel_migrations;
 
-extern crate rand;
+use actix_web::{
+    middleware::{
+        cors::Cors,
+        identity::{CookieIdentityPolicy, Identity, IdentityService},
+        Logger,
+    },
+    web, App, HttpServer,
+};
 
 use dotenv::dotenv;
-use rocket_contrib::templates::Template;
-mod guard;
+
+use crate::pg_pool::database_pool_establish;
+use actix_web::web::route;
+use rand::prelude::*;
+use std::rc::Rc;
+use std::sync::Arc;
+use tera::compile_templates;
+use time::Duration;
+
 mod models;
 mod pg_pool;
-mod request;
-mod response;
 mod routers;
 mod schema;
-mod graphql;
+mod view;
 
-use crate::graphql::{Schema, Query, Mutation};
+embed_migrations!();
 
 fn main() {
-    use crate::routers::{admin, article, catacher, graphql, rss};
     dotenv().ok();
+    let sys = actix::System::new("rubble");
+    pretty_env_logger::init();
+
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
+    let pool = database_pool_establish(&database_url);
 
-    rocket::ignite()
-        .register(catchers![
-            catacher::not_found_catcher,
-            catacher::unauthorized,
-            ])
-        .manage(pg_pool::init(&database_url))
-        .manage(Schema::new(Query{}, Mutation{}))
-        .mount("/", routes![
-            article::index,
-            article::single_article,
-            article::get_article_by_url,
-            article::static_content,
+    embedded_migrations::run(&pool.get().expect("cannot get connection"));
 
-            rss::rss,
+    let tera = Arc::new(compile_templates!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/templates/**/*.html"
+    )));
 
-            graphql::graphql_authorization,
-            graphql::graphiql,
-            graphql::get_graphql_handler,
-            graphql::post_graphql_handler
-            ])
-        .mount("/admin", routes![
-            admin::admin_login,
-            admin::admin_authentication,
-            admin::admin_index,
-            admin::article_edit,
-            admin::save_article,
-            admin::delete_article,
-            admin::article_creation,
-            admin::change_password,
-            admin::change_setting
-            ])
-        .attach(Template::fairing())
-        .launch();
+    let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
+
+    HttpServer::new(move || {
+        App::new()
+            .data(pool.clone())
+            .data(tera.clone())
+            .wrap(Logger::default())
+            .wrap(Cors::default())
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(&random_cookie_key)
+                    .name("auth-cookie")
+                    .secure(false)
+                    .max_age(Duration::days(3)),
+            ))
+            .service(routers::article::homepage)
+            .service(routers::article::single_article)
+            .service(actix_files::Files::new(
+                "/statics",
+                "./templates/resources/",
+            ))
+            .service(routers::admin::redirect_to_admin_panel)
+            .service(
+                web::scope("/admin/")
+                    .service(routers::admin::admin_panel)
+                    .service(routers::admin::admin_login)
+                    .service(routers::admin::admin_authentication)
+                    .service(routers::admin::article_creation)
+                    .service(routers::admin::article_save)
+                    .service(routers::admin::article_edit)
+                    .service(routers::admin::article_deletion)
+                    .service(routers::admin::change_password)
+                    .service(routers::admin::change_setting),
+            )
+            .service(routers::rss::rss_page)
+            .service(routers::article::get_article_by_url)
+    })
+    .bind(("127.0.0.1", 8000))
+    .unwrap()
+    .system_exit()
+    .start();
+
+    sys.run();
 }

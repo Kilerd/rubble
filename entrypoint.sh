@@ -1,2 +1,0 @@
-diesel migration run
-./rubble
