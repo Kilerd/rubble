@@ -220,3 +220,12 @@ pub fn change_setting(
 
     RubbleResponder::Redirect("/admin/panel".into())
 }
+
+#[cfg(test)]
+mod test {
+
+    #[test]
+    fn test_normal() {
+        assert_eq!(1, 1);
+    }
+}
