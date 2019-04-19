@@ -2,8 +2,6 @@
 
 a lightweight blog engine written by Rust.
 
-**PS: And this project is still working in progress, so API of it are very unstable, including the content of the database migrations. I can promise that the elder version of it can be upgraded to the newest one. It means that the best way is installing a new one , instead of upgarding it.**
-
 ## Feature
 
 Cause this project is also the tentative staff I try to write something in Rust, it would not include too many features.
@@ -13,9 +11,8 @@ Cause this project is also the tentative staff I try to write something in Rust,
 - [x] Administractor management panel
 - [x] Article management panel
 - [x] Draw supported
-- [ ] Customized template
-- [ ] RSS supported
-- [ ] GraphQL API supported(maybe)
+- [x] Customized template
+- [x] RSS supported
 
 ## Template 
 
@@ -24,12 +21,19 @@ Project rubble highly depends on tera, a fast and effective template engine in R
 There are files in template folder as follow, which are the template for each page:
 
 - `admin` folder
-  - `index.tera` index of admin panel
-  - `login.tera` admin login page
-- `index.tera` index of whole site
-- `archives` template of single article page
+  - `panel.html` dashboard of admin panel
+  - `login.html` admin login page
+- `homepage.html` index of whole site
+- `archives.html` template of single article page
 
 Obviously you can learn how to write this template by the guide of official template folder, and how to use tera syntax in tera's official website.
+## How to use it
+
+After deploying rubble to your host, the first thing you need to do is login to the admin panel with url `http://yourdomain.com/admin`. And the default admin user and password is as follow:
+ - Username: `admin`
+ - Password: `password`
+
+after logging in, please modify the default password of admin. Then you can enjoy the whole project system.
 
 ## Deploy using Docker
 
@@ -40,7 +44,6 @@ Rubble uses PostgresQL as data storage, so before strating rubble application, y
 Rubble image can accept some environment variable for setting up:
 
 - `DATABASE_URL` url of postgresQL
-- `SECRET_KEY` secret ke of rubble for creating secret cookies
 
 ### Docker Stack
 
@@ -51,10 +54,9 @@ But we recommend to deploy rubble with Docker Swarm or Kubenetes. here is a simp
 version: "3"
 services:
   rubble:
-    image: kilerd/rubble
+    image: kilerd/rubble:latest
     environment:
       DATABASE_URL: postgres://root:password@postgres/rubble
-      ROCKET_SECRET_KEY: 7azo1R1AtDzvj2bwv7Qj949xrvBnTzF+EEwvBSDsLWs=
     depends_on:
       - postgres
     networks:
@@ -70,8 +72,6 @@ services:
     networks:
       - backend
 
-
 networks:
   backend:
 ```
-
