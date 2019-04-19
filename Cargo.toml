@@ -17,7 +17,6 @@ tera = "0.11.0"
 pulldown-cmark = { version = "0.1.2", default-features = false }
 chrono = { version = "*", features = ["serde"] }
 rust-crypto = "^0.2"
-rss = "1.6.1"
 
 actix-web= "1.0.0-alpha.6"
 actix-files = "0.1.0-alpha.6"
@@ -28,3 +27,4 @@ http = "0.1.17"
 rand = "0.6.5"
 pretty_env_logger = "0.3.0"
 time = "0.1.42"
+rss = "1.7.0"
