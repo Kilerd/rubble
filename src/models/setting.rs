@@ -4,10 +4,10 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 use diesel::{AsChangeset, Insertable, Queryable};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Insertable, AsChangeset)]
 #[table_name = "setting"]
 pub struct Setting {
     pub name: String,

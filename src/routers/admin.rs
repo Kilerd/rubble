@@ -225,12 +225,22 @@ pub fn change_password(
     id.forget();
     RubbleResponder::Redirect("/admin/panel".into())
 }
-//
-//#[post("/setting", data = "<setting_form>")]
-//pub fn change_setting(_admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {
-//    use crate::schema::{setting};
-//
-//    let new_setting = Setting { name: setting_form.name.clone(), value: setting_form.value.clone() };
-//    let _fetched_setting: QueryResult<Setting> = diesel::update(setting::table.find(&setting_form.name)).set(&new_setting).get_result(&*conn);
-//    Flash::new(Redirect::to("/admin"), "success", "setting changed")
-//}
+
+#[post("/setting")]
+pub fn change_setting(
+    id: Identity,
+    setting: web::Form<Setting>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let mut admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    Setting::update(&connection, setting.name.clone(), &setting);
+
+    RubbleResponder::Redirect("/admin/panel".into())
+}
