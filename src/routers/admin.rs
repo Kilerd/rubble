@@ -22,7 +22,7 @@
 //use rocket_contrib::templates::Template;
 //
 
-use crate::models::article::Article;
+use crate::models::article::{Article, NewArticle};
 
 use crate::models::setting::Setting;
 use crate::models::user::User;
@@ -32,6 +32,7 @@ use crate::routers::RubbleResponder;
 use actix_web::middleware::identity::Identity;
 use actix_web::web::Form;
 use actix_web::{get, post, web, Either, HttpResponse, Responder};
+use chrono::{NaiveDateTime, Utc};
 use serde::Deserialize;
 use std::sync::Arc;
 use tera::{Context, Tera};
@@ -104,38 +105,36 @@ pub fn admin_authentication(
         Err(_) => RubbleResponder::Redirect("/admin/login".into()),
     }
 }
-//
-//
-//#[get("/")]
-//pub fn admin_index(admin: Admin, conn: DbConn, flash: Option<FlashMessage>) -> Template {
-//    let mut context = Context::new();
-//
-//    let articles = Article::load_all(true, &conn);
-//
-//    context.insert("admin", &admin);
-//    context.insert("articles", &articles);
-//    context.insert("flash", &SerializeFlashMessage::from(&flash));
-//    Template::render("admin/index", &context)
-//}
-//
-//
-//#[get("/article/new")]
-//pub fn article_creation(_admin: Admin) -> Result<Template, Status> {
-//    let mut context = Context::new();
-//
-//    let article = Article {
-//        id: -1,
-//        title: String::new(),
-//        body: String::new(),
-//        published: true,
-//        user_id: 0,
-//        publish_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0),
-//        url: None,
-//    };
-//
-//    context.insert("article", &article);
-//    Ok(Template::render("admin/edit", context))
-//}
+
+#[get("/article/new")]
+pub fn article_creation(
+    id: Identity,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let mut context = Context::new();
+
+    let article = NewArticle {
+        id: None,
+        title: String::new(),
+        body: String::new(),
+        published: true,
+        user_id: admin.id,
+        publish_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0),
+        url: None,
+    };
+
+    context.insert("article", &article);
+    RubbleResponder::Html(tera.render("admin/article_add.html", &context).unwrap())
+}
 //
 //
 //#[get("/article/<article_id>")]

@@ -76,7 +76,8 @@ fn main() -> std::io::Result<()> {
                 web::scope("/admin/")
                     .service(routers::admin::admin_panel)
                     .service(routers::admin::admin_login)
-                    .service(routers::admin::admin_authentication),
+                    .service(routers::admin::admin_authentication)
+                    .service(routers::admin::article_creation),
             )
             .service(routers::rss::rss_page)
             .service(routers::article::get_article_by_url)

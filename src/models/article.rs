@@ -21,7 +21,7 @@ pub struct Article {
     pub url: Option<String>,
 }
 
-#[derive(Debug, Insertable, AsChangeset)]
+#[derive(Debug, Insertable, AsChangeset, Serialize)]
 #[table_name = "articles"]
 pub struct NewArticle {
     pub id: Option<i32>,
