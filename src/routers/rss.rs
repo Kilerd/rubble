@@ -17,13 +17,7 @@ pub fn rss_page(conn: web::Data<Pool>) -> impl Responder {
         .map(ArticleView::from)
         .map(|item| {
             let url = match item.article.url.clone() {
-                Some(content) => {
-                    if content.eq("") {
-                        format!("{}/archives/{}", setting.url, item.article.id)
-                    } else {
-                        format!("{}/{}", setting.url, content)
-                    }
-                }
+                Some(ref content) if content.len() != 0 => format!("{}/{}", setting.url, content),
                 _ => format!("{}/archives/{}", setting.url, item.article.id),
             };
             ItemBuilder::default()
