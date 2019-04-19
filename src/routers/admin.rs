@@ -42,6 +42,10 @@ struct LoginForm {
     pub username: String,
     pub password: String,
 }
+#[derive(Deserialize)]
+struct NewPassword {
+    password: String,
+}
 
 #[get("/admin")]
 pub fn redirect_to_admin_panel() -> impl Responder {
@@ -202,17 +206,25 @@ pub fn article_deletion(
     Article::delete(&connection, article_id.into_inner());
     RubbleResponder::Redirect("/admin/panel".into())
 }
-//
-//#[post("/password", data = "<password_form>")]
-//pub fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
-//    use crate::schema::{users};
-//
-//    let mut admin_user: User = users::table.find(admin.id).first::<User>(&*conn).unwrap();
-//
-//    admin_user.password = User::password_generate(&password_form.password).to_string();
-//    let _result: QueryResult<User> = diesel::update(users::table.find(admin_user.id)).set(&admin_user).get_result(&*conn);
-//    Flash::new(Redirect::moved("/admin"), "success", "password is changed successfully")
-//}
+
+#[post("/password")]
+pub fn change_password(
+    id: Identity,
+    password: web::Form<NewPassword>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let mut admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+    admin.password = User::password_generate(&password.password).to_string();
+    User::update(&connection, admin.id, &admin);
+    id.forget();
+    RubbleResponder::Redirect("/admin/panel".into())
+}
 //
 //#[post("/setting", data = "<setting_form>")]
 //pub fn change_setting(_admin: Admin, conn: DbConn, setting_form: Form<Setting>) -> Flash<Redirect> {

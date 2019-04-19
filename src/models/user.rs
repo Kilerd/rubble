@@ -42,7 +42,7 @@ impl User {
     }
 }
 
-impl CRUD<(), (), i32> for User {
+impl CRUD<(), User, i32> for User {
     fn create(conn: &PgConnection, from: &()) -> Result<Self, Error> {
         unreachable!()
     }
@@ -51,8 +51,10 @@ impl CRUD<(), (), i32> for User {
         unreachable!()
     }
 
-    fn update(conn: &PgConnection, pk: i32, value: &()) -> Result<Self, Error> {
-        unreachable!()
+    fn update(conn: &PgConnection, pk: i32, value: &User) -> Result<Self, Error> {
+        diesel::update(users::table.find(pk))
+            .set(value)
+            .get_result(conn)
     }
 
     fn delete(conn: &PgConnection, pk: i32) -> Result<usize, Error> {

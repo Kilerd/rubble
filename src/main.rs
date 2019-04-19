@@ -80,7 +80,8 @@ fn main() -> std::io::Result<()> {
                     .service(routers::admin::article_creation)
                     .service(routers::admin::article_save)
                     .service(routers::admin::article_edit)
-                    .service(routers::admin::article_deletion),
+                    .service(routers::admin::article_deletion)
+                    .service(routers::admin::change_password),
             )
             .service(routers::rss::rss_page)
             .service(routers::article::get_article_by_url)
