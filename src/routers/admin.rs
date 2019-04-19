@@ -135,23 +135,34 @@ pub fn article_creation(
     context.insert("article", &article);
     RubbleResponder::Html(tera.render("admin/article_add.html", &context).unwrap())
 }
-//
-//
-//#[get("/article/<article_id>")]
-//pub fn article_edit(_admin: Admin, conn: DbConn, article_id: i32) -> Result<Template, Status> {
-//    let mut context = Context::new();
-//    let fetched_article = Article::find(article_id, &conn);
-//
-//    if let Err(_err) = fetched_article {
-//        return Err(Status::NotFound);
-//    }
-//
-//    let article: Article = fetched_article.unwrap();
-//
-//    context.insert("article", &article);
-//    Ok(Template::render("admin/edit", context))
-//}
-//
+
+#[get("/article/{article_id}")]
+pub fn article_edit(
+    id: Identity,
+    article_id: web::Path<i32>,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let result = Article::get_by_pk(&connection, article_id.into_inner());
+
+    match result {
+        Ok(article) => {
+            let mut context = Context::new();
+            context.insert("article", &article);
+            RubbleResponder::Html(tera.render("admin/article_add.html", &context).unwrap())
+        }
+        Err(_) => RubbleResponder::Redirect("/admin/panel".into()),
+    }
+}
+
 #[post("/article")]
 pub fn article_save(
     id: Identity,
