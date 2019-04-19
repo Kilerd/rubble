@@ -31,7 +31,7 @@ use crate::pg_pool::Pool;
 use crate::routers::RubbleResponder;
 use actix_web::middleware::identity::Identity;
 use actix_web::web::Form;
-use actix_web::{get, post, web, Either, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, Either, HttpResponse, Responder};
 use chrono::{NaiveDateTime, Utc};
 use serde::Deserialize;
 use std::sync::Arc;
@@ -185,12 +185,23 @@ pub fn article_save(
     };
     RubbleResponder::Redirect("/admin/panel".into())
 }
-//#[delete("/article/<article_id>")]
-//pub fn delete_article(admin: Admin, conn:DbConn, article_id: i32) -> Flash<Redirect> {
-//    use crate::schema::articles;
-//    diesel::delete(articles::table.filter(articles::id.eq(article_id))).execute(&*conn);
-//    Flash::new(Redirect::to("/admin"), "success", "deleted")
-//}
+#[post("/article/delete/{article_id}")]
+pub fn article_deletion(
+    id: Identity,
+    article_id: web::Path<i32>,
+    conn: web::Data<Pool>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    Article::delete(&connection, article_id.into_inner());
+    RubbleResponder::Redirect("/admin/panel".into())
+}
 //
 //#[post("/password", data = "<password_form>")]
 //pub fn change_password(admin: Admin, conn: DbConn, password_form: Form<NewPasswordForm>) -> Flash<Redirect> {
