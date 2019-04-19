@@ -7,7 +7,7 @@ use diesel::result::Error;
 
 use diesel::query_builder::AsChangeset;
 use diesel::{Insertable, Queryable};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
 #[table_name = "articles"]
@@ -21,7 +21,7 @@ pub struct Article {
     pub url: Option<String>,
 }
 
-#[derive(Debug, Insertable, AsChangeset, Serialize)]
+#[derive(Debug, Insertable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "articles"]
 pub struct NewArticle {
     pub id: Option<i32>,

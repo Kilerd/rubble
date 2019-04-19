@@ -152,19 +152,28 @@ pub fn article_creation(
 //    Ok(Template::render("admin/edit", context))
 //}
 //
-//#[post("/article", data = "<article>")]
-//pub fn save_article(admin: Admin, conn: DbConn, article: Form<ArticleEditForm>) -> Result<Flash<Redirect>, Status> {
-//    use crate::schema::{articles};
-//
-//    let new_article = Article::form_article_edit_form(&article, admin.id);
-//    let _fetched_article: QueryResult<Article> = match new_article.id {
-//        Some(article_id) => diesel::update(articles::table.find(article_id)).set(&new_article).get_result(&*conn),
-//
-//        None => diesel::insert_into(articles::table).values(&new_article).get_result(&*conn),
-//    };
-//
-//    Ok(Flash::new(Redirect::to("/admin"), "success", "created"))
-//}
+#[post("/article")]
+pub fn article_save(
+    id: Identity,
+    tera: web::Data<Arc<Tera>>,
+    conn: web::Data<Pool>,
+    article: Form<NewArticle>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::Redirect("/admin/login".into());
+    }
+    let connection = conn.get().unwrap();
+
+    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let res = if let Some(article_id) = article.id {
+        Article::update(&connection, article_id, &article)
+    } else {
+        Article::create(&connection, &article)
+    };
+    RubbleResponder::Redirect("/admin/panel".into())
+}
 //#[delete("/article/<article_id>")]
 //pub fn delete_article(admin: Admin, conn:DbConn, article_id: i32) -> Flash<Redirect> {
 //    use crate::schema::articles;
