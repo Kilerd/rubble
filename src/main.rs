@@ -1,7 +1,7 @@
-#![feature(proc_macro_hygiene, decl_macro, custom_attribute, plugin)]
-
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_derives;
 #[macro_use]
 extern crate diesel_migrations;
 

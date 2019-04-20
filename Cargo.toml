@@ -1,7 +1,7 @@
 [package]
 name = "rubble"
 description = "a slight blog system"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Kilerd Chan <blove694@gmail.com>"]
 license = "MIT"
 edition = "2018"
@@ -28,3 +28,4 @@ rand = "0.6.5"
 pretty_env_logger = "0.3.0"
 time = "0.1.42"
 rss = "1.7.0"
+diesel_derives = "1.4.0"
