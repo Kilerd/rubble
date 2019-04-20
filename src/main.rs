@@ -83,7 +83,7 @@ fn main() {
             .service(routers::rss::rss_page)
             .service(routers::article::get_article_by_url)
     })
-    .bind(("127.0.0.1", 8000))
+    .bind(("0.0.0.0", 8000))
     .unwrap()
     .system_exit()
     .start();
