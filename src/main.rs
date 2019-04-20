@@ -42,10 +42,7 @@ fn main() {
 
     embedded_migrations::run(&pool.get().expect("cannot get connection"));
 
-    let tera = Arc::new(compile_templates!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/templates/**/*.html"
-    )));
+    let tera = Arc::new(compile_templates!("templates/**/*.html"));
 
     let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
 
