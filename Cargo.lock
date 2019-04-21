@@ -1540,7 +1540,7 @@ dependencies = [
 
 [[package]]
 name = "rubble"
-version = "0.2.1"
+version = "0.2.4"
 dependencies = [
  "actix 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-files 0.1.0-betsa.1 (registry+https://github.com/rust-lang/crates.io-index)",
