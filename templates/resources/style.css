@@ -46,7 +46,8 @@ header p {
 
 
 section.article {
-    margin: 4rem 0;
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 section.article p.mate {
