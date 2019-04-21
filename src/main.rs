@@ -56,7 +56,7 @@ fn main() {
                 CookieIdentityPolicy::new(&random_cookie_key)
                     .name("auth-cookie")
                     .secure(false)
-                    .max_age(Duration::days(3)),
+                    .max_age_time(Duration::days(3)),
             ))
             .service(routers::article::homepage)
             .service(routers::article::single_article)
