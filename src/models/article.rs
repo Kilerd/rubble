@@ -33,6 +33,17 @@ pub struct NewArticle {
 }
 
 impl Article {
+
+    pub fn link(&self) -> String {
+        match self.url {
+            Some(ref to) if to.len() != 0 => {
+                format!("/{}", to)
+            },
+            _ => format!("/archives/{}", self.id)
+
+        }
+    }
+
     pub fn find_by_url(conn: &PgConnection, url: &str) -> Result<Self, Error> {
         articles::table
             .filter(articles::url.eq(url))
