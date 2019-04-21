@@ -42,10 +42,7 @@ fn main() {
 
     embedded_migrations::run(&pool.get().expect("cannot get connection"));
 
-    let tera = Arc::new(compile_templates!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/templates/**/*.html"
-    )));
+    let tera = Arc::new(compile_templates!("templates/**/*.html"));
 
     let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
 
@@ -83,7 +80,7 @@ fn main() {
             .service(routers::rss::rss_page)
             .service(routers::article::get_article_by_url)
     })
-    .bind(("127.0.0.1", 8000))
+    .bind(("0.0.0.0", 8000))
     .unwrap()
     .system_exit()
     .start();
