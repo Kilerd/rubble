@@ -43,8 +43,10 @@ pub fn single_article(
     }
     let article1 = article.unwrap();
 
-    if let Some(to) = article1.url {
-        return RubbleResponder::Redirect(format!("/{}", to));
+    if let Some(ref to) = article1.url {
+        if to.len()!= 0 {
+            return RubbleResponder::Redirect(format!("/{}", to));
+        }
     }
 
     let view = ArticleView::from(&article1);
