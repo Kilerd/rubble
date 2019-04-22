@@ -16,6 +16,7 @@ use actix_web::{
 
 use dotenv::dotenv;
 
+use crate::data::RubbleData;
 use crate::pg_pool::database_pool_establish;
 use actix_web::web::route;
 use rand::prelude::*;
@@ -24,6 +25,7 @@ use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;
 
+mod data;
 mod models;
 mod pg_pool;
 mod routers;
@@ -38,18 +40,18 @@ fn main() {
     pretty_env_logger::init();
 
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
-    let pool = database_pool_establish(&database_url);
-
-    embedded_migrations::run(&pool.get().expect("cannot get connection"));
-
-    let tera = Arc::new(compile_templates!("templates/**/*.html"));
-
     let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
+
+    let data = RubbleData {
+        pool: database_pool_establish(&database_url),
+        tera: Arc::new(compile_templates!("templates/**/*.html")),
+    };
+
+    embedded_migrations::run(&data.pool.get().expect("cannot get connection"));
 
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
-            .data(tera.clone())
+            .data(data.clone())
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(IdentityService::new(
