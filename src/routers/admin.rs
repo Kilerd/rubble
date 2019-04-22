@@ -1,5 +1,6 @@
 use crate::models::article::{Article, NewArticle};
 
+use crate::data::RubbleData;
 use crate::models::setting::Setting;
 use crate::models::user::User;
 use crate::models::CRUD;
@@ -29,21 +30,15 @@ pub fn redirect_to_admin_panel() -> impl Responder {
 }
 
 #[get("/panel")]
-pub fn admin_panel(
-    id: Identity,
-    tera: web::Data<Arc<Tera>>,
-    conn: web::Data<Pool>,
-) -> impl Responder {
-    let connection = conn.get().unwrap();
-
+pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
 
-    let articles = Article::read(&connection);
-    let settings = Setting::load(&connection);
+    let articles = Article::read(&data.postgres());
+    let settings = Setting::load(&data.postgres());
 
-    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
     let mut context = Context::new();
@@ -51,14 +46,14 @@ pub fn admin_panel(
     context.insert("articles", &articles);
     context.insert("admin", &admin);
 
-    RubbleResponder::Html(tera.render("admin/panel.html", &context).unwrap())
+    RubbleResponder::Html(data.render("admin/panel.html", &context))
 }
 
 #[get("/login")]
-pub fn admin_login(id: Identity, tera: web::Data<Arc<Tera>>) -> impl Responder {
+pub fn admin_login(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
     match id.identity() {
         Some(_) => RubbleResponder::Redirect("/admin/panel".into()),
-        None => RubbleResponder::Html(tera.render("admin/login.html", &Context::new()).unwrap()),
+        None => RubbleResponder::Html(data.render("admin/login.html", &Context::new())),
     }
 }
 
@@ -66,11 +61,9 @@ pub fn admin_login(id: Identity, tera: web::Data<Arc<Tera>>) -> impl Responder {
 pub fn admin_authentication(
     id: Identity,
     user: Form<LoginForm>,
-    conn: web::Data<Pool>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
-    let connection = conn.get().unwrap();
-
-    let fetched_user = User::find_by_username(&connection, &user.username);
+    let fetched_user = User::find_by_username(&data.postgres(), &user.username);
 
     match fetched_user {
         Ok(login_user) => {
@@ -87,17 +80,12 @@ pub fn admin_authentication(
 }
 
 #[get("/article/new")]
-pub fn article_creation(
-    id: Identity,
-    tera: web::Data<Arc<Tera>>,
-    conn: web::Data<Pool>,
-) -> impl Responder {
+pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
     let mut context = Context::new();
@@ -113,31 +101,29 @@ pub fn article_creation(
     };
 
     context.insert("article", &article);
-    RubbleResponder::Html(tera.render("admin/article_add.html", &context).unwrap())
+    RubbleResponder::Html(data.render("admin/article_add.html", &context))
 }
 
 #[get("/article/{article_id}")]
 pub fn article_edit(
     id: Identity,
     article_id: web::Path<i32>,
-    tera: web::Data<Arc<Tera>>,
-    conn: web::Data<Pool>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
-    let result = Article::get_by_pk(&connection, article_id.into_inner());
+    let result = Article::get_by_pk(&data.postgres(), article_id.into_inner());
 
     match result {
         Ok(article) => {
             let mut context = Context::new();
             context.insert("article", &article);
-            RubbleResponder::Html(tera.render("admin/article_add.html", &context).unwrap())
+            RubbleResponder::Html(data.render("admin/article_add.html", &context))
         }
         Err(_) => RubbleResponder::Redirect("/admin/panel".into()),
     }
@@ -146,22 +132,20 @@ pub fn article_edit(
 #[post("/article")]
 pub fn article_save(
     id: Identity,
-    tera: web::Data<Arc<Tera>>,
-    conn: web::Data<Pool>,
     article: Form<NewArticle>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
     let res = if let Some(article_id) = article.id {
-        Article::update(&connection, article_id, &article)
+        Article::update(&data.postgres(), article_id, &article)
     } else {
-        Article::create(&connection, &article)
+        Article::create(&data.postgres(), &article)
     };
     RubbleResponder::Redirect("/admin/panel".into())
 }
@@ -169,17 +153,16 @@ pub fn article_save(
 pub fn article_deletion(
     id: Identity,
     article_id: web::Path<i32>,
-    conn: web::Data<Pool>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
-    Article::delete(&connection, article_id.into_inner());
+    Article::delete(&data.postgres(), article_id.into_inner());
     RubbleResponder::Redirect("/admin/panel".into())
 }
 
@@ -187,17 +170,16 @@ pub fn article_deletion(
 pub fn change_password(
     id: Identity,
     password: web::Form<NewPassword>,
-    conn: web::Data<Pool>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let mut admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let mut admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
     admin.password = User::password_generate(&password.password).to_string();
-    User::update(&connection, admin.id, &admin);
+    User::update(&data.postgres(), admin.id, &admin);
     id.forget();
     RubbleResponder::Redirect("/admin/panel".into())
 }
@@ -206,17 +188,16 @@ pub fn change_password(
 pub fn change_setting(
     id: Identity,
     setting: web::Form<Setting>,
-    conn: web::Data<Pool>,
+    data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
         return RubbleResponder::Redirect("/admin/login".into());
     }
-    let connection = conn.get().unwrap();
 
-    let mut admin = User::find_by_username(&*connection, &id.identity().unwrap())
+    let mut admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
-    Setting::update(&connection, setting.name.clone(), &setting);
+    Setting::update(&data.postgres(), setting.name.clone(), &setting);
 
     RubbleResponder::Redirect("/admin/panel".into())
 }

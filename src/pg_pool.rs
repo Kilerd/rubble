@@ -3,7 +3,7 @@ use diesel::r2d2::ConnectionManager;
 use r2d2;
 use std::ops::Deref;
 
-type ManagedPgConn = ConnectionManager<PgConnection>;
+pub type ManagedPgConn = ConnectionManager<PgConnection>;
 
 pub type Pool = r2d2::Pool<ManagedPgConn>;
 

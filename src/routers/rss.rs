@@ -1,3 +1,4 @@
+use crate::data::RubbleData;
 use crate::models::{article::Article, setting::Setting, CRUD};
 use crate::pg_pool::Pool;
 use crate::view::article::ArticleView;
@@ -6,22 +7,17 @@ use rss::{Channel, ChannelBuilder, Item, ItemBuilder};
 use std::collections::HashMap;
 
 #[get("/rss")]
-pub fn rss_page(conn: web::Data<Pool>) -> impl Responder {
-    let connection = conn.get().unwrap();
-    let articles = Article::read(&connection);
-    let setting = Setting::load(&connection);
+pub fn rss_page(data: web::Data<RubbleData>) -> impl Responder {
+    let articles = Article::read(&data.postgres());
+    let setting = Setting::load(&data.postgres());
 
     let items: Vec<Item> = articles
         .iter()
         .map(ArticleView::from)
         .map(|item| {
-            let url = match item.article.url.clone() {
-                Some(ref content) if content.len() != 0 => format!("{}/{}", setting.url, content),
-                _ => format!("{}/archives/{}", setting.url, item.article.id),
-            };
             ItemBuilder::default()
                 .title(item.article.title.clone())
-                .link(url)
+                .link(format!("{}{}", setting.url, item.article.link()))
                 .description(item.description)
                 .content(item.markdown_content)
                 .pub_date(item.article.publish_at.to_string())
