@@ -7,6 +7,7 @@ table! {
         user_id -> Int4,
         publish_at -> Timestamp,
         url -> Nullable<Text>,
+        keywords -> Array<Text>,
     }
 }
 

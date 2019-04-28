@@ -18,9 +18,6 @@ use dotenv::dotenv;
 
 use crate::data::RubbleData;
 use crate::pg_pool::database_pool_establish;
-use actix_web::web::route;
-use rand::prelude::*;
-use std::rc::Rc;
 use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;

@@ -18,6 +18,7 @@ pub struct Article {
     pub user_id: i32,
     pub publish_at: NaiveDateTime,
     pub url: Option<String>,
+    pub keywords: Vec<String>,
 }
 
 #[derive(Debug, Insertable, AsChangeset, Serialize, Deserialize)]
@@ -33,14 +34,10 @@ pub struct NewArticle {
 }
 
 impl Article {
-
     pub fn link(&self) -> String {
         match self.url {
-            Some(ref to) if to.len() != 0 => {
-                format!("/{}", to)
-            },
-            _ => format!("/archives/{}", self.id)
-
+            Some(ref to) if to.len() != 0 => format!("/{}", to),
+            _ => format!("/archives/{}", self.id),
         }
     }
 
