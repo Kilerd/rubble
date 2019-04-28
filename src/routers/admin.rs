@@ -129,7 +129,6 @@ pub fn article_edit(
     }
 }
 
-#[post("/article")]
 pub fn article_save(
     id: Identity,
     article: Form<NewArticle>,
