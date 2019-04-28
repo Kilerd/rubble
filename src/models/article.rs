@@ -31,6 +31,40 @@ pub struct NewArticle {
     pub user_id: i32,
     pub publish_at: NaiveDateTime,
     pub url: Option<String>,
+    pub keywords: Vec<String>,
+}
+
+pub mod form {
+    use crate::models::article::NewArticle;
+    use chrono::NaiveDateTime;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct NewArticleForm {
+        pub id: Option<i32>,
+        pub title: String,
+        pub body: String,
+        pub published: bool,
+        pub user_id: i32,
+        pub publish_at: NaiveDateTime,
+        pub url: Option<String>,
+        pub keywords: String,
+        pub auto_keywords: bool,
+    }
+    impl Into<NewArticle> for NewArticleForm {
+        fn into(self) -> NewArticle {
+            NewArticle {
+                id: self.id,
+                title: self.title,
+                body: self.body,
+                published: self.published,
+                user_id: self.user_id,
+                publish_at: self.publish_at,
+                url: self.url,
+                keywords: self.keywords.split(",").map(String::from).collect(),
+            }
+        }
+    }
 }
 
 impl Article {
