@@ -12,13 +12,37 @@
 <form action="/admin/article" method="post">
 
     {% if article.id %}<input type="hidden" name="id" value="{{ article.id }}">{% endif %}
-    <input type="text" name="title" placeholder="title" required value="{{ article.title }}">
-    <input type="text" name="url" placeholder="url" value="{{ article.url }}">
+    <div>
+        Title:
+        <input type="text" name="title" placeholder="title" required value="{{ article.title }}">
+    </div>
+    <div>
+        URL:
+        <input type="text" name="url" placeholder="url" value="{{ article.url }}">
+    </div>
     <input type="hidden" name="user_id" value="{{ article.user_id }}">
-    <textarea name="body" id="body" cols="30" rows="10" placeholder="body">{{ article.body }}</textarea>
-    <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}">
-    <input type="checkbox" id="published_show" {% if article.published %}checked{% endif %} onclick="document.getElementById('published').value = document.getElementById('published_show').checked ? 'true' : 'false'">
-    <input type="hidden" name="published" id="published" value="{% if article.published %}true{%else%}false{% endif %}">
+    <div>
+        CONTENT:
+        <textarea name="body" id="body" cols="30" rows="10" placeholder="body">{{ article.body }}</textarea>
+    </div>
+    <div>
+        PUBLISH_AT:
+        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}">
+    </div>
+    <div>
+        PUBLISHED:
+        <input type="checkbox" id="published_show" {% if article.published %}checked{% endif %} onclick="document.getElementById('published').value = document.getElementById('published_show').checked ? 'true' : 'false'">
+        <input type="hidden" name="published" id="published" value="{% if article.published %}true{%else%}false{% endif %}">
+    </div>
+    <div>
+        KEYWORDS:
+        <input type="text" name="keywords" value='{{ article.keywords | join(sep=",") }}'>
+    </div>
+    <div>
+        AUTO GENERATE KEYWORDS:
+        <input type="checkbox" id="auto_keywords_show" checked onclick="document.getElementById('auto_keywords').value = document.getElementById('auto_keywords_show').checked ? 'true' : 'false'">
+        <input type="hidden" name="auto_keywords" id="auto_keywords" value="true">
+    </div>
 
     <button>submit</button>
 </form>

@@ -98,6 +98,7 @@ pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Respo
         user_id: admin.id,
         publish_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0),
         url: None,
+        keywords: vec![],
     };
 
     context.insert("article", &article);
@@ -131,7 +132,7 @@ pub fn article_edit(
 
 pub fn article_save(
     id: Identity,
-    article: Form<NewArticle>,
+    article: Form<crate::models::article::form::NewArticleForm>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
@@ -142,9 +143,9 @@ pub fn article_save(
         .expect("cannot found this user");
 
     let res = if let Some(article_id) = article.id {
-        Article::update(&data.postgres(), article_id, &article)
+        Article::update(&data.postgres(), article_id, &article.into_inner().into())
     } else {
-        Article::create(&data.postgres(), &article)
+        Article::create(&data.postgres(), &article.into_inner().into())
     };
     RubbleResponder::Redirect("/admin/panel".into())
 }
