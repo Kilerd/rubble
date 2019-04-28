@@ -73,7 +73,13 @@ fn main() {
                     .service(routers::admin::admin_login)
                     .service(routers::admin::admin_authentication)
                     .service(routers::admin::article_creation)
-                    .service(routers::admin::article_save)
+                    .service(
+                        web::resource("/article").route(
+                            web::post()
+                                .data(web::FormConfig::default().limit(256_000))
+                                .to(routers::admin::article_save),
+                        ),
+                    )
                     .service(routers::admin::article_edit)
                     .service(routers::admin::article_deletion)
                     .service(routers::admin::change_password)
