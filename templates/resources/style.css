@@ -40,8 +40,27 @@ header p {
     color: #A3ABB3;
     margin: 0;
     font-size: 1.2rem;
-    padding-bottom: 2rem;
 
+}
+
+header nav {
+    padding: 1rem 0;
+}
+
+header nav a:first-child {
+    margin-left: 0;
+}
+
+header nav a {
+    font-size: 1.05rem;
+    color: #dc1313;
+    margin: 0 5px;
+    /* font-size: .9rem; */
+    text-decoration: none;
+}
+
+header nav a:hover {
+    border-bottom: 1px solid #dc1313;
 }
 
 
