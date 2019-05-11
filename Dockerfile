@@ -1,4 +1,4 @@
-FROM clux/muslrust:stable as builder
+FROM rustlang/rust:stable as builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN echo 'fn main() { println!("Dummy") }' > ./src/main.rs
 
 RUN cargo build --release
 
-RUN rm -r target/x86_64-unknown-linux-musl/release/.fingerprint/rubble-*
+RUN rm -r target/release/.fingerprint/rubble-*
 
 COPY src src/
 COPY migrations migrations/
@@ -19,16 +19,18 @@ COPY templates templates/
 
 RUN cargo build --release --frozen --bin rubble
 
+FROM rustlang/rust:stable
 
-FROM alpine:latest
+RUN mkdir /application
+
 
 COPY --from=builder /app/rubble/migrations /application/migrations
 COPY --from=builder /app/rubble/templates /application/templates
-COPY --from=builder /app/rubble/target/x86_64-unknown-linux-musl/release/rubble /application/rubble
+COPY --from=builder /app/rubble/target/release/rubble /application/rubble
 
 EXPOSE 8000
 
-ENV DATABASE_URL postgres://root@postgres/rubble
+ENV DATABASE_URL postgres://root@postgres/application
 
 WORKDIR /application
 CMD ["./rubble"]
