@@ -1,4 +1,4 @@
-FROM rustlang/rust:stable as builder
+FROM rust:latest as builder
 
 WORKDIR /app
 
@@ -8,18 +8,15 @@ WORKDIR /app/rubble
 COPY Cargo.toml Cargo.lock ./
 
 RUN echo 'fn main() { println!("Dummy") }' > ./src/main.rs
-
 RUN cargo build --release
-
 RUN rm -r target/release/.fingerprint/rubble-*
 
 COPY src src/
 COPY migrations migrations/
 COPY templates templates/
-
 RUN cargo build --release --frozen --bin rubble
 
-FROM rustlang/rust:stable
+FROM rust:latest
 
 RUN mkdir /application
 
