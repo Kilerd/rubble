@@ -11,11 +11,13 @@ html {
     font-size: 14px;
 
 }
+
 section.full-page {
     min-height: 80vh;
     margin: 0;
     padding: 0;
 }
+
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -43,15 +45,15 @@ header p {
 
 }
 
-header nav {
+nav {
     padding: 1rem 0;
 }
 
-header nav a:first-child {
+nav a:first-child {
     margin-left: 0;
 }
 
-header nav a {
+nav a {
     font-size: 1.05rem;
     color: #dc1313;
     margin: 0 5px;
@@ -59,7 +61,7 @@ header nav a {
     text-decoration: none;
 }
 
-header nav a:hover {
+nav a:hover {
     border-bottom: 1px solid #dc1313;
 }
 
@@ -114,7 +116,7 @@ section.article section.desc {
     margin: 0 auto;
 }
 
-.single.article>h2 {
+.single.article > h2 {
     font-size: 1.5rem;
     margin-bottom: 3rem;
     margin-top: 0.5rem;
@@ -133,6 +135,7 @@ footer a {
     color: #dc1313;
     text-decoration: none;
 }
+
 footer a:hover {
     text-decoration: underline;
 }
