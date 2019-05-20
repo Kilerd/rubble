@@ -1,5 +1,4 @@
 use crate::pg_pool::{ManagedPgConn, Pool};
-use diesel::prelude::PgConnection;
 use r2d2::PooledConnection;
 use std::sync::Arc;
 use tera::{Context, Tera};

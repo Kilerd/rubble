@@ -1,24 +1,23 @@
-use crate::models::article::{Article, NewArticle};
+use actix_web::middleware::identity::Identity;
+use actix_web::web::Form;
+use actix_web::{get, post, web, Either, HttpResponse, Responder};
+use chrono::{NaiveDateTime, Utc};
+use serde::Deserialize;
+use tera::{Context, Tera};
 
 use crate::data::RubbleData;
+use crate::models::article::{Article, NewArticle};
 use crate::models::setting::Setting;
 use crate::models::user::User;
 use crate::models::CRUD;
-use crate::pg_pool::Pool;
 use crate::routers::RubbleResponder;
-use actix_web::middleware::identity::Identity;
-use actix_web::web::Form;
-use actix_web::{delete, get, post, web, Either, HttpResponse, Responder};
-use chrono::{NaiveDateTime, Utc};
-use serde::Deserialize;
-use std::sync::Arc;
-use tera::{Context, Tera};
 
 #[derive(Deserialize)]
-struct LoginForm {
+pub struct LoginForm {
     pub username: String,
     pub password: String,
 }
+
 #[derive(Deserialize)]
 struct NewPassword {
     password: String,
@@ -141,7 +140,6 @@ pub fn article_save(
 
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
-
     let res = if let Some(article_id) = article.id {
         Article::update(&data.postgres(), article_id, &article.into_inner().into())
     } else {
@@ -149,6 +147,7 @@ pub fn article_save(
     };
     RubbleResponder::Redirect("/admin/panel".into())
 }
+
 #[post("/article/delete/{article_id}")]
 pub fn article_deletion(
     id: Identity,
@@ -204,7 +203,6 @@ pub fn change_setting(
 
 #[cfg(test)]
 mod test {
-
     #[test]
     fn test_normal() {
         assert_eq!(1, 1);

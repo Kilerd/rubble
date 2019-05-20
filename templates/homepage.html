@@ -4,26 +4,33 @@
 
 {% block body %}
 <section class="full-page">
-<header>
-<section class="container">
-<h1>{{ setting.title }}</h1>
-<p>{{ setting.description }}</p>
-</section>
-</header>
-
-<section class="container">
-    {% for article in articles %}
-    <section class="article">
-        <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
-        <a class="title" href="{% if article.article.url %}{{ article.article.url }}{% else %}archives/{{ article.article.id }}{% endif %}">{{ article.article.title }}</a>
-        <section class="yue desc">
-            {{ article.description|safe }}
+    <header>
+        <section class="container">
+            <h1>{{ setting.title }}</h1>
+            <p>{{ setting.description }}</p>
+            <nav>
+                <a href="/">HOMEPAGE</a>
+                <a href="/portfolios">PORTFOLIOS</a>
+                <a href="/about">ABOUT</a>
+            </nav>
         </section>
+    </header>
+
+    <section class="container">
+        {% for article in articles %}
+        <section class="article">
+            <p class="mate">{{ article.timestamp | date(format="%B %d, %Y") }}</p>
+            <a class="title"
+               href="{% if article.article.url %}{{ article.article.url }}{% else %}archives/{{ article.article.id }}{% endif %}">{{
+                article.article.title }}</a>
+            <section class="yue desc">
+                {{ article.description|safe }}
+            </section>
+        </section>
+        {% endfor %}
+
+
     </section>
-    {% endfor %}
-
-
-</section>
 </section>
 
 {% endblock body %}
