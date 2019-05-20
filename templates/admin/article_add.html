@@ -38,12 +38,6 @@
         KEYWORDS:
         <input type="text" name="keywords" value='{{ article.keywords | join(sep=",") }}'>
     </div>
-    <div>
-        AUTO GENERATE KEYWORDS:
-        <input type="checkbox" id="auto_keywords_show" checked onclick="document.getElementById('auto_keywords').value = document.getElementById('auto_keywords_show').checked ? 'true' : 'false'">
-        <input type="hidden" name="auto_keywords" id="auto_keywords" value="true">
-    </div>
-
     <button>submit</button>
 </form>
 

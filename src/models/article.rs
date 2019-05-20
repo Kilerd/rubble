@@ -49,7 +49,6 @@ pub mod form {
         pub publish_at: NaiveDateTime,
         pub url: Option<String>,
         pub keywords: String,
-        pub auto_keywords: bool,
     }
     impl Into<NewArticle> for NewArticleForm {
         fn into(self) -> NewArticle {
