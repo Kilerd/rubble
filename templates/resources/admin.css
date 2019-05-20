@@ -168,9 +168,6 @@ table.articles tr:nth-child(even) {
 table.articles thead {
     color: #fff;
     background: #405EF7;
-    background: -moz-linear-gradient(top, #7086f9 0%, #536ef7 66%, #405EF7 100%);
-    background: -webkit-linear-gradient(top, #7086f9 0%, #536ef7 66%, #405EF7 100%);
-    background: linear-gradient(to bottom, #7086f9 0%, #536ef7 66%, #405EF7 100%);
 }
 
 table.articles thead th {

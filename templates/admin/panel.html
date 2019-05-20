@@ -86,9 +86,27 @@
             </header>
             <section class="body">
                 <form action="/admin/setting" method="post">
-
-                    <input type="text" name="name" placeholder="setting name" required>
-                    <input type="text" name="value" placeholder="value" required>
+                    Site Title:
+                    <input type="hidden" name="name" value="title" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.title }}" required>
+                    <button>change</button>
+                </form>
+                <form action="/admin/setting" method="post">
+                    Description:
+                    <input type="hidden" name="name" value="description" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.description }}" required>
+                    <button>change</button>
+                </form>
+                <form action="/admin/setting" method="post">
+                    URL:
+                    <input type="hidden" name="name" value="url" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.url }}" required>
+                    <button>change</button>
+                </form>
+                <form action="/admin/setting" method="post">
+                    Analysis:
+                    <input type="hidden" name="name" value="analysis" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.analysis }}" required>
                     <button>change</button>
                 </form>
             </section>
