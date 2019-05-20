@@ -37,7 +37,7 @@ after logging in, please modify the default password of admin. Then you can enjo
 
 ## Deploy using Docker
 
-you can easily use Docker to create your own rubble application. And the latest version of it and each tagged version would be built as docker images storing in Docker Hub automatically. So you can easily pull those images by using `docker pull rubble:latest`
+you can easily use Docker to create your own rubble application. And the latest version of it and each tagged version would be built as docker images storing in Docker Hub automatically. So you can easily pull those images by using `docker pull kilerd/rubble:latest`
 
 Rubble uses PostgresQL as data storage, so before strating rubble application, you need to start your postgres service and link it to rubble.
 
