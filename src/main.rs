@@ -21,6 +21,7 @@ use dotenv::dotenv;
 
 use crate::data::RubbleData;
 use crate::pg_pool::database_pool_establish;
+use actix_web::web::JsonConfig;
 use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;
@@ -52,6 +53,7 @@ fn main() {
     HttpServer::new(move || {
         App::new()
             .data(data.clone())
+            .data(JsonConfig::default().limit(266000))
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(IdentityService::new(
