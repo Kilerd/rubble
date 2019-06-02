@@ -21,7 +21,7 @@ use dotenv::dotenv;
 
 use crate::data::RubbleData;
 use crate::pg_pool::database_pool_establish;
-use actix_web::web::JsonConfig;
+use actix_web::web::{FormConfig, JsonConfig};
 use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;
@@ -53,7 +53,8 @@ fn main() {
     HttpServer::new(move || {
         App::new()
             .data(data.clone())
-            .data(JsonConfig::default().limit(266000))
+            .data(JsonConfig::default().limit(256_000))
+            .data(FormConfig::default().limit(256_000))
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(IdentityService::new(
@@ -75,13 +76,7 @@ fn main() {
                     .service(routers::admin::admin_login)
                     .service(routers::admin::admin_authentication)
                     .service(routers::admin::article_creation)
-                    .service(
-                        web::resource("/article").route(
-                            web::post()
-                                .data(web::FormConfig::default().limit(256_000))
-                                .to(routers::admin::article_save),
-                        ),
-                    )
+                    .service(routers::admin::article_save)
                     .service(routers::admin::article_edit)
                     .service(routers::admin::article_deletion)
                     .service(routers::admin::change_password)
