@@ -1,6 +1,6 @@
-# Rubble
-
 <img align="right" width="128" height="128" src="/rubble.png">
+
+# Rubble
 
 a lightweight blog engine written by Rust.
 
