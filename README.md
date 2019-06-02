@@ -2,6 +2,7 @@
 
 a lightweight blog engine written by Rust.
 
+<img align="right" width="128" height="128" src="/rubble.png">
 ## Feature
 
 Cause this project is also the tentative staff I try to write something in Rust, it would not include too many features.
