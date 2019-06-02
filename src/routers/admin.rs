@@ -68,9 +68,11 @@ pub fn admin_authentication(
         Ok(login_user) => {
             if login_user.authenticated(&user.password) {
                 id.remember(login_user.username);
+                info!("admin login");
                 RubbleResponder::Redirect("/admin/panel".into())
             } else {
                 // TODO flash message or throw unauthorized
+                warn!("try logining admin with wrong password '{}'", user.password);
                 RubbleResponder::Redirect("/admin/login".into())
             }
         }
@@ -138,13 +140,21 @@ pub fn article_save(
         return RubbleResponder::Redirect("/admin/login".into());
     }
 
+    let article_title = article.title.clone();
+
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
     let res = if let Some(article_id) = article.id {
+        info!("updating article #{} {}", article_id, article_title);
         Article::update(&data.postgres(), article_id, &article.into_inner().into())
     } else {
+        info!("creating new article {}", article_title);
         Article::create(&data.postgres(), &article.into_inner().into())
     };
+
+    if res.is_err() {
+        error!("error on updating/creating article {}", article_title);
+    }
     RubbleResponder::Redirect("/admin/panel".into())
 }
 
@@ -161,7 +171,9 @@ pub fn article_deletion(
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
-    Article::delete(&data.postgres(), article_id.into_inner());
+    let i = article_id.into_inner();
+    Article::delete(&data.postgres(), i);
+    info!("deleting article {}", i);
     RubbleResponder::Redirect("/admin/panel".into())
 }
 
@@ -180,6 +192,7 @@ pub fn change_password(
     admin.password = User::password_generate(&password.password).to_string();
     User::update(&data.postgres(), admin.id, &admin);
     id.forget();
+    info!("updating password");
     RubbleResponder::Redirect("/admin/panel".into())
 }
 
@@ -197,7 +210,7 @@ pub fn change_setting(
         .expect("cannot found this user");
 
     Setting::update(&data.postgres(), setting.name.clone(), &setting);
-
+    info!("updating setting {:?} to {:?}", setting.name, setting.value);
     RubbleResponder::Redirect("/admin/panel".into())
 }
 

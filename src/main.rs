@@ -5,6 +5,8 @@ extern crate diesel;
 extern crate diesel_derives;
 #[macro_use]
 extern crate diesel_migrations;
+#[macro_use]
+extern crate log;
 
 use actix_web::{
     middleware::{
