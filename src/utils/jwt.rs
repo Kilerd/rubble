@@ -36,7 +36,7 @@ impl JWTClaims {
             &RANDOM_TOKEN_KEY,
             &Validation::new(Algorithm::HS256),
         )
-        .map_err(|e| ())?;
+        .map_err(|_| ())?;
         Ok(claims.claims.username)
     }
 }

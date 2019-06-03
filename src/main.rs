@@ -5,16 +5,10 @@ extern crate diesel;
 extern crate diesel_derives;
 #[macro_use]
 extern crate diesel_migrations;
-#[macro_use]
-extern crate log;
 
 use actix_web::{
-    middleware::{
-        cors::Cors,
-        identity::{CookieIdentityPolicy, Identity, IdentityService},
-        Logger, NormalizePath,
-    },
-    web, App, HttpServer,
+    middleware::{cors::Cors, Logger, NormalizePath},
+    App, HttpServer,
 };
 
 use dotenv::dotenv;
@@ -71,5 +65,5 @@ fn main() {
     .system_exit()
     .start();
 
-    sys.run();
+    sys.run().expect("wrong on actix system run")
 }
