@@ -64,12 +64,6 @@ fn main() {
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(NormalizePath)
-            .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(&RANDOM_TOKEN_KEY)
-                    .name("auth-cookie")
-                    .secure(false)
-                    .max_age_time(Duration::days(3)),
-            ))
             .service(routers::routes())
     })
     .bind(("0.0.0.0", 8000))
