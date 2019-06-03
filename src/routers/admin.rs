@@ -19,7 +19,7 @@ pub struct LoginForm {
 }
 
 #[derive(Deserialize)]
-struct NewPassword {
+pub struct NewPassword {
     password: String,
 }
 

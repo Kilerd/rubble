@@ -22,6 +22,7 @@ use dotenv::dotenv;
 use crate::data::RubbleData;
 use crate::pg_pool::database_pool_establish;
 use actix_web::web::{FormConfig, JsonConfig};
+use lazy_static::lazy_static;
 use std::sync::Arc;
 use tera::compile_templates;
 use time::Duration;
@@ -35,20 +36,24 @@ mod view;
 
 embed_migrations!();
 
+lazy_static! {
+    static ref RANDOM_TOKEN_KEY: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
+}
+
 fn main() {
     dotenv().ok();
     let sys = actix::System::new("rubble");
     pretty_env_logger::init();
 
     let database_url = std::env::var("DATABASE_URL").expect("database_url must be set");
-    let random_cookie_key: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
 
     let data = RubbleData {
         pool: database_pool_establish(&database_url),
         tera: Arc::new(compile_templates!("templates/**/*.html")),
     };
 
-    embedded_migrations::run(&data.pool.get().expect("cannot get connection"));
+    embedded_migrations::run(&data.pool.get().expect("cannot get connection"))
+        .expect("panic on embedded database migration");
 
     HttpServer::new(move || {
         App::new()
@@ -58,7 +63,7 @@ fn main() {
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(&random_cookie_key)
+                CookieIdentityPolicy::new(&RANDOM_TOKEN_KEY)
                     .name("auth-cookie")
                     .secure(false)
                     .max_age_time(Duration::days(3)),
