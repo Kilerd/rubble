@@ -6,10 +6,11 @@ use crate::pg_pool::Pool;
 use crate::routers::RubbleResponder;
 use crate::view::article::ArticleView;
 use actix_web::{get, web, Either, HttpResponse, Responder};
+use std::result::Result;
 use std::sync::Arc;
 use tera::{Context, Tera};
 
-#[get("/")]
+#[get("")]
 pub fn homepage(data: web::Data<RubbleData>) -> impl Responder {
     let vec: Vec<Article> = Article::read(&data.postgres());
     let article_view: Vec<_> = vec
@@ -24,21 +25,21 @@ pub fn homepage(data: web::Data<RubbleData>) -> impl Responder {
     context.insert("setting", &settings);
     context.insert("articles", &article_view);
 
-    RubbleResponder::Html(data.render("homepage.html", &context))
+    RubbleResponder::html(data.render("homepage.html", &context))
 }
 
-#[get("/archives/{archives_id}")]
+#[get("archives/{archives_id}")]
 pub fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) -> impl Responder {
     let article = Article::get_by_pk(&data.postgres(), archives_id.into_inner());
 
     if let Err(e) = article {
-        return RubbleResponder::NotFound;
+        return RubbleResponder::not_found();
     }
     let article1 = article.unwrap();
 
     if let Some(ref to) = article1.url {
         if to.len() != 0 {
-            return RubbleResponder::Redirect(format!("/{}", to));
+            return RubbleResponder::redirect(format!("/{}", to));
         }
     }
 
@@ -50,15 +51,15 @@ pub fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) 
     context.insert("setting", &settings);
     context.insert("article", &view);
 
-    RubbleResponder::Html(data.render("archives.html", &context))
+    RubbleResponder::html(data.render("archives.html", &context))
 }
 
-#[get("/{url}")]
+#[get("{url}")]
 pub fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -> impl Responder {
     let article = Article::find_by_url(&data.postgres(), &url.into_inner());
 
     if let Err(e) = article {
-        return RubbleResponder::NotFound;
+        return RubbleResponder::not_found();
     }
     let article1 = article.unwrap();
 
@@ -70,5 +71,5 @@ pub fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -
     context.insert("setting", &settings);
     context.insert("article", &view);
 
-    RubbleResponder::Html(data.render("archives.html", &context))
+    RubbleResponder::html(data.render("archives.html", &context))
 }

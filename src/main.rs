@@ -12,7 +12,7 @@ use actix_web::{
     middleware::{
         cors::Cors,
         identity::{CookieIdentityPolicy, Identity, IdentityService},
-        Logger,
+        Logger, NormalizePath,
     },
     web, App, HttpServer,
 };
@@ -32,12 +32,13 @@ mod models;
 mod pg_pool;
 mod routers;
 mod schema;
+mod utils;
 mod view;
 
 embed_migrations!();
 
 lazy_static! {
-    static ref RANDOM_TOKEN_KEY: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
+    static ref RANDOM_TOKEN_KEY: Vec<u8> = (0..32).map(|_| 0).collect();
 }
 
 fn main() {
@@ -62,33 +63,14 @@ fn main() {
             .data(FormConfig::default().limit(256_000))
             .wrap(Logger::default())
             .wrap(Cors::default())
+            .wrap(NormalizePath)
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&RANDOM_TOKEN_KEY)
                     .name("auth-cookie")
                     .secure(false)
                     .max_age_time(Duration::days(3)),
             ))
-            .service(routers::article::homepage)
-            .service(routers::article::single_article)
-            .service(actix_files::Files::new(
-                "/statics",
-                "./templates/resources/",
-            ))
-            .service(routers::admin::redirect_to_admin_panel)
-            .service(
-                web::scope("/admin/")
-                    .service(routers::admin::admin_panel)
-                    .service(routers::admin::admin_login)
-                    .service(routers::admin::admin_authentication)
-                    .service(routers::admin::article_creation)
-                    .service(routers::admin::article_save)
-                    .service(routers::admin::article_edit)
-                    .service(routers::admin::article_deletion)
-                    .service(routers::admin::change_password)
-                    .service(routers::admin::change_setting),
-            )
-            .service(routers::rss::rss_page)
-            .service(routers::article::get_article_by_url)
+            .service(routers::routes())
     })
     .bind(("0.0.0.0", 8000))
     .unwrap()

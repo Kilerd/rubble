@@ -7,12 +7,13 @@ use rss::{Channel, ChannelBuilder, Item, ItemBuilder};
 use std::collections::HashMap;
 
 #[get("/rss")]
-pub fn rss_page(data: web::Data<RubbleData>) -> impl Responder {
+pub fn rss_(data: web::Data<RubbleData>) -> impl Responder {
     let articles = Article::read(&data.postgres());
     let setting = Setting::load(&data.postgres());
 
     let items: Vec<Item> = articles
         .iter()
+        .filter(|article| article.published == true)
         .map(ArticleView::from)
         .map(|item| {
             ItemBuilder::default()
