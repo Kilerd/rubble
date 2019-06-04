@@ -1,6 +1,6 @@
 {% extends "admin/admin_base.html" %}
 
-{% block title %}New Article{% endblock title %}
+{% block title %}Site Setting{% endblock title %}
 
 
 {% block content %}
@@ -8,63 +8,68 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <form action='/admin/article{% if article.id %}/{{ article.id }}{% endif %}' method="post" method="post" class="card">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">{% if article.title %} Editing {{ article.title }} {% else %}New Article {% endif %}</h3>
+                        <h3 class="card-title">Site Setting</h3>
                     </div>
                     <div class="card-body">
+
                         <div class="form-group">
-                            <label class="form-label">Title<span class="form-required">*</span></label>
-                            <input type="text" class="form-control" name="title" placeholder="Title..." value="{{ article.title }}" required>
+                            <form action='/admin/setting' method="post" method="post">
+                                <label class="form-label">Site Name<span class="form-required">*</span></label>
+                                <div class="input-group">
+                                    <input type="hidden" name="name" value="title" required>
+                                    <input type="text" class="form-control" name="value" value="{{ setting.title }}"
+                                           required>
+                                    <span class="input-group-append">
+                              <button class="btn btn-primary" type="submit">Go!</button>
+                            </span>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="form-group">
+                            <form action='/admin/setting' method="post" method="post">
+                                <label class="form-label">Description</label>
+                                <div class="input-group">
+                                    <input type="hidden" name="name" value="description" required>
+                                    <input type="text" class="form-control" name="value" value="{{ setting.description }}">
+                                    <span class="input-group-append">
+                              <button class="btn btn-primary" type="submit">Go!</button>
+                            </span>
+                                </div>
+                            </form>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">URL</label>
-                            <div class="input-group">
-                          <span class="input-group-prepend" id="basic-addon3">
-                            <span class="input-group-text">//{{ setting.url }}/</span>
-                          </span>
-                                <input type="text" class="form-control" name="url"
-                                       placeholder="alias-name-for-this-article" value="{{ article.url }}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Content</label>
-                            <textarea class="form-control" rows="10" placeholder="Typing....." name="body">{{ article.body }}</textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Keywords</label>
-                            <input type="text" class="form-control selectized" id="input-tags" name="keywords" value='{{ article.keywords | join(sep=",") }}'
-                                   tabindex="-1" style="display: none;">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Publish At</label>
-                            <input type="datetime-local" name="publish_at" class="form-control" value="{{ article.publish_at | date(format="%Y-%m-%dT%H:%M:%S") }}"  autocomplete="off" maxlength="19">
+                            <form action='/admin/setting' method="post" method="post">
+                                <label class="form-label">URL<span class="form-required">*</span></label>
+                                <div class="input-group">
+                                    <input type="hidden" name="name" value="url" required>
+                                    <input type="text" class="form-control" name="value" value="{{ setting.url }}"
+                                           required>
+                                    <span class="input-group-append">
+                              <button class="btn btn-primary" type="submit">Go!</button>
+                            </span>
+                                </div>
+                            </form>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Published</label>
-                            <div class="selectgroup w-100">
-                                <label class="selectgroup-item">
-                                    <input type="radio" name="published" value="true" class="selectgroup-input" {% if article.published %} checked {% endif %}>
-                                    <span class="selectgroup-button">Yep, published</span>
-                                </label>
-                                <label class="selectgroup-item">
-                                    <input type="radio" name="published" value="false" class="selectgroup-input" {% if article.published == false %}checked{% endif %}>
-                                    <span class="selectgroup-button">Nope, just save as draw</span>
-                                </label>
-
-                            </div>
+                            <form action='/admin/setting' method="post" method="post">
+                                <label class="form-label">Analysis Code</label>
+                                <div class="input-group">
+                                    <input type="hidden" name="name" value="analysis" required>
+                                    <input type="text" class="form-control" name="value" value="{{ setting.analysis }}">
+                                    <span class="input-group-append">
+                              <button class="btn btn-primary" type="submit">Go!</button>
+                            </span>
+                                </div>
+                            </form>
                         </div>
-                        <input type="hidden" name="user_id" value="{{ article.user_id }}">
                     </div>
-                    <div class="card-footer text-right">
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-primary ml-auto">{% if article.id %} Modify {% else %} Create {% endif %}</button>
-                        </div>
-                    </div>
-                </form>
+                </div>
+
+
                 <script>
                     require(['jquery', 'selectize'], function ($, selectize) {
                         $(document).ready(function () {

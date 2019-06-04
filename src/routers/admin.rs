@@ -90,6 +90,27 @@ pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder 
     RubbleResponder::html(data.render("admin/panel.html", &context))
 }
 
+#[get("/{path}")]
+pub fn admin_show_page(
+    id: Identity,
+    path: web::Path<String>,
+    data: web::Data<RubbleData>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::redirect("/admin/login");
+    }
+
+    let settings = Setting::load(&data.postgres());
+
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("admin", &admin);
+    RubbleResponder::html(data.render(&format!("admin/{}.html", path), &context))
+}
+
 #[get("/article/new")]
 pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
     if id.identity().is_none() {
