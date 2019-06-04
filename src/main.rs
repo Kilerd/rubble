@@ -33,7 +33,7 @@ mod utils;
 embed_migrations!();
 
 lazy_static! {
-    static ref RANDOM_TOKEN_KEY: Vec<u8> = (0..32).map(|_| 0).collect();
+    static ref RANDOM_TOKEN_KEY: Vec<u8> = (0..32).map(|_| rand::random::<u8>()).collect();
 }
 
 fn main() {
