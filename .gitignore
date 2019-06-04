@@ -7,6 +7,3 @@
 
 .idea/
 .env
-panel/.cache
-panel/dist
-panel/node_modules
