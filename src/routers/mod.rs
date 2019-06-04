@@ -101,7 +101,8 @@ pub fn routes() -> Scope {
                 .service(admin::article_save)
                 .service(admin::article_update)
                 .service(admin::change_password)
-                .service(admin::change_setting),
+                .service(admin::change_setting)
+                .service(admin::admin_show_page),
         )
         .service(article::homepage)
         .service(article::single_article)
