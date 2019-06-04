@@ -1,9 +1,12 @@
 use crate::{
     data::RubbleData,
-    models::{article::Article, setting::Setting, CRUD},
+    models::{
+        article::{view::ArticleView, Article},
+        setting::Setting,
+        CRUD,
+    },
     pg_pool::Pool,
     routers::RubbleResponder,
-    view::article::ArticleView,
 };
 use actix_web::{get, web, Either, HttpResponse, Responder};
 use std::{result::Result, sync::Arc};

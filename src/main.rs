@@ -29,7 +29,6 @@ mod pg_pool;
 mod routers;
 mod schema;
 mod utils;
-mod view;
 
 embed_migrations!();
 

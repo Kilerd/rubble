@@ -1,8 +1,11 @@
 use crate::{
     data::RubbleData,
-    models::{article::Article, setting::Setting, CRUD},
+    models::{
+        article::{view::ArticleView, Article},
+        setting::Setting,
+        CRUD,
+    },
     pg_pool::Pool,
-    view::article::ArticleView,
 };
 use actix_web::{get, web, HttpResponse, Responder};
 use rss::{Channel, ChannelBuilder, Item, ItemBuilder};
