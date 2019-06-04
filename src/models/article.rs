@@ -1,12 +1,8 @@
-use crate::models::CRUD;
-use crate::schema::articles;
+use crate::{models::CRUD, schema::articles};
 use chrono::NaiveDateTime;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::result::Error;
+use diesel::{pg::PgConnection, prelude::*, result::Error};
 
-use diesel::query_builder::AsChangeset;
-use diesel::{Insertable, Queryable};
+use diesel::{query_builder::AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
@@ -20,50 +16,17 @@ pub struct Article {
     pub url: Option<String>,
     pub keywords: Vec<String>,
 }
-
+//
 #[derive(Debug, Insertable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "articles"]
 pub struct NewArticle {
-    pub id: Option<i32>,
     pub title: String,
     pub body: String,
     pub published: bool,
     pub user_id: i32,
-    pub publish_at: NaiveDateTime,
+    pub publish_at: Option<NaiveDateTime>,
     pub url: Option<String>,
     pub keywords: Vec<String>,
-}
-
-pub mod form {
-    use crate::models::article::NewArticle;
-    use chrono::NaiveDateTime;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct NewArticleForm {
-        pub id: Option<i32>,
-        pub title: String,
-        pub body: String,
-        pub published: bool,
-        pub user_id: i32,
-        pub publish_at: NaiveDateTime,
-        pub url: Option<String>,
-        pub keywords: String,
-    }
-    impl Into<NewArticle> for NewArticleForm {
-        fn into(self) -> NewArticle {
-            NewArticle {
-                id: self.id,
-                title: self.title,
-                body: self.body,
-                published: self.published,
-                user_id: self.user_id,
-                publish_at: self.publish_at,
-                url: self.url,
-                keywords: self.keywords.split(",").map(String::from).collect(),
-            }
-        }
-    }
 }
 
 impl Article {
@@ -108,5 +71,72 @@ impl CRUD<NewArticle, NewArticle, i32> for Article {
 
     fn get_by_pk(conn: &PgConnection, pk: i32) -> Result<Self, Error> {
         articles::table.find(pk).first::<Article>(conn)
+    }
+}
+
+pub mod form {
+    use crate::models::article::NewArticle;
+    use chrono::NaiveDateTime;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct NewArticleFrom {
+        pub title: String,
+        pub body: String,
+        pub published: bool,
+        pub user_id: i32,
+        pub publish_at: Option<NaiveDateTime>,
+        pub url: Option<String>,
+        pub keywords: String,
+    }
+
+    impl From<NewArticleFrom> for NewArticle {
+        fn from(form: NewArticleFrom) -> Self {
+            Self {
+                title: form.title,
+                body: form.body,
+                published: form.published,
+                user_id: form.user_id,
+                publish_at: form.publish_at,
+                url: form.url,
+                keywords: if form.keywords.is_empty() {
+                    vec![]
+                } else {
+                    form.keywords.split(",").map(String::from).collect()
+                },
+            }
+        }
+    }
+}
+
+pub mod view {
+    use crate::models::article::Article;
+    use pulldown_cmark::{html, Parser};
+    use serde::Serialize;
+
+    #[derive(Debug, Serialize)]
+    pub struct ArticleView<'a> {
+        pub article: &'a Article,
+        pub timestamp: i64,
+        pub markdown_content: String,
+        pub description: String,
+    }
+
+    impl<'a> ArticleView<'a> {
+        pub fn from(article: &'a Article) -> ArticleView {
+            let content_split: Vec<_> = article.body.split("<!--more-->").collect();
+            let description_parser = Parser::new(&content_split[0]);
+            let parser = Parser::new(&article.body);
+            let mut description_buf = String::new();
+            let mut content_buf = String::new();
+            html::push_html(&mut content_buf, parser);
+            html::push_html(&mut description_buf, description_parser);
+            ArticleView {
+                article,
+                timestamp: article.publish_at.timestamp(),
+                markdown_content: content_buf,
+                description: description_buf,
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ impl RubbleData {
         let pool = self.pool.clone();
         pool.get().unwrap()
     }
+
     pub fn render(&self, template_name: &str, data: &Context) -> String {
         self.tera.render(template_name, data).unwrap()
     }

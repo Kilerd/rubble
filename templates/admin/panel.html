@@ -88,13 +88,13 @@
                 <form action="/admin/setting" method="post">
                     Site Title:
                     <input type="hidden" name="name" value="title" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.title }}" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.title }}">
                     <button>change</button>
                 </form>
                 <form action="/admin/setting" method="post">
                     Description:
                     <input type="hidden" name="name" value="description" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.description }}" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.description }}">
                     <button>change</button>
                 </form>
                 <form action="/admin/setting" method="post">
@@ -106,7 +106,7 @@
                 <form action="/admin/setting" method="post">
                     Analysis:
                     <input type="hidden" name="name" value="analysis" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.analysis }}" required>
+                    <input type="text" name="value" placeholder="value" value="{{ setting.analysis }}">
                     <button>change</button>
                 </form>
             </section>

@@ -1,58 +1,50 @@
-use actix_web::middleware::identity::Identity;
-use actix_web::web::Form;
-use actix_web::{get, post, web, Either, HttpResponse, Responder};
+use actix_web::{
+    get,
+    middleware::identity::Identity,
+    post,
+    web::{self, Form},
+    Either, HttpResponse, Responder,
+};
 use chrono::{NaiveDateTime, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
 
-use crate::data::RubbleData;
-use crate::models::article::{Article, NewArticle};
-use crate::models::setting::Setting;
-use crate::models::user::User;
-use crate::models::CRUD;
-use crate::routers::RubbleResponder;
+use crate::{
+    data::RubbleData,
+    models::{
+        article::{Article, NewArticle},
+        setting::{Setting, UpdateSetting},
+        token::Token,
+        user::User,
+        CRUD,
+    },
+    routers::RubbleResponder,
+};
 
-#[derive(Deserialize)]
+use crate::utils::jwt::JWTClaims;
+
+#[derive(Deserialize, Serialize)]
 pub struct LoginForm {
     pub username: String,
     pub password: String,
 }
 
 #[derive(Deserialize)]
-struct NewPassword {
+pub struct NewPassword {
     password: String,
 }
 
-#[get("/admin")]
+#[get("")]
 pub fn redirect_to_admin_panel() -> impl Responder {
-    RubbleResponder::Redirect("/admin/panel".into())
-}
-
-#[get("/panel")]
-pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
-    if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
-    }
-
-    let articles = Article::read(&data.postgres());
-    let settings = Setting::load(&data.postgres());
-
-    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
-        .expect("cannot found this user");
-
-    let mut context = Context::new();
-    context.insert("setting", &settings);
-    context.insert("articles", &articles);
-    context.insert("admin", &admin);
-
-    RubbleResponder::Html(data.render("admin/panel.html", &context))
+    RubbleResponder::redirect("/admin/panel")
 }
 
 #[get("/login")]
 pub fn admin_login(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
-    match id.identity() {
-        Some(_) => RubbleResponder::Redirect("/admin/panel".into()),
-        None => RubbleResponder::Html(data.render("admin/login.html", &Context::new())),
+    if id.identity().is_some() {
+        RubbleResponder::redirect("/admin/panel")
+    } else {
+        RubbleResponder::html(data.render("admin/login.html", &Context::new()))
     }
 }
 
@@ -68,22 +60,40 @@ pub fn admin_authentication(
         Ok(login_user) => {
             if login_user.authenticated(&user.password) {
                 id.remember(login_user.username);
-                info!("admin login");
-                RubbleResponder::Redirect("/admin/panel".into())
+
+                RubbleResponder::redirect("/admin/panel")
             } else {
-                // TODO flash message or throw unauthorized
-                warn!("try logining admin with wrong password '{}'", user.password);
-                RubbleResponder::Redirect("/admin/login".into())
+                RubbleResponder::redirect("/admin/login")
             }
         }
-        Err(_) => RubbleResponder::Redirect("/admin/login".into()),
+        Err(_) => RubbleResponder::redirect("/admin/login"),
     }
+}
+
+#[get("/panel")]
+pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::redirect("/admin/login");
+    }
+
+    let articles = Article::read(&data.postgres());
+    let settings = Setting::load(&data.postgres());
+
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
+        .expect("cannot found this user");
+
+    let mut context = Context::new();
+    context.insert("setting", &settings);
+    context.insert("articles", &articles);
+    context.insert("admin", &admin);
+
+    RubbleResponder::html(data.render("admin/panel.html", &context))
 }
 
 #[get("/article/new")]
 pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
@@ -92,18 +102,18 @@ pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Respo
     let mut context = Context::new();
 
     let article = NewArticle {
-        id: None,
         title: String::new(),
         body: String::new(),
         published: true,
         user_id: admin.id,
-        publish_at: NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0),
+        publish_at: Some(NaiveDateTime::from_timestamp(Utc::now().timestamp(), 0)),
         url: None,
         keywords: vec![],
     };
 
     context.insert("article", &article);
-    RubbleResponder::Html(data.render("admin/article_add.html", &context))
+
+    RubbleResponder::html(data.render("admin/article_add.html", &context))
 }
 
 #[get("/article/{article_id}")]
@@ -113,7 +123,7 @@ pub fn article_edit(
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
@@ -125,37 +135,47 @@ pub fn article_edit(
         Ok(article) => {
             let mut context = Context::new();
             context.insert("article", &article);
-            RubbleResponder::Html(data.render("admin/article_add.html", &context))
+            RubbleResponder::html(data.render("admin/article_add.html", &context))
         }
-        Err(_) => RubbleResponder::Redirect("/admin/panel".into()),
+        Err(_) => RubbleResponder::redirect("/admin/panel"),
     }
 }
 
+#[post("/article")]
 pub fn article_save(
     id: Identity,
-    article: Form<crate::models::article::form::NewArticleForm>,
+    article: Form<crate::models::article::form::NewArticleFrom>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let article_title = article.title.clone();
 
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
-    let res = if let Some(article_id) = article.id {
-        info!("updating article #{} {}", article_id, article_title);
-        Article::update(&data.postgres(), article_id, &article.into_inner().into())
-    } else {
-        info!("creating new article {}", article_title);
-        Article::create(&data.postgres(), &article.into_inner().into())
-    };
+    Article::create(&data.postgres(), &article.into_inner().into());
 
-    if res.is_err() {
-        error!("error on updating/creating article {}", article_title);
+    RubbleResponder::redirect("/admin/panel")
+}
+
+#[post("/article/{aid}")]
+pub fn article_update(
+    id: Identity,
+    aid: web::Path<i32>,
+    article: Form<crate::models::article::form::NewArticleFrom>,
+    data: web::Data<RubbleData>,
+) -> impl Responder {
+    if id.identity().is_none() {
+        return RubbleResponder::redirect("/admin/login");
     }
-    RubbleResponder::Redirect("/admin/panel".into())
+
+    let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
+        .expect("cannot found this user");
+    Article::update(&data.postgres(), *aid, &article.into_inner().into());
+
+    RubbleResponder::redirect("/admin/panel")
 }
 
 #[post("/article/delete/{article_id}")]
@@ -165,7 +185,7 @@ pub fn article_deletion(
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
@@ -173,8 +193,8 @@ pub fn article_deletion(
 
     let i = article_id.into_inner();
     Article::delete(&data.postgres(), i);
-    info!("deleting article {}", i);
-    RubbleResponder::Redirect("/admin/panel".into())
+
+    RubbleResponder::redirect("/admin/panel")
 }
 
 #[post("/password")]
@@ -184,7 +204,7 @@ pub fn change_password(
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let mut admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
@@ -192,8 +212,7 @@ pub fn change_password(
     admin.password = User::password_generate(&password.password).to_string();
     User::update(&data.postgres(), admin.id, &admin);
     id.forget();
-    info!("updating password");
-    RubbleResponder::Redirect("/admin/panel".into())
+    RubbleResponder::redirect("/admin/panel")
 }
 
 #[post("/setting")]
@@ -203,15 +222,17 @@ pub fn change_setting(
     data: web::Data<RubbleData>,
 ) -> impl Responder {
     if id.identity().is_none() {
-        return RubbleResponder::Redirect("/admin/login".into());
+        return RubbleResponder::redirect("/admin/login");
     }
 
     let mut admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
-    Setting::update(&data.postgres(), setting.name.clone(), &setting);
-    info!("updating setting {:?} to {:?}", setting.name, setting.value);
-    RubbleResponder::Redirect("/admin/panel".into())
+    let update_setting = UpdateSetting {
+        value: setting.value.clone(),
+    };
+    Setting::update(&data.postgres(), setting.name.clone(), &update_setting);
+    RubbleResponder::redirect("/admin/panel")
 }
 
 #[cfg(test)]
