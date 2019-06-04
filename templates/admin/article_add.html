@@ -26,7 +26,7 @@
     </div>
     <div>
         PUBLISH_AT:
-        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}" required>
+        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at | date(format="%Y-%m-%dT%H:%M:%S") }}" required>
     </div>
     <div>
         PUBLISHED:
