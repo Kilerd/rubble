@@ -4,6 +4,7 @@ use actix_web::{error::Error, web, Scope};
 use futures::future::{err, ok, FutureResult};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
+pub mod admin;
 pub mod api;
 pub mod article;
 pub mod rss;
