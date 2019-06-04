@@ -1,120 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="/statics/admin.css">
-    <title>Admin Panel</title>
-</head>
-<body>
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Dashboard{% endblock title %}
 
 
-<header class="admin">
-    <section class="container">
-        <img src="/statics/cloud.png" alt="" class="logo">
-        <nav>
-            <a href="">Dashboard</a>
-            <a href="">Articles</a>
-            <a href="">User Management</a>
-            <a href="">Site Setting</a>
-        </nav>
-        {{ admin.username }}
-    </section>
-</header>
-<section class="content">
-    <section class="container">
+{% block content %}
+<div class="my-3 my-md-5">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                Dashboard
+            </h1>
+        </div>
+        <div class="row row-cards row-deck">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Articles</h3>
+                        <div class="card-options">
+                            <a href="/admin/article/new" class="btn btn-primary btn-sm">New Article</a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Title</th>
+                                <th>Published Time</th>
+                                <th>Tags</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-        <section class="box">
-            <header>
-                Articles
-                <span><a href="/admin/article/new">new article</a></span>
-            </header>
-            <section class="body">
-                <table class="articles">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>URL</th>
-                        <th>Published Time</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for article in articles %}
-                    <tr>
-                        <td>{{ article.id }}</td>
-                        <td>
-                            {% if article.published == false %}
-                            DRAW
-                            {% endif %}
-                            {{ article.title }}
-                        </td>
-                        <td>{{ article.url }}</td>
-                        <td>{{ article.publish_at | date(format="%B %d, %Y") }}</td>
-                        <td class="action">
-                            <a href="/admin/article/{{ article.id }}">EDIT</a>
-                            <form action="/admin/article/delete/{{ article.id }}" method="POST">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button>DELETE</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </section>
-        </section>
+                            {% for article in articles %}
+                            <tr>
+                                <td>{{ article.id }}</td>
+                                <td>
+                                    {% if article.published == false %}
+                                    <span class="status-icon bg-warning"></span> Draw
+                                    {% else %}
+                                    <span class="status-icon bg-success"></span> Publised
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ article.title }}
+                                    {% if article.published %}
+                                    <a class="icon" target="_blank" href="//{{ setting.url }}/archives/{{ article.id }}"><i
+                                        class="fe fe-send"></i></a>
+                                    {% endif %}
+                                    {% if article.url %}
+                                    <br/>
+                                    <span class="tag">{{ article.url }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.publish_at | date(format="%B %d, %Y") }}</td>
+                                <td>
+                                    <div class="tags">
+                                        {% for key in article.keywords %}
+                                        <span class="tag">{{ key }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="action">
+                                    <div style="display:flex;">
+                                        <a class="icon" href="/admin/article/{{ article.id }}"><i
+                                                class="fe fe-edit"></i></a>
+                                        <form action="/admin/article/delete/{{ article.id }}" method="POST"
+                                              id="delete_form_{{ article.id }}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <a class="icon" href="javascript:{}"
+                                               onclick="document.getElementById('delete_form_{{ article.id }}').submit(); return false;"><i
+                                                    class="fe fe-x-square"></i></a>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
 
-        <section class="box">
-            <header>
-                Change Password
-            </header>
-            <section class="body">
-                <form action="/admin/password" method="post">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <input type="password" name="password" placeholder="new password" required>
+    <script>
+        require(['jquery'], function () {
+            $(document).ready(function () {
 
-                    <button>change</button>
-                </form>
-            </section>
-        </section>
-        <section class="box">
-            <header>
-                Change setting
-            </header>
-            <section class="body">
-                <form action="/admin/setting" method="post">
-                    Site Title:
-                    <input type="hidden" name="name" value="title" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.title }}" required>
-                    <button>change</button>
-                </form>
-                <form action="/admin/setting" method="post">
-                    Description:
-                    <input type="hidden" name="name" value="description" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.description }}" required>
-                    <button>change</button>
-                </form>
-                <form action="/admin/setting" method="post">
-                    URL:
-                    <input type="hidden" name="name" value="url" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.url }}" required>
-                    <button>change</button>
-                </form>
-                <form action="/admin/setting" method="post">
-                    Analysis:
-                    <input type="hidden" name="name" value="analysis" required>
-                    <input type="text" name="value" placeholder="value" value="{{ setting.analysis }}" required>
-                    <button>change</button>
-                </form>
-            </section>
-        </section>
+                function setCookie(name, value, days) {
+                    var expires = "";
+                    if (days) {
+                        var date = new Date();
+                        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                        expires = "; expires=" + date.toUTCString();
+                    }
+                    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+                }
 
-    </section>
+                function getCookie(name) {
+                    var nameEQ = name + "=";
+                    var ca = document.cookie.split(';');
+                    for (var i = 0; i < ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                    }
+                    return null;
+                }
 
-</section>
+                if (!getCookie('bottombar-hidden')) {
+                    $('.js-bottombar').show();
+                }
 
-</body>
-</html>
+                $('.js-bottombar-close').on('click', function (e) {
+                    $('.js-bottombar').hide();
+                    setCookie('bottombar-hidden', 1, 7);
+
+                    e.preventDefault();
+                    return false;
+                });
+            });
+        });
+    </script>
+</div>
+{% endblock content %}

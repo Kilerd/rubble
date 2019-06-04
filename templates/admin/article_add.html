@@ -1,45 +1,124 @@
+{% extends "admin/admin_base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
+{% block title %}New Article{% endblock title %}
 
-<form action="/admin/article" method="post">
 
-    {% if article.id %}<input type="hidden" name="id" value="{{ article.id }}">{% endif %}
-    <div>
-        Title:
-        <input type="text" name="title" placeholder="title" required value="{{ article.title }}">
-    </div>
-    <div>
-        URL:
-        <input type="text" name="url" placeholder="url" value="{{ article.url }}">
-    </div>
-    <input type="hidden" name="user_id" value="{{ article.user_id }}">
-    <div>
-        CONTENT:
-        <textarea name="body" id="body" cols="30" rows="10" placeholder="body">{{ article.body }}</textarea>
-    </div>
-    <div>
-        PUBLISH_AT:
-        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}">
-    </div>
-    <div>
-        PUBLISHED:
-        <input type="checkbox" id="published_show" {% if article.published %}checked{% endif %} onclick="document.getElementById('published').value = document.getElementById('published_show').checked ? 'true' : 'false'">
-        <input type="hidden" name="published" id="published" value="{% if article.published %}true{%else%}false{% endif %}">
-    </div>
-    <div>
-        KEYWORDS:
-        <input type="text" name="keywords" value='{{ article.keywords | join(sep=",") }}'>
-    </div>
-    <button>submit</button>
-</form>
+{% block content %}
+<div class="my-3 my-md-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <form action='/admin/article{% if article.id %}/{{ article.id }}{% endif %}' method="post" method="post" class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{% if article.title %} Editing {{ article.title }} {% else %}New Article {% endif %}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Title<span class="form-required">*</span></label>
+                            <input type="text" class="form-control" name="title" placeholder="Title..." value="{{ article.title }}" required>
+                        </div>
 
-</body>
-</html>
+                        <div class="form-group">
+                            <label class="form-label">URL</label>
+                            <div class="input-group">
+                          <span class="input-group-prepend" id="basic-addon3">
+                            <span class="input-group-text">//{{ setting.url }}/</span>
+                          </span>
+                                <input type="text" class="form-control" name="url"
+                                       placeholder="alias-name-for-this-article" value="{{ article.url }}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Content</label>
+                            <textarea class="form-control" rows="10" placeholder="Typing....." name="body">{{ article.body }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Keywords</label>
+                            <input type="text" class="form-control selectized" id="input-tags" name="keywords" value='{{ article.keywords | join(sep=",") }}'
+                                   tabindex="-1" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Publish At</label>
+                            <input type="datetime-local" name="publish_at" class="form-control" value="{{ article.publish_at | date(format="%Y-%m-%dT%H:%M:%S") }}"  autocomplete="off" maxlength="19">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Published</label>
+                            <div class="selectgroup w-100">
+                                <label class="selectgroup-item">
+                                    <input type="radio" name="published" value="true" class="selectgroup-input" {% if article.published %} checked {% endif %}>
+                                    <span class="selectgroup-button">Yep, published</span>
+                                </label>
+                                <label class="selectgroup-item">
+                                    <input type="radio" name="published" value="false" class="selectgroup-input" {% if article.published == false %}checked{% endif %}>
+                                    <span class="selectgroup-button">Nope, just save as draw</span>
+                                </label>
+
+                            </div>
+                        </div>
+                        <input type="hidden" name="user_id" value="{{ article.user_id }}">
+                    </div>
+                    <div class="card-footer text-right">
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary ml-auto">{% if article.id %} Modify {% else %} Create {% endif %}</button>
+                        </div>
+                    </div>
+                </form>
+                <script>
+                    require(['jquery', 'selectize'], function ($, selectize) {
+                        $(document).ready(function () {
+                            $('#input-tags').selectize({
+                                delimiter: ',',
+                                persist: false,
+                                create: function (input) {
+                                    return {
+                                        value: input,
+                                        text: input
+                                    }
+                                }
+                            });
+
+                            $('#select-beast').selectize({});
+
+                            $('#select-users').selectize({
+                                render: {
+                                    option: function (data, escape) {
+                                        return '<div>' +
+                                            '<span class="image"><img src="' + data.image + '" alt=""></span>' +
+                                            '<span class="title">' + escape(data.text) + '</span>' +
+                                            '</div>';
+                                    },
+                                    item: function (data, escape) {
+                                        return '<div>' +
+                                            '<span class="image"><img src="' + data.image + '" alt=""></span>' +
+                                            escape(data.text) +
+                                            '</div>';
+                                    }
+                                }
+                            });
+
+                            $('#select-countries').selectize({
+                                render: {
+                                    option: function (data, escape) {
+                                        return '<div>' +
+                                            '<span class="image"><img src="' + data.image + '" alt=""></span>' +
+                                            '<span class="title">' + escape(data.text) + '</span>' +
+                                            '</div>';
+                                    },
+                                    item: function (data, escape) {
+                                        return '<div>' +
+                                            '<span class="image"><img src="' + data.image + '" alt=""></span>' +
+                                            escape(data.text) +
+                                            '</div>';
+                                    }
+                                }
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

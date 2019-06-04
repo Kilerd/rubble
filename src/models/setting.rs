@@ -1,9 +1,5 @@
-use crate::models::CRUD;
-use crate::schema::setting;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::result::Error;
-use diesel::{AsChangeset, Insertable, Queryable};
+use crate::{models::CRUD, schema::setting};
+use diesel::{pg::PgConnection, prelude::*, result::Error, AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -21,8 +17,14 @@ pub struct SettingMap {
     pub url: String,
     pub analysis: String,
 }
+#[derive(Queryable, Debug, Serialize, Deserialize, AsChangeset)]
+#[table_name = "setting"]
+pub struct UpdateSetting {
+    pub value: Option<String>,
+}
 
 impl Setting {
+    // TODO refactor this method
     pub fn load(conn: &PgConnection) -> SettingMap {
         let settings = setting::table.load::<Setting>(conn).unwrap();
 
@@ -51,7 +53,7 @@ impl Setting {
     }
 }
 
-impl CRUD<(), Setting, String> for Setting {
+impl CRUD<(), UpdateSetting, String> for Setting {
     fn create(conn: &PgConnection, from: &()) -> Result<Self, Error> {
         unimplemented!()
     }
@@ -60,7 +62,7 @@ impl CRUD<(), Setting, String> for Setting {
         unimplemented!()
     }
 
-    fn update(conn: &PgConnection, pk: String, value: &Setting) -> Result<Self, Error> {
+    fn update(conn: &PgConnection, pk: String, value: &UpdateSetting) -> Result<Self, Error> {
         diesel::update(setting::table.find(&pk))
             .set(value)
             .get_result(conn)

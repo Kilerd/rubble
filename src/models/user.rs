@@ -1,15 +1,17 @@
 use crate::models::CRUD;
 use chrono::NaiveDateTime;
-use diesel::pg::PgConnection;
-use diesel::result::Error;
+use diesel::{pg::PgConnection, result::Error};
 
 use crate::schema::users;
-use crypto::digest::Digest;
-use crypto::sha3::Sha3;
+use crypto::{digest::Digest, sha3::Sha3};
 use diesel::prelude::*;
 
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::Serialize;
+
+use crate::{data::RubbleData, utils::jwt::JWTClaims};
+use actix_web::{dev::Payload, error, FromRequest, HttpRequest};
+use futures::IntoFuture;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[table_name = "users"]
@@ -63,5 +65,43 @@ impl CRUD<(), User, i32> for User {
 
     fn get_by_pk(conn: &PgConnection, pk: i32) -> Result<Self, Error> {
         users::table.filter(users::id.eq(pk)).first::<User>(conn)
+    }
+}
+
+impl FromRequest for User {
+    type Config = ();
+    type Error = actix_web::error::Error;
+    type Future = Result<Self, Self::Error>;
+
+    fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
+        let tokens: Vec<&str> = req
+            .headers()
+            .get("Authorization")
+            .ok_or(error::ErrorUnauthorized("cannot find authorization header"))?
+            .to_str()
+            .map_err(|_| error::ErrorBadRequest("error on deserialize token"))?
+            .splitn(2, ' ')
+            .collect();
+
+        let user_id = JWTClaims::decode(tokens[1].into())
+            .map_err(|_| error::ErrorUnauthorized("invalid jwt token"))?;
+        let data = req
+            .app_data::<RubbleData>()
+            .ok_or(error::ErrorBadGateway("error on get rubble data"))?;
+
+        let result = User::find_by_username(&data.postgres(), &user_id)
+            .map_err(|_| error::ErrorUnauthorized("error on get user"))?;
+
+        Ok(result)
+    }
+}
+
+pub mod input {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Deserialize, Serialize)]
+    pub struct LoginForm {
+        pub username: String,
+        pub password: String,
     }
 }
