@@ -1,13 +1,12 @@
-use crate::data::RubbleData;
-use crate::models::article::Article;
-use crate::models::setting::Setting;
-use crate::models::CRUD;
-use crate::pg_pool::Pool;
-use crate::routers::RubbleResponder;
-use crate::view::article::ArticleView;
+use crate::{
+    data::RubbleData,
+    models::{article::Article, setting::Setting, CRUD},
+    pg_pool::Pool,
+    routers::RubbleResponder,
+    view::article::ArticleView,
+};
 use actix_web::{get, web, Either, HttpResponse, Responder};
-use std::result::Result;
-use std::sync::Arc;
+use std::{result::Result, sync::Arc};
 use tera::{Context, Tera};
 
 #[get("")]

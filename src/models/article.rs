@@ -1,12 +1,8 @@
-use crate::models::CRUD;
-use crate::schema::articles;
+use crate::{models::CRUD, schema::articles};
 use chrono::NaiveDateTime;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::result::Error;
+use diesel::{pg::PgConnection, prelude::*, result::Error};
 
-use diesel::query_builder::AsChangeset;
-use diesel::{Insertable, Queryable};
+use diesel::{query_builder::AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
@@ -75,5 +71,40 @@ impl CRUD<NewArticle, NewArticle, i32> for Article {
 
     fn get_by_pk(conn: &PgConnection, pk: i32) -> Result<Self, Error> {
         articles::table.find(pk).first::<Article>(conn)
+    }
+}
+
+pub mod form {
+    use crate::models::article::NewArticle;
+    use chrono::NaiveDateTime;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct NewArticleFrom {
+        pub title: String,
+        pub body: String,
+        pub published: bool,
+        pub user_id: i32,
+        pub publish_at: Option<NaiveDateTime>,
+        pub url: Option<String>,
+        pub keywords: String,
+    }
+
+    impl From<NewArticleFrom> for NewArticle {
+        fn from(form: NewArticleFrom) -> Self {
+            Self {
+                title: form.title,
+                body: form.body,
+                published: form.published,
+                user_id: form.user_id,
+                publish_at: form.publish_at,
+                url: form.url,
+                keywords: if form.keywords.is_empty() {
+                    vec![]
+                } else {
+                    form.keywords.split(",").map(String::from).collect()
+                },
+            }
+        }
     }
 }

@@ -1,7 +1,9 @@
-use crate::data::RubbleData;
-use crate::models::{article::Article, setting::Setting, CRUD};
-use crate::pg_pool::Pool;
-use crate::view::article::ArticleView;
+use crate::{
+    data::RubbleData,
+    models::{article::Article, setting::Setting, CRUD},
+    pg_pool::Pool,
+    view::article::ArticleView,
+};
 use actix_web::{get, web, HttpResponse, Responder};
 use rss::{Channel, ChannelBuilder, Item, ItemBuilder};
 use std::collections::HashMap;

@@ -9,9 +9,8 @@
 </head>
 <body>
 
-<form action="/admin/article" method="post">
+<form action='/admin/article{% if article.id %}/{{ article.id }}{% endif %}' method="post">
 
-    {% if article.id %}<input type="hidden" name="id" value="{{ article.id }}">{% endif %}
     <div>
         Title:
         <input type="text" name="title" placeholder="title" required value="{{ article.title }}">
@@ -27,7 +26,7 @@
     </div>
     <div>
         PUBLISH_AT:
-        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}">
+        <input type="datetime-local" name="publish_at" id="publish_at" value="{{ article.publish_at }}" required>
     </div>
     <div>
         PUBLISHED:

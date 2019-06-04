@@ -1,6 +1,5 @@
 use crate::models::article::Article;
-use pulldown_cmark::html;
-use pulldown_cmark::Parser;
+use pulldown_cmark::{html, Parser};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]

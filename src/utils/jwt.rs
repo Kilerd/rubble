@@ -1,5 +1,4 @@
-use crate::models::user::User;
-use crate::RANDOM_TOKEN_KEY;
+use crate::{models::user::User, RANDOM_TOKEN_KEY};
 use chrono::prelude::*;
 use jsonwebtoken::{decode as jwt_decode, encode as jwt_encode, Algorithm, Header, Validation};
 use serde::{Deserialize, Serialize};

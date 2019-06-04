@@ -36,6 +36,7 @@ impl RubbleResponder {
             )
             .json(JsonResponse { data })
     }
+
     pub fn text(content: impl Into<String>) -> HttpResponse {
         HttpResponse::Ok().body(content.into())
     }
@@ -59,9 +60,11 @@ impl RubbleResponder {
     pub fn unauthorized(reason: impl Serialize) -> HttpResponse {
         HttpResponse::Unauthorized().json(&ErrorResponse { message: reason })
     }
+
     pub fn bad_gateway(reason: impl Serialize) -> HttpResponse {
         HttpResponse::BadGateway().json(&ErrorResponse { message: reason })
     }
+
     pub fn bad_request(reason: impl Serialize) -> HttpResponse {
         HttpResponse::BadRequest().json(&ErrorResponse { message: reason })
     }
@@ -85,6 +88,20 @@ pub fn routes() -> Scope {
                         .service(api::setting::get_settings)
                         .service(api::setting::update_setting_by_key),
                 ),
+        )
+        .service(
+            web::scope("/admin")
+                .service(admin::redirect_to_admin_panel)
+                .service(admin::admin_login)
+                .service(admin::admin_authentication)
+                .service(admin::admin_panel)
+                .service(admin::article_creation)
+                .service(admin::article_deletion)
+                .service(admin::article_edit)
+                .service(admin::article_save)
+                .service(admin::article_update)
+                .service(admin::change_password)
+                .service(admin::change_setting),
         )
         .service(article::homepage)
         .service(article::single_article)

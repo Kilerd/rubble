@@ -1,20 +1,16 @@
 use crate::models::CRUD;
 use chrono::NaiveDateTime;
-use diesel::pg::PgConnection;
-use diesel::result::Error;
+use diesel::{pg::PgConnection, result::Error};
 
 use crate::schema::users;
-use crypto::digest::Digest;
-use crypto::sha3::Sha3;
+use crypto::{digest::Digest, sha3::Sha3};
 use diesel::prelude::*;
 
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::Serialize;
 
-use crate::data::RubbleData;
-use crate::utils::jwt::JWTClaims;
-use actix_web::dev::Payload;
-use actix_web::{error, FromRequest, HttpRequest};
+use crate::{data::RubbleData, utils::jwt::JWTClaims};
+use actix_web::{dev::Payload, error, FromRequest, HttpRequest};
 use futures::IntoFuture;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
@@ -73,9 +69,9 @@ impl CRUD<(), User, i32> for User {
 }
 
 impl FromRequest for User {
+    type Config = ();
     type Error = actix_web::error::Error;
     type Future = Result<Self, Self::Error>;
-    type Config = ();
 
     fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
         let tokens: Vec<&str> = req

@@ -13,9 +13,11 @@ use actix_web::{
 
 use dotenv::dotenv;
 
-use crate::data::RubbleData;
-use crate::pg_pool::database_pool_establish;
-use actix_web::web::{FormConfig, JsonConfig};
+use crate::{data::RubbleData, pg_pool::database_pool_establish};
+use actix_web::{
+    middleware::identity::{CookieIdentityPolicy, IdentityService},
+    web::{FormConfig, JsonConfig},
+};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tera::compile_templates;
@@ -58,6 +60,12 @@ fn main() {
             .wrap(Logger::default())
             .wrap(Cors::default())
             .wrap(NormalizePath)
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(&RANDOM_TOKEN_KEY)
+                    .name("auth-cookie")
+                    .secure(false)
+                    .max_age_time(Duration::days(3)),
+            ))
             .service(routers::routes())
     })
     .bind(("0.0.0.0", 8000))

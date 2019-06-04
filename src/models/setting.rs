@@ -1,9 +1,5 @@
-use crate::models::CRUD;
-use crate::schema::setting;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::result::Error;
-use diesel::{AsChangeset, Insertable, Queryable};
+use crate::{models::CRUD, schema::setting};
+use diesel::{pg::PgConnection, prelude::*, result::Error, AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
