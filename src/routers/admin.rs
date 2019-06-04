@@ -95,7 +95,7 @@ pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Respo
     if id.identity().is_none() {
         return RubbleResponder::redirect("/admin/login");
     }
-
+    let settings = Setting::load(&data.postgres());
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
@@ -112,6 +112,8 @@ pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Respo
     };
 
     context.insert("article", &article);
+    context.insert("setting", &settings);
+    context.insert("admin", &admin);
 
     RubbleResponder::html(data.render("admin/article_add.html", &context))
 }
@@ -125,7 +127,7 @@ pub fn article_edit(
     if id.identity().is_none() {
         return RubbleResponder::redirect("/admin/login");
     }
-
+    let settings = Setting::load(&data.postgres());
     let admin = User::find_by_username(&data.postgres(), &id.identity().unwrap())
         .expect("cannot found this user");
 
@@ -135,6 +137,8 @@ pub fn article_edit(
         Ok(article) => {
             let mut context = Context::new();
             context.insert("article", &article);
+            context.insert("setting", &settings);
+            context.insert("admin", &admin);
             RubbleResponder::html(data.render("admin/article_add.html", &context))
         }
         Err(_) => RubbleResponder::redirect("/admin/panel"),
