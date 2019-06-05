@@ -2,6 +2,7 @@ use crate::{models::CRUD, schema::articles};
 use chrono::NaiveDateTime;
 use diesel::{pg::PgConnection, prelude::*, result::Error};
 
+use diesel::sql_types::Integer;
 use diesel::{query_builder::AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +16,7 @@ pub struct Article {
     pub publish_at: NaiveDateTime,
     pub url: Option<String>,
     pub keywords: Vec<String>,
+    pub view: i32,
 }
 //
 #[derive(Debug, Insertable, AsChangeset, Serialize, Deserialize)]
@@ -42,6 +44,13 @@ impl Article {
             .filter(articles::url.eq(url))
             .filter(articles::published.eq(true))
             .first::<Article>(conn)
+    }
+
+    pub fn increase_view(&self, conn: &PgConnection) {
+        diesel::sql_query(r#"UPDATE articles SET "view" = "view" + 1 where articles.id = $1"#)
+            .bind::<Integer, _>(self.id)
+            .execute(conn)
+            .expect("error on incr view");
     }
 }
 

@@ -27,6 +27,7 @@
                                 <th>ID</th>
                                 <th>Status</th>
                                 <th>Title</th>
+                                <th>View</th>
                                 <th>Published Time</th>
                                 <th>Tags</th>
                                 <th></th>
@@ -54,6 +55,9 @@
                                     <br/>
                                     <span class="tag">{{ article.url }}</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {{ article.view }}
                                 </td>
                                 <td>{{ article.publish_at | date(format="%B %d, %Y") }}</td>
                                 <td>

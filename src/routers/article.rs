@@ -45,6 +45,7 @@ pub fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) 
         }
     }
 
+    article1.increase_view(&data.postgres());
     let view = ArticleView::from(&article1);
 
     let settings = Setting::load(&data.postgres());
@@ -64,6 +65,7 @@ pub fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -
         return RubbleResponder::not_found();
     }
     let article1 = article.unwrap();
+    article1.increase_view(&data.postgres());
 
     let view = ArticleView::from(&article1);
 
