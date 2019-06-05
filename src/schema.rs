@@ -8,6 +8,7 @@ table! {
         publish_at -> Timestamp,
         url -> Nullable<Text>,
         keywords -> Array<Text>,
+        view -> Int4,
     }
 }
 
@@ -40,4 +41,9 @@ table! {
 joinable!(articles -> users (user_id));
 joinable!(tokens -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(articles, setting, tokens, users,);
+allow_tables_to_appear_in_same_query!(
+    articles,
+    setting,
+    tokens,
+    users,
+);

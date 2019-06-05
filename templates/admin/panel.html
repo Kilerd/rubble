@@ -27,6 +27,7 @@
                                 <th>ID</th>
                                 <th>Status</th>
                                 <th>Title</th>
+                                <th>View</th>
                                 <th>Published Time</th>
                                 <th>Tags</th>
                                 <th></th>
@@ -47,13 +48,16 @@
                                 <td>
                                     {{ article.title }}
                                     {% if article.published %}
-                                    <a class="icon" target="_blank" href="//{{ setting.url }}/archives/{{ article.id }}"><i
+                                    <a class="icon" target="_blank" href="{{ setting.url }}/archives/{{ article.id }}"><i
                                         class="fe fe-send"></i></a>
                                     {% endif %}
                                     {% if article.url %}
                                     <br/>
                                     <span class="tag">{{ article.url }}</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {{ article.view }}
                                 </td>
                                 <td>{{ article.publish_at | date(format="%B %d, %Y") }}</td>
                                 <td>

@@ -257,7 +257,7 @@ pub fn change_setting(
         value: setting.value.clone(),
     };
     Setting::update(&data.postgres(), setting.name.clone(), &update_setting);
-    RubbleResponder::redirect("/admin/panel")
+    RubbleResponder::redirect("/admin/site-setting")
 }
 
 #[cfg(test)]
