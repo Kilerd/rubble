@@ -33,5 +33,4 @@ ENV LOG info
 
 WORKDIR /application
 
-RUN export RUST_LOG=rubble=$LOG
-CMD ["./rubble"]
+CMD ["RUST_LOG=rubble=$LOG ./rubble"]
