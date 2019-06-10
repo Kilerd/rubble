@@ -29,8 +29,7 @@ COPY --from=builder /app/rubble/target/x86_64-unknown-linux-musl/release/rubble 
 EXPOSE 8000
 
 ENV DATABASE_URL postgres://root@postgres/rubble
-ENV LOG info
 
 WORKDIR /application
 
-CMD ["RUST_LOG=rubble=$LOG ./rubble"]
+CMD ["./rubble"]
