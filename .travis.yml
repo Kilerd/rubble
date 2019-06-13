@@ -1,6 +1,10 @@
 language: rust
 rust:
   - stable
+
+services:
+  - docker
+
 matrix:
   fast_finish: true
 cache: cargo
