@@ -1,14 +1,21 @@
 language: rust
 rust:
-- stable
-- beta
-- nightly
+  - stable
+  - beta
+  - nightly
 matrix:
-allow_failures:
-- rust: nightly
-fast_finish: true
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
 cache: cargo
 
-script:
-  - cargo build
-  - cargo test --all
+jobs:
+  include:
+    - stage: build-latest-image
+      branches:
+        only:
+          - master
+      script:
+        - docker build -t kilerd/rubble:latest .
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push kilerd/rubble:latest
