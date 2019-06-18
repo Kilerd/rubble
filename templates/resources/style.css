@@ -19,7 +19,7 @@ section.full-page {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 960px;
     margin: 0 auto;
     padding: 5px 10px;
 }
@@ -92,7 +92,6 @@ section.article p.mate a:hover {
 
 section.article .title {
     font-size: 1.5em;
-    margin-bottom: 1rem;
     margin-top: 0.5rem;
     text-transform: uppercase;
     color: #444;
@@ -107,17 +106,16 @@ section.article a.title:hover {
 
 section.article section.desc {
     color: #555;
-    margin-top: .25rem;
+    margin-top: 1.5rem;
 }
 
 .single.article {
     padding: 3rem 0.25rem;
-    max-width: 800px;
     margin: 0 auto;
 }
 
 .single.article > h2 {
-    font-size: 1.5rem;
+    font-size: 2rem;
     margin-bottom: 3rem;
     margin-top: 0.5rem;
     text-transform: uppercase;
@@ -148,7 +146,7 @@ footer a:hover {
 }
 
 .windows .yue {
-    font-size: 15px;
+    font-size: 1.2rem;
     font-family: Georgia, SimSun, sans-serif
 }
 
@@ -160,75 +158,69 @@ footer a:hover {
     background-color: rgba(0, 0, 0, .2)
 }
 
+.yue, .yue h1, .yue h2, .yue h3, .yue h4, .yue h5, .yue h6, .yue code, .yue blockquote, .yue em, .yue strong, .yue code {
+    font-size: 1.2rem;
+    line-height: 2rem;
+    font-style: normal;
+    font-family: Menlo, Monaco, "Droid Sans", "Lucida Console", "Liberation Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New", monospace, serif
+}
+
+.yue h1, .yue h2, .yue h3, .yue h4, .yue h5, .yue h6, .yue code, .yue blockquote, .yue ol, .yue ul, .yue dl, .yue li, .yue p, .yue section, .yue header, .yue footer {
+    float: none;
+    margin: 0;
+    padding: 0
+}
+
+.yue h1, .yue p, .yue ul, .yue dl, .yue ol, .yue blockquote {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem
+}
+
 .yue h1, .yue h2, .yue h3, .yue h4, .yue h5, .yue h6 {
-    font-family: PingFang SC, Verdana, Helvetica Neue, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
-    color: #444;
-    font-weight: 400
+    position: relative;
+    margin-bottom: 1.5rem
 }
 
-.yue h1 {
-    font-size: 1.75em;
-    margin: .67em 0
+.yue h1, .yue h2 {
+    line-height: 1.5rem
 }
 
-.yue > h1 {
-    margin-top: 0;
-    font-size: 1.75em
-}
-
-.yue > h1:before {
-    content: "#";
+.yue h1:before, .yue h2:before, .yue h3:before, .yue h4:before, .yue h5:before, .yue h6:before {
+    display: inline;
     color: #d6d6d6;
-    margin-right: 0.25rem;
+}
+
+@media screen and (min-width: 66rem) {
+    .yue h1:before, .yue h2:before, .yue h3:before, .yue h4:before, .yue h5:before, .yue h6:before {
+        display: block;
+        position: absolute;
+        transform: translateX(-100%);
+        padding-right: 0.6rem
+    }
+}
+
+.yue h1:before {
+    content: "# "
 }
 
 .yue h2:before {
-    content: "##";
-    color: #d6d6d6;
-    margin-right: 0.25rem;
+    content: "## "
 }
 
 .yue h3:before {
-    content: "###";
-    color: #d6d6d6;
-    margin-right: 0.25rem;
+    content: "### "
 }
 
 .yue h4:before {
-    content: "####";
-    color: #d6d6d6;
-    margin-right: 0.25rem;
+    content: "#### "
 }
 
 .yue h5:before {
-    content: "#####";
-    color: #d6d6d6;
-    margin-right: 0.25rem;
+    content: "##### "
 }
 
 .yue h6:before {
-    content: "######";
-    color: #d6d6d6;
-    margin-right: 0.25rem;
-}
-
-.yue h2 {
-    font-size: 1.35rem;
-    margin: .83rem 0
-}
-
-.yue h3 {
-    font-size: 1.17rem;
-    margin: 1rem 0
-}
-
-.yue h4, .yue h5, .yue h6 {
-    font-size: 1rem;
-    margin: 1.6rem 0 1rem 0
-}
-
-.yue h6 {
-    font-weight: 500
+    content: "###### "
 }
 
 .yue p {
@@ -338,8 +330,11 @@ footer a:hover {
 
 .yue blockquote {
     margin: 0 0 1.64em 0;
-    border-left: 3px solid #dadada;
+    border-left: 5px solid #dadada;
     padding-left: 12px
+}
+.yue blockquote p {
+    color: #888;
 }
 
 .yue ol, .yue ul {
@@ -455,7 +450,7 @@ footer a:hover {
     .yue blockquote {
         margin-left: 10px;
         padding-left: 20px;
-        border-width: 2px
+        border-width: 5px
     }
 
     .yue blockquote blockquote {
