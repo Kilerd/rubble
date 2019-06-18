@@ -2,8 +2,7 @@ use crate::{models::CRUD, schema::articles};
 use chrono::NaiveDateTime;
 use diesel::{pg::PgConnection, prelude::*, result::Error};
 
-use diesel::sql_types::Integer;
-use diesel::{query_builder::AsChangeset, Insertable, Queryable};
+use diesel::{query_builder::AsChangeset, sql_types::Integer, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]

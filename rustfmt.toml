@@ -1,3 +1,4 @@
+reorder_imports = true
 merge_imports = true
 normalize_comments = true
 reorder_impl_items = true
