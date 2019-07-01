@@ -121,13 +121,22 @@ pub mod view {
     use crate::models::article::Article;
     use pulldown_cmark::{html, Parser};
     use serde::Serialize;
+    use std::ops::Deref;
 
     #[derive(Debug, Serialize)]
     pub struct ArticleView<'a> {
-        pub article: &'a Article,
+        article: &'a Article,
         pub timestamp: i64,
         pub markdown_content: String,
         pub description: String,
+    }
+
+    impl<'a> Deref for ArticleView<'a> {
+        type Target = Article;
+
+        fn deref(&self) -> &Self::Target {
+            self.article
+        }
     }
 
     impl<'a> ArticleView<'a> {
