@@ -1,10 +1,10 @@
+extern crate openssl;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
 extern crate diesel_derives;
 #[macro_use]
 extern crate diesel_migrations;
-extern crate openssl;
 
 use std::sync::Arc;
 
