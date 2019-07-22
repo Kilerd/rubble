@@ -69,7 +69,7 @@ dependencies = [
 
 [[package]]
 name = "actix-files"
-version = "0.1.2"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "actix-http 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -77,7 +77,7 @@ dependencies = [
  "actix-web 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "derive_more 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "derive_more 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mime 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1646,7 +1646,7 @@ version = "0.3.3"
 dependencies = [
  "actix 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-cors 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "actix-files 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "actix-files 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-identity 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-web 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2366,7 +2366,7 @@ dependencies = [
 "checksum actix-codec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "9f2c11af4b06dc935d8e1b1491dad56bfb32febc49096a91e773f8535c176453"
 "checksum actix-connect 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d7fbab0d79b2f3415a79570e3db12eaa75c26239541e613b832655145a5e9488"
 "checksum actix-cors 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "66e5b071c68ac8ab182e7b7717167ef29ea93e166bc26391f678f19ac08ed129"
-"checksum actix-files 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cd2b5710b43cee64137ab679eb5ece1bf85d3d65d900eb2f19ba74a9b8c6499f"
+"checksum actix-files 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "f1e4640b28cd96059541c932f6f350c63c76688e43d68305cdb88e0004da12b5"
 "checksum actix-http 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "81aa906e74d2cd5f219f596003b0fd94d05e75a4a448b12afea66e7658b6c9e1"
 "checksum actix-identity 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "84d972c0f80dc8beeceaff6f47b961a106b9f582c0b12ee6737cad30ed228edd"
 "checksum actix-router 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "23224bb527e204261d0291102cb9b52713084def67d94f7874923baefe04ccf7"
