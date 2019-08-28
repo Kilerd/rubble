@@ -16,7 +16,7 @@ jobs:
     - name: Update ToolChain
       run: rustup update
     - name: install dependencies
-      run: apt-get install libpq-dev
+      run: sudo apt-get install -y libpq-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
