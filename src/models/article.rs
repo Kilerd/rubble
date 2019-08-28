@@ -2,8 +2,7 @@ use crate::{models::CRUD, schema::articles};
 use chrono::NaiveDateTime;
 use diesel::{pg::PgConnection, prelude::*, result::Error};
 
-use diesel::sql_types::Integer;
-use diesel::{query_builder::AsChangeset, Insertable, Queryable};
+use diesel::{query_builder::AsChangeset, sql_types::Integer, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
@@ -122,13 +121,22 @@ pub mod view {
     use crate::models::article::Article;
     use pulldown_cmark::{html, Parser};
     use serde::Serialize;
+    use std::ops::Deref;
 
     #[derive(Debug, Serialize)]
     pub struct ArticleView<'a> {
-        pub article: &'a Article,
+        article: &'a Article,
         pub timestamp: i64,
         pub markdown_content: String,
         pub description: String,
+    }
+
+    impl<'a> Deref for ArticleView<'a> {
+        type Target = Article;
+
+        fn deref(&self) -> &Self::Target {
+            self.article
+        }
     }
 
     impl<'a> ArticleView<'a> {

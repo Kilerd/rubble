@@ -1,7 +1,6 @@
+use actix_identity::Identity;
 use actix_web::{
-    get,
-    middleware::identity::Identity,
-    post,
+    get, post,
     web::{self, Form},
     Either, HttpResponse, Responder,
 };

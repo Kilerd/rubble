@@ -6,22 +6,23 @@ extern crate diesel_derives;
 #[macro_use]
 extern crate diesel_migrations;
 
+use std::sync::Arc;
+
+use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{
-    middleware::{cors::Cors, Logger, NormalizePath},
+    middleware::{Logger, NormalizePath},
+    web::{FormConfig, JsonConfig},
     App, HttpServer,
 };
 
-use dotenv::dotenv;
-
-use crate::{data::RubbleData, pg_pool::database_pool_establish};
-use actix_web::{
-    middleware::identity::{CookieIdentityPolicy, IdentityService},
-    web::{FormConfig, JsonConfig},
-};
-use lazy_static::lazy_static;
-use std::sync::Arc;
+use actix_cors::Cors;
 use tera::compile_templates;
 use time::Duration;
+
+use dotenv::dotenv;
+use lazy_static::lazy_static;
+
+use crate::{data::RubbleData, pg_pool::database_pool_establish};
 
 mod data;
 mod models;
@@ -29,7 +30,6 @@ mod pg_pool;
 mod routers;
 mod schema;
 mod utils;
-
 embed_migrations!();
 
 lazy_static! {

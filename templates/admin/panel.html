@@ -69,14 +69,20 @@
                                 </td>
                                 <td class="action">
                                     <div style="display:flex;">
-                                        <a class="icon" href="/admin/article/{{ article.id }}"><i
-                                                class="fe fe-edit"></i></a>
+                                        <a class="icon" href="/admin/article/{{ article.id }}" style="margin: 0 5px;">
+                                            <i class="fe fe-edit"></i>
+                                        </a>
                                         <form action="/admin/article/delete/{{ article.id }}" method="POST"
                                               id="delete_form_{{ article.id }}">
                                             <input type="hidden" name="_method" value="DELETE">
-                                            <a class="icon" href="javascript:{}"
-                                               onclick="document.getElementById('delete_form_{{ article.id }}').submit(); return false;"><i
-                                                    class="fe fe-x-square"></i></a>
+                                            <a
+                                                    class="icon"
+                                                    href="javascript:{}"
+                                                    onclick="document.getElementById('delete_form_{{ article.id }}').submit(); return false;"
+                                                    style="margin: 0 5px;"
+                                            >
+                                                <i class="fe fe-x-square"></i>
+                                            </a>
                                         </form>
                                     </div>
                                 </td>
