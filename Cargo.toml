@@ -23,7 +23,7 @@ diesel_migrations = "1.4.0"
 tera = "0.11.20"
 pulldown-cmark = { version = "0.5.2", default-features = false }
 
-chrono = { version = "0.4.6", features = ["serde"] }
+chrono = { version = "0.4.8", features = ["serde"] }
 rust-crypto = "0.2.36"
 
 http = "0.1.17"
