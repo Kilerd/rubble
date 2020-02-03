@@ -62,7 +62,7 @@ async fn main() {
             .data(FormConfig::default().limit(256_000))
             .wrap(Logger::default())
             .wrap(Cors::default())
-            .wrap(NormalizePath)
+            .wrap(NormalizePath {})
             .configure(routers::routes)
     })
     .bind(("0.0.0.0", 8000))

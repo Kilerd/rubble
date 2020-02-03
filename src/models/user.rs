@@ -1,8 +1,8 @@
-use actix_web::{dev::Payload, FromRequest, HttpRequest};
+use actix_web::{dev::Payload, FromRequest, HttpMessage, HttpRequest};
 use chrono::NaiveDateTime;
 use crypto::{digest::Digest, sha3::Sha3};
 use diesel::{pg::PgConnection, prelude::*, result::Error, AsChangeset, Insertable, Queryable};
-use futures::future::{err, ok, Ready};
+use futures::future::{ready, Ready};
 use serde::Serialize;
 
 use crate::{
@@ -71,18 +71,21 @@ impl FromRequest for User {
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let data = req.app_data::<RubbleData>().expect("cannot get app data");
+        let authentication_cookie = req.cookie("Authorization");
+
+        let cookie_token = authentication_cookie.as_ref().map(|cookie| cookie.value());
+
         let user = req
             .headers()
             .get("Authorization")
-            .ok_or(RubbleError::Unauthorized(
-                "cannot find authorization header",
-            ))
-            .and_then(|header| {
-                header
-                    .to_str()
-                    .map_err(|_| RubbleError::BadRequest("error on deserialize token"))
+            .map(|header| header.to_str())
+            .transpose()
+            .map(|header_token| header_token.or(cookie_token))
+            .map_err(|_| RubbleError::BadRequest("error on deserialize token"))
+            .and_then(|token| {
+                token.ok_or(RubbleError::Unauthorized("cannot get authentication token"))
             })
-            .map(|header| header.splitn(2, ' ').collect::<Vec<&str>>())
+            .map(|jwt| jwt.splitn(2, ' ').collect::<Vec<&str>>())
             .and_then(|tokens| {
                 if tokens.len() == 2 {
                     Ok(tokens[1])
@@ -99,10 +102,7 @@ impl FromRequest for User {
                     .map_err(|_| RubbleError::Unauthorized("error on get user"))
             });
 
-        match user {
-            Ok(user) => ok(user),
-            Err(e) => err(e),
-        }
+        ready(user)
     }
 }
 

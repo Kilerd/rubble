@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{middleware::NormalizePath, web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
 pub mod admin;
@@ -57,6 +57,22 @@ impl RubbleResponder {
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/api").configure(api::routes))
+        .service(
+            web::scope("/admin")
+                .wrap(NormalizePath)
+                .service(admin::redirect_to_admin_panel)
+                .service(admin::admin_login)
+                .service(admin::admin_authentication)
+                .service(admin::admin_panel)
+                .service(admin::article_creation)
+                .service(admin::article_deletion)
+                .service(admin::article_edit)
+                .service(admin::article_save)
+                .service(admin::article_update)
+                .service(admin::change_password)
+                .service(admin::change_setting)
+                .service(admin::admin_show_page),
+        )
         .service(article::homepage)
         .service(article::single_article)
         .service(actix_files::Files::new(

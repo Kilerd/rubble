@@ -8,7 +8,7 @@ use crate::{
     },
     routers::RubbleResponder,
 };
-use actix_web::{ get, put, web, Responder};
+use actix_web::{get, put, web, Responder};
 
 #[get("/settings")]
 pub async fn get_settings(_user: User, data: web::Data<RubbleData>) -> impl Responder {
