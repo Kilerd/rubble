@@ -1,8 +1,11 @@
 use crate::{models::user::User, TOKEN_KEY};
 use chrono::prelude::*;
-use jsonwebtoken::{decode as jwt_decode, encode as jwt_encode, Algorithm, Header, Validation, DecodingKey, EncodingKey};
+use jsonwebtoken::{
+    decode as jwt_decode, encode as jwt_encode, Algorithm, DecodingKey, EncodingKey, Header,
+    Validation,
+};
 use serde::{Deserialize, Serialize};
-use std::ops::{Add, Deref};
+use std::ops::Add;
 use time::Duration;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,7 +29,12 @@ impl JWTClaims {
             username: user.username.clone(),
         };
 
-        jwt_encode(&Header::default(), &claims, &EncodingKey::from_secret(&TOKEN_KEY)).unwrap()
+        jwt_encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(&TOKEN_KEY),
+        )
+        .unwrap()
     }
 
     pub fn decode(token: String) -> Result<String, ()> {

@@ -54,11 +54,11 @@ impl Setting {
 }
 
 impl CRUD<(), UpdateSetting, String> for Setting {
-    fn create(conn: &PgConnection, from: &()) -> Result<Self, Error> {
+    fn create(_conn: &PgConnection, _from: &()) -> Result<Self, Error> {
         unimplemented!()
     }
 
-    fn read(conn: &PgConnection) -> Vec<Self> {
+    fn read(_conn: &PgConnection) -> Vec<Self> {
         unimplemented!()
     }
 
@@ -68,11 +68,11 @@ impl CRUD<(), UpdateSetting, String> for Setting {
             .get_result(conn)
     }
 
-    fn delete(conn: &PgConnection, pk: String) -> Result<usize, Error> {
+    fn delete(_conn: &PgConnection, _pk: String) -> Result<usize, Error> {
         unimplemented!()
     }
 
-    fn get_by_pk(conn: &PgConnection, pk: String) -> Result<Self, Error> {
+    fn get_by_pk(_conn: &PgConnection, _pk: String) -> Result<Self, Error> {
         unimplemented!()
     }
 }

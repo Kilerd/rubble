@@ -5,12 +5,11 @@ use crate::{
         setting::Setting,
         CRUD,
     },
-    pg_pool::Pool,
     routers::RubbleResponder,
 };
-use actix_web::{get, web, Either, HttpResponse, Responder};
-use std::{result::Result, sync::Arc};
-use tera::{Context, Tera};
+use actix_web::{get, web, Responder};
+
+use tera::Context;
 
 #[get("/")]
 pub async fn homepage(data: web::Data<RubbleData>) -> impl Responder {
@@ -31,10 +30,13 @@ pub async fn homepage(data: web::Data<RubbleData>) -> impl Responder {
 }
 
 #[get("archives/{archives_id}")]
-pub async fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) -> impl Responder {
+pub async fn single_article(
+    archives_id: web::Path<i32>,
+    data: web::Data<RubbleData>,
+) -> impl Responder {
     let article = Article::get_by_pk(&data.postgres(), archives_id.into_inner());
 
-    if let Err(e) = article {
+    if let Err(_e) = article {
         return RubbleResponder::not_found();
     }
     let article1 = article.unwrap();
@@ -58,10 +60,13 @@ pub async fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleD
 }
 
 #[get("{url}")]
-pub async fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -> impl Responder {
+pub async fn get_article_by_url(
+    url: web::Path<String>,
+    data: web::Data<RubbleData>,
+) -> impl Responder {
     let article = Article::find_by_url(&data.postgres(), &url.into_inner());
 
-    if let Err(e) = article {
+    if let Err(_e) = article {
         return RubbleResponder::not_found();
     }
     let article1 = article.unwrap();

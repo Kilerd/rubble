@@ -1,19 +1,19 @@
 use crate::{
     data::RubbleData,
+    error::RubbleError,
     models::{article::Article, user::User, CRUD},
     routers::RubbleResponder,
 };
 use actix_web::{delete, get, post, put, web, Responder};
-use crate::error::RubbleError;
 
 #[get("/articles")]
-pub async fn get_all_article(user: User, data: web::Data<RubbleData>) -> impl Responder {
+pub async fn get_all_article(_user: User, data: web::Data<RubbleData>) -> impl Responder {
     RubbleResponder::json(Article::read(&data.postgres()))
 }
 
 #[get("/articles/{id}")]
 pub async fn get_article_by_id(
-    user: User,
+    _user: User,
     id: web::Path<i32>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {
@@ -24,7 +24,7 @@ pub async fn get_article_by_id(
 
 #[post("/articles")]
 pub async fn crate_article(
-    user: User,
+    _user: User,
     article: web::Json<crate::models::article::NewArticle>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {
@@ -35,7 +35,7 @@ pub async fn crate_article(
 
 #[put("/articles/{id}")]
 pub async fn update_article_by_id(
-    user: User,
+    _user: User,
     id: web::Path<i32>,
     article: web::Json<crate::models::article::NewArticle>,
     data: web::Data<RubbleData>,
@@ -47,7 +47,7 @@ pub async fn update_article_by_id(
 
 #[delete("/articles/{id}")]
 pub async fn delete_article_by_id(
-    user: User,
+    _user: User,
     id: web::Path<i32>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {

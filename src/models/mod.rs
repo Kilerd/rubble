@@ -1,7 +1,4 @@
-use diesel::{
-    pg::{Pg, PgConnection},
-    result::Error,
-};
+use diesel::{pg::PgConnection, result::Error};
 
 pub mod article;
 pub mod setting;

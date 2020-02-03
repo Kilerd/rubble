@@ -1,6 +1,5 @@
-use actix_web::{error::Error, HttpRequest, HttpResponse, Responder, Scope, web};
-use futures::future::{err, ok};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use actix_web::{web, HttpResponse};
+use serde::{Deserialize, Serialize};
 
 pub mod admin;
 pub mod api;
@@ -54,12 +53,10 @@ impl RubbleResponder {
     pub fn not_found() -> HttpResponse {
         HttpResponse::NotFound().finish()
     }
-
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
-    cfg
-        .service(web::scope("/api").configure(api::routes))
+    cfg.service(web::scope("/api").configure(api::routes))
         .service(article::homepage)
         .service(article::single_article)
         .service(actix_files::Files::new(

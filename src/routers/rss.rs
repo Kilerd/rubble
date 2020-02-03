@@ -5,7 +5,6 @@ use crate::{
         setting::Setting,
         CRUD,
     },
-    pg_pool::Pool,
 };
 use actix_web::{get, web, HttpResponse, Responder};
 use rss::{Channel, ChannelBuilder, Item, ItemBuilder};

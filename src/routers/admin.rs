@@ -1,25 +1,4 @@
-use actix_web::{
-    get, post,
-    web::{self, Form},
-    Either, HttpResponse, Responder,
-};
-use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-use tera::{Context, Tera};
-
-use crate::{
-    data::RubbleData,
-    models::{
-        article::{Article, NewArticle},
-        setting::{Setting, UpdateSetting},
-        token::Token,
-        user::User,
-        CRUD,
-    },
-    routers::RubbleResponder,
-};
-
-use crate::utils::jwt::JWTClaims;
 
 #[derive(Deserialize, Serialize)]
 pub struct LoginForm {
@@ -34,12 +13,12 @@ pub struct NewPassword {
 
 //
 //#[get("")]
-//pub fn redirect_to_admin_panel() -> impl Responder {
+// pub fn redirect_to_admin_panel() -> impl Responder {
 //    RubbleResponder::redirect("/admin/panel")
 //}
 //
 //#[get("/login")]
-//pub fn admin_login(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
+// pub fn admin_login(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
 //    if id.identity().is_some() {
 //        RubbleResponder::redirect("/admin/panel")
 //    } else {
@@ -48,7 +27,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/login")]
-//pub fn admin_authentication(
+// pub fn admin_authentication(
 //    id: Identity,
 //    user: Form<LoginForm>,
 //    data: web::Data<RubbleData>,
@@ -70,7 +49,7 @@ pub struct NewPassword {
 //}
 //
 //#[get("/panel")]
-//pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
+// pub fn admin_panel(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
 //    if id.identity().is_none() {
 //        return RubbleResponder::redirect("/admin/login");
 //    }
@@ -90,7 +69,7 @@ pub struct NewPassword {
 //}
 //
 //#[get("/{path}")]
-//pub fn admin_show_page(
+// pub fn admin_show_page(
 //    id: Identity,
 //    path: web::Path<String>,
 //    data: web::Data<RubbleData>,
@@ -111,7 +90,7 @@ pub struct NewPassword {
 //}
 //
 //#[get("/article/new")]
-//pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
+// pub fn article_creation(id: Identity, data: web::Data<RubbleData>) -> impl Responder {
 //    if id.identity().is_none() {
 //        return RubbleResponder::redirect("/admin/login");
 //    }
@@ -139,7 +118,7 @@ pub struct NewPassword {
 //}
 //
 //#[get("/article/{article_id}")]
-//pub fn article_edit(
+// pub fn article_edit(
 //    id: Identity,
 //    article_id: web::Path<i32>,
 //    data: web::Data<RubbleData>,
@@ -166,7 +145,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/article")]
-//pub fn article_save(
+// pub fn article_save(
 //    id: Identity,
 //    article: Form<crate::models::article::form::NewArticleFrom>,
 //    data: web::Data<RubbleData>,
@@ -185,7 +164,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/article/{aid}")]
-//pub fn article_update(
+// pub fn article_update(
 //    id: Identity,
 //    aid: web::Path<i32>,
 //    article: Form<crate::models::article::form::NewArticleFrom>,
@@ -203,7 +182,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/article/delete/{article_id}")]
-//pub fn article_deletion(
+// pub fn article_deletion(
 //    id: Identity,
 //    article_id: web::Path<i32>,
 //    data: web::Data<RubbleData>,
@@ -222,7 +201,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/password")]
-//pub fn change_password(
+// pub fn change_password(
 //    id: Identity,
 //    password: web::Form<NewPassword>,
 //    data: web::Data<RubbleData>,
@@ -240,7 +219,7 @@ pub struct NewPassword {
 //}
 //
 //#[post("/setting")]
-//pub fn change_setting(
+// pub fn change_setting(
 //    id: Identity,
 //    setting: web::Form<Setting>,
 //    data: web::Data<RubbleData>,

@@ -1,18 +1,15 @@
-use actix_web::{dev::Payload, error, FromRequest, HttpRequest};
+use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use chrono::NaiveDateTime;
 use crypto::{digest::Digest, sha3::Sha3};
-use diesel::{pg::PgConnection, result::Error};
-use diesel::{AsChangeset, Insertable, Queryable};
-use diesel::prelude::*;
+use diesel::{pg::PgConnection, prelude::*, result::Error, AsChangeset, Insertable, Queryable};
 use futures::future::{err, ok, Ready};
 use serde::Serialize;
 
-use crate::{data::RubbleData, utils::jwt::JWTClaims};
-use crate::models::CRUD;
-use crate::schema::users;
-use crate::error::RubbleError;
+use crate::{
+    data::RubbleData, error::RubbleError, models::CRUD, schema::users, utils::jwt::JWTClaims,
+};
 
-#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
+#[derive(Queryable, Debug, Serialize, Insertable, AsChangeset, Clone)]
 #[table_name = "users"]
 pub struct User {
     pub id: i32,
@@ -44,11 +41,11 @@ impl User {
 }
 
 impl CRUD<(), User, i32> for User {
-    fn create(conn: &PgConnection, from: &()) -> Result<Self, Error> {
+    fn create(_conn: &PgConnection, _from: &()) -> Result<Self, Error> {
         unreachable!()
     }
 
-    fn read(conn: &PgConnection) -> Vec<Self> {
+    fn read(_conn: &PgConnection) -> Vec<Self> {
         unreachable!()
     }
 
@@ -58,7 +55,7 @@ impl CRUD<(), User, i32> for User {
             .get_result(conn)
     }
 
-    fn delete(conn: &PgConnection, pk: i32) -> Result<usize, Error> {
+    fn delete(_conn: &PgConnection, _pk: i32) -> Result<usize, Error> {
         unreachable!()
     }
 
@@ -68,42 +65,44 @@ impl CRUD<(), User, i32> for User {
 }
 
 impl FromRequest for User {
+    type Config = ();
     type Error = RubbleError<&'static str>;
     type Future = Ready<Result<Self, Self::Error>>;
-    type Config = ();
 
-    fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
-
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let data = req.app_data::<RubbleData>().expect("cannot get app data");
         let user = req
             .headers()
             .get("Authorization")
-            .ok_or(RubbleError::Unauthorized("cannot find authorization header"))
+            .ok_or(RubbleError::Unauthorized(
+                "cannot find authorization header",
+            ))
             .and_then(|header| {
-                header.to_str().map_err(|_| RubbleError::BadRequest("error on deserialize token"))
+                header
+                    .to_str()
+                    .map_err(|_| RubbleError::BadRequest("error on deserialize token"))
             })
             .map(|header| header.splitn(2, ' ').collect::<Vec<&str>>())
             .and_then(|tokens| {
                 if tokens.len() == 2 {
                     Ok(tokens[1])
-                }else {
+                } else {
                     Err(RubbleError::BadRequest("error on deserialize token"))
                 }
             })
             .and_then(|jwt| {
-                JWTClaims::decode(jwt.into()).map_err(|_| RubbleError::Unauthorized("invalid jwt token"))
+                JWTClaims::decode(jwt.into())
+                    .map_err(|_| RubbleError::Unauthorized("invalid jwt token"))
             })
             .and_then(|user_id| {
                 User::find_by_username(&data.postgres(), &user_id)
                     .map_err(|_| RubbleError::Unauthorized("error on get user"))
             });
 
-
         match user {
             Ok(user) => ok(user),
-            Err(e) => err(e)
+            Err(e) => err(e),
         }
-
     }
 }
 

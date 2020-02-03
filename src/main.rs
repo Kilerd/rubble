@@ -10,9 +10,9 @@ use std::sync::Arc;
 
 use actix_cors::Cors;
 use actix_web::{
-    App,
-    HttpServer,
-    middleware::{Logger, NormalizePath}, web::{FormConfig, JsonConfig},
+    middleware::{Logger, NormalizePath},
+    web::{FormConfig, JsonConfig},
+    App, HttpServer,
 };
 use once_cell::sync::Lazy;
 use tera::Tera;
@@ -22,12 +22,12 @@ use dotenv::dotenv;
 use crate::{data::RubbleData, pg_pool::database_pool_establish};
 
 mod data;
+mod error;
 mod models;
 mod pg_pool;
 mod routers;
 mod schema;
 mod utils;
-mod error;
 
 embed_migrations!();
 
@@ -65,9 +65,9 @@ async fn main() {
             .wrap(NormalizePath)
             .configure(routers::routes)
     })
-        .bind(("0.0.0.0", 8000))
-        .unwrap()
-        .run()
-        .await
-        .unwrap()
+    .bind(("0.0.0.0", 8000))
+    .unwrap()
+    .run()
+    .await
+    .unwrap()
 }
