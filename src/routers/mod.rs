@@ -1,7 +1,5 @@
-use actix_web::{HttpRequest, HttpResponse, Responder};
-
-use actix_web::{error::Error, web, Scope};
-use futures::future::{err, ok, FutureResult};
+use actix_web::{error::Error, HttpRequest, HttpResponse, Responder, Scope, web};
+use futures::future::{err, ok};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 pub mod admin;
@@ -57,53 +55,11 @@ impl RubbleResponder {
         HttpResponse::NotFound().finish()
     }
 
-    pub fn unauthorized(reason: impl Serialize) -> HttpResponse {
-        HttpResponse::Unauthorized().json(&ErrorResponse { message: reason })
-    }
-
-    pub fn bad_gateway(reason: impl Serialize) -> HttpResponse {
-        HttpResponse::BadGateway().json(&ErrorResponse { message: reason })
-    }
-
-    pub fn bad_request(reason: impl Serialize) -> HttpResponse {
-        HttpResponse::BadRequest().json(&ErrorResponse { message: reason })
-    }
 }
 
-pub fn routes() -> Scope {
-    web::scope("/")
-        .service(
-            web::scope("/api")
-                .service(web::scope("/users").service(api::user::admin_authentication))
-                .service(
-                    web::scope("/articles")
-                        .service(api::article::get_all_article)
-                        .service(api::article::get_all_article_by_id)
-                        .service(api::article::crate_article)
-                        .service(api::article::update_article_by_id)
-                        .service(api::article::delete_article_by_id),
-                )
-                .service(
-                    web::scope("/settings")
-                        .service(api::setting::get_settings)
-                        .service(api::setting::update_setting_by_key),
-                ),
-        )
-        .service(
-            web::scope("/admin")
-                .service(admin::redirect_to_admin_panel)
-                .service(admin::admin_login)
-                .service(admin::admin_authentication)
-                .service(admin::admin_panel)
-                .service(admin::article_creation)
-                .service(admin::article_deletion)
-                .service(admin::article_edit)
-                .service(admin::article_save)
-                .service(admin::article_update)
-                .service(admin::change_password)
-                .service(admin::change_setting)
-                .service(admin::admin_show_page),
-        )
+pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg
+        .service(web::scope("/api").configure(api::routes))
         .service(article::homepage)
         .service(article::single_article)
         .service(actix_files::Files::new(
@@ -111,5 +67,5 @@ pub fn routes() -> Scope {
             "./templates/resources/",
         ))
         .service(rss::rss_)
-        .service(article::get_article_by_url)
+        .service(article::get_article_by_url);
 }

@@ -8,14 +8,15 @@ use crate::{
     routers::RubbleResponder,
 };
 use actix_web::{delete, get, post, put, web, Responder};
+use crate::error::RubbleError;
 
-#[get("")]
-pub fn get_settings(user: User, data: web::Data<RubbleData>) -> impl Responder {
+#[get("/settings")]
+pub async fn get_settings(user: User, data: web::Data<RubbleData>) -> impl Responder {
     RubbleResponder::json(Setting::load(&data.postgres()))
 }
 
-#[put("/{key}")]
-pub fn update_setting_by_key(
+#[put("settings/{key}")]
+pub async fn update_setting_by_key(
     user: User,
     key: web::Path<String>,
     value: web::Json<UpdateSetting>,
@@ -24,5 +25,5 @@ pub fn update_setting_by_key(
     let string = (*key).clone();
     Setting::update(&data.postgres(), string, &value)
         .map(RubbleResponder::json)
-        .map_err(|_| RubbleResponder::bad_request("error on updating setting"))
+        .map_err(|_| RubbleError::BadRequest("error on updating setting"))
 }

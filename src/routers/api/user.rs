@@ -10,9 +10,10 @@ use crate::{
     utils::jwt::JWTClaims,
 };
 use actix_web::{delete, get, post, put, web, Responder};
+use crate::error::RubbleError;
 
-#[post("/token")]
-pub fn admin_authentication(
+#[post("/user/token")]
+pub async fn admin_authentication(
     user: web::Json<LoginForm>,
     data: web::Data<RubbleData>,
 ) -> impl Responder {
@@ -23,36 +24,36 @@ pub fn admin_authentication(
             if login_user.authenticated(&user.password) {
                 let string = JWTClaims::encode(&login_user);
 
-                RubbleResponder::json(Token { token: string })
+                Ok(RubbleResponder::json(Token { token: string }))
             } else {
-                RubbleResponder::unauthorized("invalid password")
+                Err(RubbleError::Unauthorized("invalid password"))
             }
         }
-        Err(_) => RubbleResponder::unauthorized("invalid username"),
+        Err(_) => Err(RubbleError::Unauthorized("invalid username")),
     }
 }
-
-#[get("")]
-pub fn get_all_users() -> impl Responder {
-    unreachable!()
-}
-
-#[post("")]
-pub fn crate_user() -> impl Responder {
-    unreachable!()
-}
-
-#[put("/{id}")]
-pub fn update_user_by_id() -> impl Responder {
-    unreachable!()
-}
-
-#[delete("/{id}")]
-pub fn delete_user_by_id() -> impl Responder {
-    unreachable!()
-}
-
-#[put("/{id}/password")]
-pub fn update_user_password() -> impl Responder {
-    unreachable!()
-}
+//
+//#[get("")]
+//pub fn get_all_users() -> impl Responder {
+//    unreachable!()
+//}
+//
+//#[post("")]
+//pub fn crate_user() -> impl Responder {
+//    unreachable!()
+//}
+//
+//#[put("/{id}")]
+//pub fn update_user_by_id() -> impl Responder {
+//    unreachable!()
+//}
+//
+//#[delete("/{id}")]
+//pub fn delete_user_by_id() -> impl Responder {
+//    unreachable!()
+//}
+//
+//#[put("/{id}/password")]
+//pub fn update_user_password() -> impl Responder {
+//    unreachable!()
+//}

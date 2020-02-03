@@ -12,8 +12,8 @@ use actix_web::{get, web, Either, HttpResponse, Responder};
 use std::{result::Result, sync::Arc};
 use tera::{Context, Tera};
 
-#[get("")]
-pub fn homepage(data: web::Data<RubbleData>) -> impl Responder {
+#[get("/")]
+pub async fn homepage(data: web::Data<RubbleData>) -> impl Responder {
     let vec: Vec<Article> = Article::read(&data.postgres());
     let article_view: Vec<_> = vec
         .iter()
@@ -31,7 +31,7 @@ pub fn homepage(data: web::Data<RubbleData>) -> impl Responder {
 }
 
 #[get("archives/{archives_id}")]
-pub fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) -> impl Responder {
+pub async fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) -> impl Responder {
     let article = Article::get_by_pk(&data.postgres(), archives_id.into_inner());
 
     if let Err(e) = article {
@@ -58,7 +58,7 @@ pub fn single_article(archives_id: web::Path<i32>, data: web::Data<RubbleData>) 
 }
 
 #[get("{url}")]
-pub fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -> impl Responder {
+pub async fn get_article_by_url(url: web::Path<String>, data: web::Data<RubbleData>) -> impl Responder {
     let article = Article::find_by_url(&data.postgres(), &url.into_inner());
 
     if let Err(e) = article {

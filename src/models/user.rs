@@ -1,17 +1,16 @@
-use crate::models::CRUD;
+use actix_web::{dev::Payload, error, FromRequest, HttpRequest};
 use chrono::NaiveDateTime;
-use diesel::{pg::PgConnection, result::Error};
-
-use crate::schema::users;
 use crypto::{digest::Digest, sha3::Sha3};
-use diesel::prelude::*;
-
+use diesel::{pg::PgConnection, result::Error};
 use diesel::{AsChangeset, Insertable, Queryable};
+use diesel::prelude::*;
+use futures::future::{err, ok, Ready};
 use serde::Serialize;
 
 use crate::{data::RubbleData, utils::jwt::JWTClaims};
-use actix_web::{dev::Payload, error, FromRequest, HttpRequest};
-use futures::IntoFuture;
+use crate::models::CRUD;
+use crate::schema::users;
+use crate::error::RubbleError;
 
 #[derive(Queryable, Debug, Serialize, Insertable, AsChangeset)]
 #[table_name = "users"]
@@ -69,30 +68,42 @@ impl CRUD<(), User, i32> for User {
 }
 
 impl FromRequest for User {
+    type Error = RubbleError<&'static str>;
+    type Future = Ready<Result<Self, Self::Error>>;
     type Config = ();
-    type Error = actix_web::error::Error;
-    type Future = Result<Self, Self::Error>;
 
     fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
-        let tokens: Vec<&str> = req
+
+        let data = req.app_data::<RubbleData>().expect("cannot get app data");
+        let user = req
             .headers()
             .get("Authorization")
-            .ok_or(error::ErrorUnauthorized("cannot find authorization header"))?
-            .to_str()
-            .map_err(|_| error::ErrorBadRequest("error on deserialize token"))?
-            .splitn(2, ' ')
-            .collect();
+            .ok_or(RubbleError::Unauthorized("cannot find authorization header"))
+            .and_then(|header| {
+                header.to_str().map_err(|_| RubbleError::BadRequest("error on deserialize token"))
+            })
+            .map(|header| header.splitn(2, ' ').collect::<Vec<&str>>())
+            .and_then(|tokens| {
+                if tokens.len() == 2 {
+                    Ok(tokens[1])
+                }else {
+                    Err(RubbleError::BadRequest("error on deserialize token"))
+                }
+            })
+            .and_then(|jwt| {
+                JWTClaims::decode(jwt.into()).map_err(|_| RubbleError::Unauthorized("invalid jwt token"))
+            })
+            .and_then(|user_id| {
+                User::find_by_username(&data.postgres(), &user_id)
+                    .map_err(|_| RubbleError::Unauthorized("error on get user"))
+            });
 
-        let user_id = JWTClaims::decode(tokens[1].into())
-            .map_err(|_| error::ErrorUnauthorized("invalid jwt token"))?;
-        let data = req
-            .app_data::<RubbleData>()
-            .ok_or(error::ErrorBadGateway("error on get rubble data"))?;
 
-        let result = User::find_by_username(&data.postgres(), &user_id)
-            .map_err(|_| error::ErrorUnauthorized("error on get user"))?;
+        match user {
+            Ok(user) => ok(user),
+            Err(e) => err(e)
+        }
 
-        Ok(result)
     }
 }
 

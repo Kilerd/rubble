@@ -12,7 +12,7 @@ use rss::{Channel, ChannelBuilder, Item, ItemBuilder};
 use std::collections::HashMap;
 
 #[get("/rss")]
-pub fn rss_(data: web::Data<RubbleData>) -> impl Responder {
+pub async fn rss_(data: web::Data<RubbleData>) -> impl Responder {
     let articles = Article::read(&data.postgres());
     let setting = Setting::load(&data.postgres());
 
